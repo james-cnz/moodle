@@ -53,16 +53,20 @@ abstract class format_section_renderer_base extends plugin_renderer_base {
     }
 
     /**
-     * Generate the starting container html for a list of sections
+     * Generate the starting container html for a list of sections (this function was abstract before Moodle 4.0)
      * @return string HTML to output.
      */
-    abstract protected function start_section_list();
+    protected function start_section_list() {
+        return html_writer::start_tag('ul', ['class' => 'sections']);
+    }
 
     /**
-     * Generate the closing container html for a list of sections
+     * Generate the closing container html for a list of sections (this function was abstract before Moodle 4.0)
      * @return string HTML to output.
      */
-    abstract protected function end_section_list();
+    protected function end_section_list() {
+        return html_writer::end_tag('ul');
+    }
 
     /**
      * Generate the title for this section page

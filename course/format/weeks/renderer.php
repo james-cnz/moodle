@@ -41,7 +41,7 @@ class format_weeks_renderer extends format_section_renderer_base {
      * @return string HTML to output.
      */
     protected function start_section_list() {
-        return html_writer::start_tag('ul', array('class' => 'weeks'));
+        return html_writer::start_tag('ul', array('class' => 'sections weeks'));
     }
 
     /**
