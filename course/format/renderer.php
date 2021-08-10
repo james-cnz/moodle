@@ -870,8 +870,8 @@ abstract class format_section_renderer_base extends plugin_renderer_base {
             // but there is some available info text which explains the reason & should display,
             // OR it is hidden but the course has a setting to display hidden sections as unavilable.
             $showsection = $thissection->uservisible ||
-                    ($thissection->visible && !$thissection->available && !empty($thissection->availableinfo)) ||
-                    (!$thissection->visible && !$course->hiddensections);
+                    ($thissection->visible || !$course->hiddensections)
+                    && ($thissection->available || !empty($thissection->availableinfo));
             if (!$showsection) {
                 continue;
             }
