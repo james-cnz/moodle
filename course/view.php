@@ -222,7 +222,8 @@ if ($PAGE->user_allowed_editing()) {
     if (!empty($section) && !empty($move) &&
             has_capability('moodle/course:movesections', $context) && confirm_sesskey()) {
         $destsection = $section + $move;
-        if (move_section_to($course, $section, $destsection)) {
+        try {
+            move_section_to($course, $section, $destsection);
             if ($course->id == SITEID) {
                 redirect($CFG->wwwroot . '/?redirect=0');
             } else {
@@ -232,7 +233,7 @@ if ($PAGE->user_allowed_editing()) {
                     redirect(course_get_url($course, $destsection));
                 }
             }
-        } else {
+        } catch (moodle_exception $e) {
             echo $OUTPUT->notification('An error occurred while moving a section');
         }
     }

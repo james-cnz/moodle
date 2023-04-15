@@ -939,9 +939,6 @@ class courselib_test extends advanced_testcase {
         $this->assertEquals($oldsections[4], $neworder[2]);
         $this->assertEquals($oldsections[5], $neworder[5]);
         $this->assertEquals($oldsections[6], $neworder[6]);
-
-        $neworder = reorder_sections(1, 2, 4);
-        $this->assertFalse($neworder);
     }
 
     public function test_move_section_down() {

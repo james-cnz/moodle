@@ -1504,16 +1504,13 @@ abstract class base {
             course_set_marker($course->id, 0);
         }
 
-        $lastsection = $DB->get_field_sql('SELECT max(section) from {course_sections}
-                            WHERE course = ?', array($course->id));
-
         // Find out if we need to descrease the 'numsections' property later.
         $courseformathasnumsections = array_key_exists('numsections',
             $this->get_format_options());
         $decreasenumsections = $courseformathasnumsections && ($section->section <= $course->numsections);
 
         // Move the section to the end.
-        move_section_to($course, $section->section, $lastsection, true);
+        move_section_to($course, $section, (object)['nextid' => null], true);
 
         // Delete all modules from the section.
         foreach (preg_split('/,/', $section->sequence, -1, PREG_SPLIT_NO_EMPTY) as $cmid) {
@@ -1557,26 +1554,21 @@ abstract class base {
     /**
      * Moves a section just after the target section.
      *
-     * @param section_info $section the section to move
-     * @param section_info $destination the section that should be below the moved section
+     * @param section_info $origin the section to move
+     * @param section_info $prevsection the section that the moved section should be after
      * @return boolean if the section can be moved or not
+     * @deprecated
      */
-    public function move_section_after(section_info $section, section_info $destination): bool {
-        if ($section->section == $destination->section || $section->section == $destination->section + 1) {
+    public function move_section_after(section_info $origin, section_info $prevsection): bool {
+        if ($origin->id == $prevsection->id) {
             return true;
         }
-        // The move_section_to moves relative to the section to move. However, this
-        // method will move the target section always after the destination.
-        if ($section->section > $destination->section) {
-            $newsectionnumber = $destination->section + 1;
-        } else {
-            $newsectionnumber = $destination->section;
-        }
-        return move_section_to(
+        move_section_to(
             $this->get_course(),
-            $section->section,
-            $newsectionnumber
+            $origin,
+            (object)['previd' => $prevsection->id],
         );
+        return true;
     }
 
     /**
@@ -1841,8 +1833,8 @@ abstract class base {
         }
 
         $course = $this->get_course();
-        $oldsectioninfo = get_fast_modinfo($course)->get_section_info($originalsection->section);
-        $newsection = course_create_section($course, $oldsectioninfo->section + 1); // Place new section after existing one.
+        // Place new section after existing one.
+        $newsection = course_create_section($course, (object)['previd' => $originalsection->id]);
 
         if (!empty($originalsection->name)) {
             $newsection->name = get_string('duplicatedsection', 'moodle', $originalsection->name);
@@ -1856,7 +1848,7 @@ abstract class base {
         course_update_section($course, $newsection, $newsection);
 
         $modinfo = $this->get_modinfo();
-        foreach ($modinfo->sections[$originalsection->section] as $modnumber) {
+        foreach ($modinfo->sections[$originalsection->section] ?? [] as $modnumber) {
             $originalcm = $modinfo->cms[$modnumber];
             duplicate_module($course, $originalcm, $newsection->id, false);
         }

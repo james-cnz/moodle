@@ -532,28 +532,30 @@ function add_course_module($mod) {
  * Creates a course section and adds it to the specified position
  *
  * @param int|stdClass $courseorid course id or course object
- * @param int $position position to add to, 0 means to the end. If position is greater than
- *        number of existing secitons, the section is added to the end. This will become sectionnum of the
- *        new section. All existing sections at this or bigger position will be shifted down.
+ * @param int|object $destination position to add to (0 means to the end) or object specifying destination.
+ *        If position is greater than number of existing secitons, the section is added to the end.
+ *        This will become sectionnum of the new section. All existing sections at this or bigger position will be shifted down.
+ *        If object is used, must specify previd or nextid.
  * @param bool $skipcheck the check has already been made and we know that the section with this position does not exist
  * @return stdClass created section object
  */
-function course_create_section($courseorid, $position = 0, $skipcheck = false) {
+function course_create_section($courseorid, $destination = 0, bool $skipcheck = false): stdClass {
     global $DB;
     $courseid = is_object($courseorid) ? $courseorid->id : $courseorid;
+    $destination = is_numeric($destination) ? (object)['section' => $destination] : $destination;
 
     // Find the last sectionnum among existing sections.
     if ($skipcheck) {
-        $lastsection = $position - 1;
+        $lastsection = $destination->section - 1;
     } else {
         $lastsection = (int)$DB->get_field_sql('SELECT max(section) from {course_sections} WHERE course = ?', [$courseid]);
     }
 
     // First add section to the end.
     $cw = new stdClass();
-    $cw->course   = $courseid;
-    $cw->section  = $lastsection + 1;
-    $cw->summary  = '';
+    $cw->course = $courseid;
+    $cw->section = $lastsection + 1;
+    $cw->summary = '';
     $cw->summaryformat = FORMAT_HTML;
     $cw->sequence = '';
     $cw->name = null;
@@ -563,10 +565,11 @@ function course_create_section($courseorid, $position = 0, $skipcheck = false) {
     $cw->id = $DB->insert_record("course_sections", $cw);
 
     // Now move it to the specified position.
-    if ($position > 0 && $position <= $lastsection) {
+    if (isset($destination->previd) || isset($destination->nextid)
+            || isset($destination->section) && $destination->section > 0 && $destination->section <= $lastsection) {
         $course = is_object($courseorid) ? $courseorid : get_course($courseorid);
-        move_section_to($course, $cw->section, $position, true);
-        $cw->section = $position;
+        move_section_to($course, $cw, $destination, true);
+        $cw->section = (int)$DB->get_field_sql('SELECT section from {course_sections} WHERE id = ?', [$cw->id]);
     }
 
     core\event\course_section_created::create_from_section($cw)->trigger();
@@ -1194,41 +1197,33 @@ function course_module_calendar_event_update_process($instance, $cm) {
 }
 
 /**
- * Moves a section within a course, from a position to another.
- * Be very careful: $section and $destination refer to section number,
- * not id!.
+ * Moves sections within a course.
  *
  * @param object $course
- * @param int $section Section number (not id!!!)
- * @param int $destination
+ * @param int|object|int[]|object[] $origins  The origin(s) to be moved.
+ *      Given as a section number, object with section ID, or array of such.
+ * @param int|object $destination  The new location for the origin section(s).
+ *      Given as a section number or object with previd or nextid.
  * @param bool $ignorenumsections
- * @return boolean Result
  */
-function move_section_to($course, $section, $destination, $ignorenumsections = false) {
-/// Moves a whole course section up and down within the course
-    global $USER, $DB;
+function move_section_to(object $course, $origins, $destination, bool $ignorenumsections = false) {
+    global $DB;
 
-    if (!$destination && $destination != 0) {
-        return true;
-    }
-
-    // compartibility with course formats using field 'numsections'
+    // Compatibility with course formats using field 'numsections'.
     $courseformatoptions = course_get_format($course)->get_format_options();
-    if ((!$ignorenumsections && array_key_exists('numsections', $courseformatoptions) &&
-            ($destination > $courseformatoptions['numsections'])) || ($destination < 1)) {
-        return false;
-    }
+    $numsections = (!$ignorenumsections && array_key_exists('numsections', $courseformatoptions)) ?
+                    $courseformatoptions['numsections'] : null;
 
-    // Get all sections for this course and re-order them (2 of them should now share the same section number)
+    // Get all sections for this course and re-order them.
     if (!$sections = $DB->get_records_menu('course_sections', array('course' => $course->id),
             'section ASC, id ASC', 'id, section')) {
-        return false;
+        throw new moodle_exception('Sections not found.');
     }
 
-    $movedsections = reorder_sections($sections, $section, $destination);
+    $movedsections = reorder_sections($sections, $origins, $destination, $numsections);
 
     // Update all sections. Do this in 2 steps to avoid breaking database
-    // uniqueness constraint
+    // uniqueness constraint.
     $transaction = $DB->start_delegated_transaction();
     foreach ($movedsections as $id => $position) {
         if ((int) $sections[$id] !== $position) {
@@ -1245,19 +1240,14 @@ function move_section_to($course, $section, $destination, $ignorenumsections = f
         }
     }
 
-    // If we move the highlighted section itself, then just highlight the destination.
-    // Adjust the higlighted section location if we move something over it either direction.
-    if ($section == $course->marker) {
-        course_set_marker($course->id, $destination);
-    } else if ($section > $course->marker && $course->marker >= $destination) {
-        course_set_marker($course->id, $course->marker+1);
-    } else if ($section < $course->marker && $course->marker <= $destination) {
-        course_set_marker($course->id, $course->marker-1);
+    // Adjust the higlighted section location if necessary.
+    $markerid = array_search($course->marker, $sections);
+    if ($markerid && $movedsections[$markerid] != $sections[$markerid]) {
+        course_set_marker($course->id, $movedsections[$markerid]);
     }
 
     $transaction->allow_commit();
     rebuild_course_cache($course->id, true, true);
-    return true;
 }
 
 /**
@@ -1277,8 +1267,11 @@ function course_delete_section($course, $section, $forcedeleteifnotempty = true,
 
     // Prepare variables.
     $courseid = (is_object($course)) ? $course->id : (int)$course;
-    $sectionnum = (is_object($section)) ? $section->section : (int)$section;
-    $section = $DB->get_record('course_sections', array('course' => $courseid, 'section' => $sectionnum));
+    if (is_object($section)) {
+        $section = $DB->get_record('course_sections', array('course' => $courseid, 'id' => $section->id));
+    } else {
+        $section = $DB->get_record('course_sections', array('course' => $courseid, 'section' => (int)$section));
+    }
     if (!$section) {
         // No section exists, can't proceed.
         return false;
@@ -1380,9 +1373,9 @@ function course_delete_section_async($section, $forcedeleteifnotempty = true) {
     $removaltask->set_custom_data($data);
     \core\task\manager::queue_adhoc_task($removaltask);
 
-    // Delete the now empty section, passing in only the section number, which forces the function to fetch a new object.
+    // Delete the now empty section.
     // The refresh is needed because the section->sequence is now stale.
-    $result = $format->delete_section($section->section, $forcedeleteifnotempty);
+    $result = $format->delete_section($DB->get_record('course_sections', array('id' => $section->id)), $forcedeleteifnotempty);
 
     // Trigger an event for course section deletion.
     if ($result) {
@@ -1513,65 +1506,99 @@ function course_can_delete_section($course, $section) {
 
 /**
  * Reordering algorithm for course sections. Given an array of section->section indexed by section->id,
- * an original position number and a target position number, rebuilds the array so that the
+ * origin sections and a destination, rebuilds the array so that the
  * move is made without any duplication of section positions.
- * Note: The target_position is the position AFTER WHICH the moved section will be inserted. If you want to
- * insert a section before the first one, you must give 0 as the target (section 0 can never be moved).
  *
- * @param array $sections
- * @param int $origin_position
- * @param int $target_position
- * @return array
+ * @param int[] $sections
+ * @param int|object|int[]|object[] $origins  The origin(s) to be moved.
+ *      Given as a section number, object with section ID, or array of such.
+ * @param int|object $destination  The new location for the origin section(s).
+ *      Given as a section number or object with previd or nextid.
+ * @param int|null $numsections
+ * @return int[]
  */
-function reorder_sections($sections, $origin_position, $target_position) {
-    if (!is_array($sections)) {
-        return false;
+function reorder_sections(array $sections, $origins, $destination, ?int $numsections = null): array {
+
+    $origins = !is_array($origins) ? [ $origins ] : $origins;
+
+    // Locate and extract origin sections.
+    $originsections = [];
+    foreach ($origins as $origin) {
+        $origin = is_numeric($origin) ? (object)['section' => $origin] : $origin;
+
+        // Locate origin section in sections array.
+        if (isset($origin->id)) {
+            $origin->section = $sections[$origin->id] ?? null;
+            if (!isset($origin->section)) {
+                throw new moodle_exception('Searched ID not in sections array.');
+            }
+        } else if (isset($origin->section)) {
+            if (!$origin->id = array_search($origin->section, $sections)) {
+                throw new moodle_exception('Searched position not in sections array.');
+            }
+        } else {
+            throw new moodle_exception('Neither origin section ID nor position specified.');
+        }
+
+        // We can't move section position 0.
+        if ($origin->section <= 0) {
+            throw new moodle_exception('We can\'t move section position 0.');
+        }
+
+        // Extract origin section.
+        $originsections[$origin->id] = $origin->section;
+        unset($sections[$origin->id]);
+
     }
 
-    // We can't move section position 0
-    if ($origin_position < 1) {
-        echo "We can't move section position 0";
-        return false;
-    }
-
-    // Locate origin section in sections array
-    if (!$origin_key = array_search($origin_position, $sections)) {
-        echo "searched position not in sections array";
-        return false; // searched position not in sections array
-    }
-
-    // Extract origin section
-    $origin_section = $sections[$origin_key];
-    unset($sections[$origin_key]);
-
-    // Find offset of target position (stupid PHP's array_splice requires offset instead of key index!)
+    // Find offset of target position and extract following sections.
+    $destination = is_numeric($destination) ? (object)['section' => $destination] : $destination;
     $found = false;
-    $append_array = array();
+    $appendarray = [];
+    $newposition = 0;
     foreach ($sections as $id => $position) {
         if ($found) {
-            $append_array[$id] = $position;
+            $appendarray[$id] = $position;
             unset($sections[$id]);
-        }
-        if ($position == $target_position) {
-            if ($target_position < $origin_position) {
-                $append_array[$id] = $position;
-                unset($sections[$id]);
+        } else if (isset($destination->previd) && $id == $destination->previd) {
+            $found = true;
+        } else if (isset($destination->nextid) && $id == $destination->nextid
+                    || isset($destination->section) && $newposition == $destination->section) {
+            if ($newposition <= 0) {
+                throw new moodle_exception('We can\'t move to section position 0.');
             }
             $found = true;
+            $appendarray[$id] = $position;
+            unset($sections[$id]);
         }
+        $newposition++;
+    }
+    if (!$found && (
+                property_exists($destination, 'nextid') && $destination->nextid == null
+                || isset($destination->section) && $newposition == $destination->section)
+            ) {
+        $found = true;
+    }
+    if (!$found) {
+        throw new moodle_exception('Destination not found.');
     }
 
-    // Append moved section
-    $sections[$origin_key] = $origin_section;
-
-    // Append rest of array (if applicable)
-    if (!empty($append_array)) {
-        foreach ($append_array as $id => $position) {
-            $sections[$id] = $position;
-        }
+    // Append moved sections.
+    foreach ($originsections as $id => $position) {
+        $sections[$id] = $position;
     }
 
-    // Renumber positions
+    // Compatibility with course formats using field 'numsections'.
+    if (isset($numsections) && count($sections) > $numsections + 1) {
+        throw new moodle_exception('Destination position exceeds numsections.');
+    }
+
+    // Append rest of array.
+    foreach ($appendarray as $id => $position) {
+        $sections[$id] = $position;
+    }
+
+    // Renumber positions.
     $position = 0;
     foreach ($sections as $id => $p) {
         $sections[$id] = $position;

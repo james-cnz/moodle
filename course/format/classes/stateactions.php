@@ -143,9 +143,9 @@ class stateactions {
      *
      * @param stateupdates $updates the affected course elements track
      * @param stdClass $course the course object
-     * @param int[] $ids the list of affected course module ids
-     * @param int $targetsectionid optional target section id
-     * @param int $targetcmid optional target cm id
+     * @param int[] $ids the list of affected course section IDs
+     * @param int $targetsectionid optional target section ID
+     * @param int $targetcmid optional target CM ID
      */
     public function section_move(
         stateupdates $updates,
@@ -156,7 +156,7 @@ class stateactions {
     ): void {
         // Validate target elements.
         if (!$targetsectionid) {
-            throw new moodle_exception("Action cm_move requires targetsectionid");
+            throw new moodle_exception("Action section_move requires targetsectionid.");
         }
 
         $this->validate_sections($course, $ids, __FUNCTION__);
@@ -169,14 +169,18 @@ class stateactions {
         // Target section.
         $this->validate_sections($course, [$targetsectionid], __FUNCTION__);
         $targetsection = $modinfo->get_section_info_by_id($targetsectionid, MUST_EXIST);
+        $affectedsections = [$targetsectionid => true];
 
-        $affectedsections = [$targetsection->section => true];
-
-        $sections = $this->get_section_info($modinfo, $ids);
-        foreach ($sections as $section) {
-            $affectedsections[$section->section] = true;
-            move_section_to($course, $section->section, $targetsection->section);
+        $draggedoriginsection = $modinfo->get_section_info_by_id($ids[0], MUST_EXIST);
+        $ids = $this->sort_section_ids_by_section_number($course, $ids, false);
+        $origins = [];
+        foreach ($ids as $id) {
+            $origins[] = (object)['id' => $id];
+            $affectedsections[$id] = true;
         }
+        $destination = ($targetsection->section > $draggedoriginsection->section) ?
+            (object)['previd' => $targetsectionid] : (object)['nextid' => $targetsectionid];
+        move_section_to($course, $origins, $destination);
 
         // Use section_state to return the section and activities updated state.
         $this->section_state($updates, $course, $ids, $targetsectionid);
@@ -185,7 +189,7 @@ class stateactions {
         $allsections = $modinfo->get_section_info_all();
         foreach ($allsections as $section) {
             // Ignore the affected sections because they are already in the updates.
-            if (isset($affectedsections[$section->section])) {
+            if (isset($affectedsections[$section->id])) {
                 continue;
             }
             $updates->add_section_put($section->id);
@@ -195,13 +199,13 @@ class stateactions {
     }
 
     /**
-     * Move course sections after to another location in the same course.
+     * Move course sections after another location in the same course.
      *
      * @param stateupdates $updates the affected course elements track
      * @param stdClass $course the course object
-     * @param int[] $ids the list of affected course module ids
-     * @param int $targetsectionid optional target section id
-     * @param int $targetcmid optional target cm id
+     * @param int[] $ids the list of affected course section IDs
+     * @param int $targetsectionid optional target section ID
+     * @param int $targetcmid optional target CM ID
      */
     public function section_move_after(
         stateupdates $updates,
@@ -212,7 +216,7 @@ class stateactions {
     ): void {
         // Validate target elements.
         if (!$targetsectionid) {
-            throw new moodle_exception("Action section_move_after requires targetsectionid");
+            throw new moodle_exception("Action section_move_after requires targetsectionid.");
         }
 
         $this->validate_sections($course, $ids, __FUNCTION__);
@@ -220,28 +224,24 @@ class stateactions {
         $coursecontext = context_course::instance($course->id);
         require_capability('moodle/course:movesections', $coursecontext);
 
-        // Section will move after the target section. This means it should be processed in
-        // descending order to keep the relative course order.
-        $this->validate_sections($course, [$targetsectionid], __FUNCTION__);
-        $ids = $this->sort_section_ids_by_section_number($course, $ids, true);
+        $modinfo = get_fast_modinfo($course);
 
-        $format = course_get_format($course->id);
+        // Target section.
+        $this->validate_sections($course, [$targetsectionid], __FUNCTION__);
         $affectedsections = [$targetsectionid => true];
 
+        $ids = $this->sort_section_ids_by_section_number($course, $ids, false);
+        $origins = [];
         foreach ($ids as $id) {
-            // An update section_info is needed as section numbers can change on every section movement.
-            $modinfo = get_fast_modinfo($course);
-            $section = $modinfo->get_section_info_by_id($id, MUST_EXIST);
-            $targetsection = $modinfo->get_section_info_by_id($targetsectionid, MUST_EXIST);
-            $affectedsections[$section->id] = true;
-            $format->move_section_after($section, $targetsection);
+            $origins[] = (object)['id' => $id];
+            $affectedsections[$id] = true;
         }
+        move_section_to($course, $origins, (object)['previd' => $targetsectionid]);
 
         // Use section_state to return the section and activities updated state.
         $this->section_state($updates, $course, $ids, $targetsectionid);
 
         // All course sections can be renamed because of the resort.
-        $modinfo = get_fast_modinfo($course);
         $allsections = $modinfo->get_section_info_all();
         foreach ($allsections as $section) {
             // Ignore the affected sections because they are already in the updates.
@@ -318,13 +318,13 @@ class stateactions {
             $targetsection = $modinfo->get_section_info_by_id($targetsectionid, MUST_EXIST);
             // Inserting sections at any position except in the very end requires capability to move sections.
             require_capability('moodle/course:movesections', $coursecontext);
-            $insertposition = $targetsection->section + 1;
+            $destination = (object)['previd' => $targetsection->id];
         } else {
             // Get last section.
-            $insertposition = 0;
+            $destination = (object)['nextid' => null];
         }
 
-        course_create_section($course, $insertposition);
+        course_create_section($course, $destination);
 
         // Adding a section affects the full course structure.
         $this->course_state($updates, $course);
