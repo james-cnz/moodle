@@ -1834,6 +1834,7 @@ abstract class base {
      * @param section_info $originalsection The section to be duplicated
      * @return section_info The new duplicated section
      * @since Moodle 4.2
+     * @copyright 2015 includes code copied from David Herney Bernal
      */
     public function duplicate_section(section_info $originalsection): section_info {
         if (!$this->uses_sections()) {
@@ -1841,6 +1842,7 @@ abstract class base {
         }
 
         $course = $this->get_course();
+        $context = context_course::instance($course->id);
         $originalsection = get_fast_modinfo($course)->get_section_info_by_id($originalsection->id);
         $newsection = course_create_section($course, $originalsection->section + 1); // Place new section after existing one.
 
@@ -1858,6 +1860,26 @@ abstract class base {
             $newsectiondata->$key = $originalsection->$key;
         }
         course_update_section($course, $newsection, $newsectiondata);
+
+        try {
+            $fs = get_file_storage();
+            $files = $fs->get_area_files($context->id, 'course', 'section', $originalsection->id);
+
+            if ($files && is_array($files)) {
+                foreach ($files as $f) {
+
+                    $fileinfo = array(
+                        'contextid' => $context->id,
+                        'component' => 'course',
+                        'filearea' => 'section',
+                        'itemid' => $newsection->id);
+
+                    $fs->create_file_from_storedfile($fileinfo, $f);
+                }
+            }
+        } catch (\Exception $e) {
+            debugging('Error copying section files.' . $e->getMessage(), DEBUG_DEVELOPER);
+        }
 
         $modinfo = $this->get_modinfo();
         foreach ($modinfo->sections[$originalsection->section] ?? [] as $modnumber) {
