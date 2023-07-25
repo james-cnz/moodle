@@ -45,10 +45,8 @@ function xmldb_format_weeks_upgrade($oldversion) {
     if ($oldversion < 2023030700) {
         // For sites migrating from 4.0.x or 4.1.x where the indentation was removed,
         // we are disabling 'indentation' value by default.
-        if ($oldversion >= 2022041900) {
+        if ($oldversion >= 2022041900 && $oldversion < 2022041901 || $oldversion >= 2022112800 && $oldversion < 2022112801) {
             set_config('indentation', 0, 'format_weeks');
-        } else {
-            set_config('indentation', 1, 'format_weeks');
         }
         upgrade_plugin_savepoint(true, 2023030700, 'format', 'weeks');
     }
