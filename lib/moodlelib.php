@@ -10735,7 +10735,7 @@ class lang_string {
      *
      * @param string $identifier The strings identifier
      * @param string $component The strings component
-     * @param stdClass|array $a Any arguments the string requires
+     * @param mixed $a Any arguments the string requires
      * @param string $lang The language to use when processing the string.
      * @throws coding_exception
      */

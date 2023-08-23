@@ -2029,8 +2029,8 @@ function move_courses($courseids, $categoryid) {
  * Implementation of this function is provided by course format
  * @see core_courseformat\base::get_section_name()
  *
- * @param int|stdClass $courseorid The course to get the section name for (object or just course id)
- * @param int|stdClass $section Section object from database or just field course_sections.section
+ * @param int|course_db $courseorid The course to get the section name for (object or just course id)
+ * @param int|course_sections_db|\section_info $section Section object from database or just field course_sections.section
  * @return string Display name that the course format prefers, e.g. "Week 2"
  */
 function get_section_name($courseorid, $section) {
@@ -3229,10 +3229,10 @@ function get_sorted_course_formats($enabledonly = false) {
 /**
  * The URL to use for the specified course (with section)
  *
- * @param int|stdClass $courseorid The course to get the section name for (either object or just course id)
- * @param int|stdClass $section Section object from database or just field course_sections.section
+ * @param int|course_db $courseorid The course to get the section name for (either object or just course id)
+ * @param int|course_sections_db|\section_info $section Section object from database or just field course_sections.section
  *     if omitted the course view page is returned
- * @param array $options options for view URL. At the moment core uses:
+ * @param array<string,mixed> $options options for view URL. At the moment core uses:
  *     'navigation' (bool) if true and section has no separate page, the function returns null
  *     'sr' (int) used by multipage formats to specify to which section to return
  * @return moodle_url The url of course

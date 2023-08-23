@@ -172,7 +172,7 @@ abstract class base {
      *
      * @todo MDL-35727 use MUC for caching of instances, limit the number of cached instances
      *
-     * @param int|stdClass $courseorid either course id or
+     * @param int|course_db $courseorid either course id or
      *     an object that has the property 'format' and may contain property 'id'
      * @return course_format
      */
@@ -302,9 +302,9 @@ abstract class base {
      * Returns a record from course database table plus additional fields
      * that course format defines
      *
-     * @return stdClass
+     * @return ?course_db
      */
-    public function get_course() {
+    public function get_course(): ?object {
         global $DB;
         if (!$this->courseid) {
             return null;
@@ -505,8 +505,8 @@ abstract class base {
     /**
      * Returns the display name of the given section that the course prefers.
      *
-     * @param int|stdClass $section Section object from database or just field course_sections.section
-     * @return Display name that the course format prefers, e.g. "Topic 2"
+     * @param int|course_sections_db|\section_info $section Section object from database or just field course_sections.section
+     * @return string Display name that the course format prefers, e.g. "Topic 2"
      */
     public function get_section_name($section) {
         if (is_object($section)) {
@@ -526,7 +526,7 @@ abstract class base {
     /**
      * Returns the default section using course_format's implementation of get_section_name.
      *
-     * @param int|stdClass $section Section object from database or just field course_sections section
+     * @param course_sections_db|\section_info $section Section object from database or just field course_sections section
      * @return string The default value for the section name based on the given course format.
      */
     public function get_default_section_name($section) {
@@ -690,9 +690,9 @@ abstract class base {
      * of the view script, it is not enough to change just this function. Do not forget
      * to add proper redirection.
      *
-     * @param int|stdClass $section Section object from database or just field course_sections.section
+     * @param int|course_sections_db|\section_info $section Section object from database or just field course_sections.section
      *     if null the course view page is returned
-     * @param array $options options for view URL. At the moment core uses:
+     * @param array<string,mixed> $options options for view URL. At the moment core uses:
      *     'navigation' (bool) if true and section has no separate page, the function returns null
      *     'sr' (int) used by multipage formats to specify to which section to return
      * @return null|moodle_url
@@ -1159,7 +1159,7 @@ abstract class base {
      * @param array $customdata the array with custom data to be passed to the form
      *     /course/editsection.php passes section_info object in 'cs' field
      *     for filling availability fields
-     * @return moodleform
+     * @return \moodleform
      */
     public function editsection_form($action, $customdata = array()) {
         global $CFG;
@@ -1249,7 +1249,7 @@ abstract class base {
      * Returns instance of page renderer used by this plugin
      *
      * @param moodle_page $page
-     * @return renderer_base
+     * @return \core_courseformat\output\section_renderer
      */
     public function get_renderer(moodle_page $page) {
         try {
@@ -1621,7 +1621,7 @@ abstract class base {
      * @param stdClass|section_info $section
      * @param string $action
      * @param int $sr the section return
-     * @return null|array|stdClass any data for the Javascript post-processor (must be json-encodeable)
+     * @return array<string, mixed> any data for the Javascript post-processor (must be json-encodeable)
      */
     public function section_action($section, $action, $sr) {
         global $PAGE;

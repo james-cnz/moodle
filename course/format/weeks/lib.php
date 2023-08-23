@@ -83,7 +83,7 @@ class format_weeks extends core_courseformat\base {
      * If the section number is 0, it will use the string with key = section0name from the course format's lang file.
      * Otherwise, the default format of "[start date] - [end date]" will be returned.
      *
-     * @param stdClass $section Section object from database or just field course_sections section
+     * @param course_sections_db|\section_info $section Section object from database or just field course_sections section
      * @return string The default value for the section name.
      */
     public function get_default_section_name($section) {
@@ -388,9 +388,9 @@ class format_weeks extends core_courseformat\base {
     /**
      * Return the start and end date of the passed section
      *
-     * @param int|stdClass|section_info $section section to get the dates for
+     * @param int|course_sections_db|section_info $section section to get the dates for
      * @param int $startdate Force course start date, useful when the course is not yet created
-     * @return stdClass property start for startdate, property end for enddate
+     * @return object{start:int,end:int} property start for startdate, property end for enddate
      */
     public function get_section_dates($section, $startdate = false) {
         global $USER;

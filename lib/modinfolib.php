@@ -88,7 +88,7 @@ class course_modinfo {
     /**
      * Array from int (section num, e.g. 0) => array of int (course-module id); this list only
      * includes sections that actually contain at least one course-module
-     * @var array
+     * @var array<int,int[]>
      */
     private $sections;
 

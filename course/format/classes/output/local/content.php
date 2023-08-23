@@ -39,7 +39,7 @@ use renderable;
 class content implements named_templatable, renderable {
     use courseformat_named_templatable;
 
-    /** @var core_courseformat\base the course format class */
+    /** @var \core_courseformat\base the course format class */
     protected $format;
 
     /** @var string the section format class */

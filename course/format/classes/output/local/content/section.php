@@ -49,25 +49,25 @@ class section implements named_templatable, renderable {
     /** @var section_info the section info */
     protected $section;
 
-    /** @var section header output class */
+    /** @var section\header section header output class */
     protected $headerclass;
 
-    /** @var cm list output class */
+    /** @var section\cmlist cm list output class */
     protected $cmlistclass;
 
-    /** @var section summary output class */
+    /** @var section\summary section summary output class */
     protected $summaryclass;
 
-    /** @var activities summary output class */
+    /** @var section\cmsummary activities summary output class */
     protected $cmsummaryclass;
 
-    /** @var section control menu output class */
-    protected $controlclass;
+    /** @var section\controlmenu section control menu output class */
+    protected $controlmenuclass;
 
-    /** @var section availability output class */
+    /** @var section\availability section availability output class */
     protected $availabilityclass;
 
-    /** @var optional move here output class */
+    /** @var ?object optional move here output class */
     protected $movehereclass;
 
     /** @var bool if the title is hidden for some reason */

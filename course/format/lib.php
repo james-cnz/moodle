@@ -30,7 +30,7 @@ use core_courseformat\output\site_renderer;
 /**
  * Returns an instance of format class (extending course_format) for given course
  *
- * @param int|stdClass $courseorid either course id or
+ * @param int|course_db $courseorid either course id or
  *     an object that has the property 'format' and may contain property 'id'
  * @return course_format
  */

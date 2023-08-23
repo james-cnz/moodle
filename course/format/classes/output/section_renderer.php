@@ -111,8 +111,8 @@ abstract class section_renderer extends core_course_renderer {
     /**
      * Generate the section title, wraps it in a link to the section page if page is to be displayed on a separate page
      *
-     * @param stdClass $section The course_section entry from DB
-     * @param stdClass $course The course entry from DB
+     * @param course_sections_db|\section_info $section The course_section entry from DB
+     * @param course_db $course The course entry from DB
      * @return string HTML to output.
      */
     public function section_title($section, $course) {
@@ -127,8 +127,8 @@ abstract class section_renderer extends core_course_renderer {
     /**
      * Generate the section title to be displayed on the section page, without a link
      *
-     * @param stdClass $section The course_section entry from DB
-     * @param stdClass $course The course entry from DB
+     * @param course_sections_db|\section_info $section The course_section entry from DB
+     * @param course_db $course The course entry from DB
      * @return string HTML to output.
      */
     public function section_title_without_link($section, $course) {
@@ -216,8 +216,8 @@ abstract class section_renderer extends core_course_renderer {
      * and does not use renderer methods anymore.
      *
      * @param array $controls The edit control items from section_edit_control_items
-     * @param stdClass $course The course entry from DB (not used)
-     * @param stdClass $section The course_section entry from DB
+     * @param course_db $course The course entry from DB (not used)
+     * @param course_sections_db $section The course_section entry from DB
      * @return string HTML to output.
      */
     protected function section_edit_control_menu($controls, $course, $section) {
@@ -265,8 +265,8 @@ abstract class section_renderer extends core_course_renderer {
      * extend courses. The elements from this method are now included in the
      * core_courseformat\output\local\content\section output components.
      *
-     * @param stdClass $section The course_section entry from DB
-     * @param stdClass $course The course entry from DB
+     * @param course_sections_db $section The course_section entry from DB
+     * @param course_db $course The course entry from DB
      * @param bool $onsectionpage true if being printed on a section page
      * @return string HTML to output.
      */
@@ -293,8 +293,8 @@ abstract class section_renderer extends core_course_renderer {
      * extend courses. The elements from this method are now included in the
      * core_courseformat\output\local\content\section output components.
      *
-     * @param stdClass $section The course_section entry from DB
-     * @param stdClass $course The course entry from DB
+     * @param course_sections_db $section The course_section entry from DB
+     * @param course_db $course The course entry from DB
      * @param bool $onsectionpage true if being printed on a section page
      * @return string HTML to output.
      */
@@ -324,8 +324,8 @@ abstract class section_renderer extends core_course_renderer {
      * This element is now a core_courseformat\output\content\section output component and it is displayed using
      * mustache templates instead of a renderer method.
      *
-     * @param stdClass $section The course_section entry from DB
-     * @param stdClass $course The course entry from DB
+     * @param course_sections_db $section The course_section entry from DB
+     * @param course_db $course The course entry from DB
      * @param bool $onsectionpage true if being printed on a single-section page
      * @param int $sectionreturn The section to return to after an action
      * @return string HTML to output.
@@ -459,8 +459,8 @@ abstract class section_renderer extends core_course_renderer {
      * This element is now a core_courseformat\output\content\section output component and it is displayed using
      * mustache templates instead of a renderer method.
      *
-     * @param stdClass $course The course entry from DB
-     * @param stdClass $section The course_section entry from DB
+     * @param course_db $course The course entry from DB
+     * @param course_sections_db $section The course_section entry from DB
      * @param bool $onsectionpage true if being printed on a section page
      * @return array of edit control items
      */
@@ -491,8 +491,8 @@ abstract class section_renderer extends core_course_renderer {
      * This element is now a core_courseformat\output\content\section output component and it is displayed using
      * mustache templates instead of a renderer method.
      *
-     * @param stdClass $section The course_section entry from DB
-     * @param stdClass $course The course entry from DB
+     * @param course_sections_db $section The course_section entry from DB
+     * @param course_db $course The course entry from DB
      * @param array    $mods (argument not used)
      * @return string HTML to output.
      */
@@ -561,8 +561,8 @@ abstract class section_renderer extends core_course_renderer {
      * This element is now a core_courseformat\output\content\section output component and it is displayed using
      * mustache templates instead of a renderer method.
      *
-     * @param stdClass $section The course_section entry from DB
-     * @param stdClass $course the course record from DB
+     * @param course_sections_db $section The course_section entry from DB
+     * @param course_db $course the course record from DB
      * @param array    $mods (argument not used)
      * @return string HTML to output.
      */
@@ -641,7 +641,7 @@ abstract class section_renderer extends core_course_renderer {
      * While the non ajax course eidtion is still supported, the old clipboard will be
      * emulated by core_courseformat\output\local\content\section\cmlist.
      *
-     * @param stdClass $course The course entry from DB
+     * @param course_db $course The course entry from DB
      * @param int $sectionno The section number in the course which is being displayed
      * @return string HTML to output.
      */
@@ -678,7 +678,7 @@ abstract class section_renderer extends core_course_renderer {
      * This element is now a core_courseformat\output\content\section output component and it is displayed using
      * mustache templates instead of a renderer method.
      *
-     * @param stdClass $course The course entry from DB
+     * @param course_db $course The course entry from DB
      * @param array $sections The course_sections entries from the DB
      * @param int $sectionno The section number in the course which is being displayed
      * @return array associative array with previous and next section link
@@ -785,7 +785,7 @@ abstract class section_renderer extends core_course_renderer {
      * Generate the html for a hidden section
      *
      * @param int $sectionno The section number in the course which is being displayed
-     * @param int|stdClass $courseorid The course to get the section name for (object or just course id)
+     * @param int|course_db $courseorid The course to get the section name for (object or just course id)
      * @return string HTML to output.
      */
     protected function section_hidden($sectionno, $courseorid = null) {
@@ -819,7 +819,7 @@ abstract class section_renderer extends core_course_renderer {
      * This element is now a core_courseformat\output\content\section output component and it is displayed using
      * mustache templates instead of a renderer method.
      *
-     * @param stdClass $course The course entry from DB
+     * @param course_db $course The course entry from DB
      * @param array $sections The course_sections entries from the DB
      * @param int $displaysection the current displayed section number.
      *
@@ -869,7 +869,7 @@ abstract class section_renderer extends core_course_renderer {
      * $widget = new $outputclass($format);
      * echo $this->render($widget);
      *
-     * @param stdClass $course The course entry from DB
+     * @param course_db $course The course entry from DB
      * @param array $sections (argument not used)
      * @param array $mods (argument not used)
      * @param array $modnames (argument not used)
@@ -989,7 +989,7 @@ abstract class section_renderer extends core_course_renderer {
      * $widget = new $outputclass($format);
      * echo $this->render($widget);
      *
-     * @param stdClass $course The course entry from DB
+     * @param course_db $course The course entry from DB
      * @param array $sections (argument not used)
      * @param array $mods (argument not used)
      * @param array $modnames (argument not used)
@@ -1091,7 +1091,7 @@ abstract class section_renderer extends core_course_renderer {
      *
      * @deprecated since 4.0 MDL-72656 - use core_course output components instead.
      *
-     * @param stdClass $course
+     * @param course_db $course
      * @param int|null $sectionreturn
      */
     protected function change_number_sections($course, $sectionreturn = null) {
@@ -1112,7 +1112,7 @@ abstract class section_renderer extends core_course_renderer {
      *
      * @deprecated since 4.0 MDL-72656 - use core_course output components instead.
      *
-     * @param stdClass $section The course_section entry from DB
+     * @param course_section_db $section The course_section entry from DB
      * @return string HTML to output.
      */
     protected function format_summary_text($section) {

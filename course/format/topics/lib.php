@@ -79,7 +79,7 @@ class format_topics extends core_courseformat\base {
      * If the section number is not 0, the base implementation of course_format::get_default_section_name which uses
      * the string with the key = 'sectionname' from the course format's lang file + the section number will be used.
      *
-     * @param stdClass $section Section object from database or just field course_sections section
+     * @param course_sections_db|\section_info $section Section object from database or just field course_sections section
      * @return string The default value for the section name.
      */
     public function get_default_section_name($section) {
