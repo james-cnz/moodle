@@ -1,8 +1,0 @@
-parameters:
-    scanFiles:
-      - lib/setuplib.php
-    scanDirectories:
-      - .
-    typeAliases:
-      course_db: 'object{id:int,category:int,sortorder:int,fullname:string,shortname:string,idnumber:string,summary:string,summaryformat:string,format:string,showgrades:int,newsitems:int,startdate:int,enddate:int,relativedatesmode:int,marker:int,maxbytes:int,legacyfiles:int,showreports:int,visible:int,visibleold:int,groupmode:int,groupmodeforce:int,defaultgroupingid:int,lang:string,calendartype:string,theme:string,timecreated:int,timemodified:int,requested:int,enablecompletion:int,completionnotify:int,cacherev:int,originalcourseid:int,showactivitydates:int,showcompletionconditions:int}'
-      course_sections_db: 'object:{id:int,course:int,section:int,name:string,summary:string,summaryformat:int,sequence:string,visible:int,availibility:string,timemodified:int}'
