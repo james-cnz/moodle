@@ -25,6 +25,7 @@
  */
 
 define('CLI_SCRIPT', true);
+define('CLI_SCRIPT_PHPSTAN', true);
 
 require_once(__DIR__ . '/../../config.php');
 require_once(__DIR__ . '/../../lib/classes/component.php');

@@ -1,7 +1,4 @@
 parameters:
-    scanFiles:
-        - config-dist.php
-        - lib/setup.php
     bootstrapFiles:
         - admin/cli/phpstan_bootstrap.php
     typeAliases:

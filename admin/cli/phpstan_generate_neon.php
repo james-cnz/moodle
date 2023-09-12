@@ -31,9 +31,6 @@ require(__DIR__ . '/../../config.php');
 $neon = "";
 
 $neon .= "parameters:\n";
-$neon .= "    scanFiles:\n";
-$neon .= "        - config-dist.php\n";
-$neon .= "        - lib/setup.php\n";
 $neon .= "    bootstrapFiles:\n";
 $neon .= "        - admin/cli/phpstan_bootstrap.php\n";
 $neon .= "    typeAliases:\n";

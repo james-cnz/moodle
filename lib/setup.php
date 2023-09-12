@@ -237,7 +237,7 @@ if (!isset($CFG->langlocalroot)) {
 // The current directory in PHP version 4.3.0 and above isn't necessarily the
 // directory of the script when run from the command line. The require_once()
 // would fail, so we'll have to chdir()
-if (!isset($_SERVER['REMOTE_ADDR']) && isset($_SERVER['argv'][0])) {
+if (!isset($_SERVER['REMOTE_ADDR']) && isset($_SERVER['argv'][0]) && !defined('CLI_SCRIPT_PHPSTAN')) {
     // do it only once - skip the second time when continuing after prevous abort
     if (!defined('ABORT_AFTER_CONFIG') and !defined('ABORT_AFTER_CONFIG_CANCEL')) {
         chdir(dirname($_SERVER['argv'][0]));
