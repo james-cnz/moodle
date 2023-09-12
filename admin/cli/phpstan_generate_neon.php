@@ -31,8 +31,14 @@ require(__DIR__ . '/../../config.php');
 $neon = "";
 
 $neon .= "parameters:\n";
+
 $neon .= "    bootstrapFiles:\n";
 $neon .= "        - admin/cli/phpstan_bootstrap.php\n";
+$neon .= "    scanFiles:\n";
+$neon .= "        - config-dist.php\n";
+$neon .= "    scanDirectories:\n";
+$neon .= "        - lib\n";
+
 $neon .= "    typeAliases:\n";
 
 $tablelist = $DB->get_tables();

@@ -1,6 +1,10 @@
 parameters:
     bootstrapFiles:
         - admin/cli/phpstan_bootstrap.php
+    scanFiles:
+        - config-dist.php
+    scanDirectories:
+        - lib
     typeAliases:
         adminpresets_db: 'stdClass&object{id:numeric-string,userid:numeric-string,name:string,comments:?string,site:string,author:?string,moodleversion:string,moodlerelease:string,iscore:numeric-string,timecreated:numeric-string,timeimported:numeric-string}'
         adminpresets_app_db: 'stdClass&object{id:numeric-string,adminpresetid:numeric-string,userid:numeric-string,time:numeric-string}'
