@@ -117,7 +117,7 @@ class controlmenu implements named_templatable, renderable {
      *
      * This method must remain public until the final deprecation of section_edit_control_items.
      *
-     * @return array of edit control items
+     * @return array<string,array<string,mixed>> array of edit control items
      */
     public function section_control_items() {
         global $USER;

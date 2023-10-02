@@ -26,7 +26,6 @@ namespace core_courseformat\output;
 
 defined('MOODLE_INTERNAL') || die();
 
-global $CFG;
 require_once($CFG->dirroot . '/course/renderer.php');
 
 use action_menu;

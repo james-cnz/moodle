@@ -93,7 +93,6 @@ abstract class base {
      *
      * @param string $format
      * @param int $courseid
-     * @return course_format
      */
     protected function __construct($format, $courseid) {
         $this->format = $format;
@@ -302,7 +301,7 @@ abstract class base {
      * Returns a record from course database table plus additional fields
      * that course format defines
      *
-     * @return ?course_db
+     * @return ?\stdClass
      */
     public function get_course(): ?object {
         global $DB;
