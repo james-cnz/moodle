@@ -99,3 +99,77 @@ Feature: Show/hide course sections
     And I click on "Topic 3" "link" in the "region-main" "region"
     And I should not see "Topic 2" in the "region-main" "region"
     And I should see "Topic 1" in the "region-main" "region"
+
+  @javascript
+  Scenario: Students can not see fully restricted hidden sections when hidden sections are completely invisible
+    Given the following "activities" exist:
+      | activity | course | section | name       | completion |
+      | label    | C1     | 1       | Test label | 1          |
+    And I edit the section "2"
+    And I expand all fieldsets
+    And I click on "Add restriction..." "button"
+    And I click on "Activity completion" "button" in the "Add restriction..." "dialogue"
+    And I set the following fields to these values:
+      | cm | Test label |
+      | Required completion status | must be marked complete |
+    And I click on ".availability-item .availability-eye[title$=' Click to hide']" "css_element"
+    And I press "Save changes"
+    And I hide section "2"
+    And I navigate to "Settings" in current page administration
+    And I set the following fields to these values:
+      | Hidden sections | Hidden sections are completely invisible |
+    And I press "Save and display"
+    When I am on the "Course 1" course page logged in as student1
+    Then I should not see "Topic 2" in the "region-main" "region"
+    And I should not see "Test hidden forum 22 name" in the "region-main" "region"
+
+  @javascript
+  Scenario: Students can not see fully restricted hidden sections when hidden sections are shown unavailable
+    Given the following "activities" exist:
+      | activity | course | section | name       | completion |
+      | label    | C1     | 1       | Test label | 1          |
+    And I edit the section "2"
+    And I expand all fieldsets
+    And I click on "Add restriction..." "button"
+    And I click on "Activity completion" "button" in the "Add restriction..." "dialogue"
+    And I set the following fields to these values:
+      | cm | Test label |
+      | Required completion status | must be marked complete |
+    And I click on ".availability-item .availability-eye[title$=' Click to hide']" "css_element"
+    And I press "Save changes"
+    And I hide section "2"
+    And I navigate to "Settings" in current page administration
+    And I set the following fields to these values:
+      | Hidden sections | Hidden sections are shown as not available |
+    And I press "Save and display"
+    When I am on the "Course 1" course page logged in as student1
+    Then I should not see "Topic 2" in the "region-main" "region"
+    And I should not see "Test hidden forum 22 name" in the "region-main" "region"
+
+  @javascript
+  Scenario: Students can partly see party restricted hidden sections when hidden sections are shown unavailable
+    Given the following "activities" exist:
+      | activity | course | section | name       | completion |
+      | label    | C1     | 1       | Test label | 1          |
+    And I edit the section "2"
+    And I expand all fieldsets
+    And I click on "Add restriction..." "button"
+    And I click on "Activity completion" "button" in the "Add restriction..." "dialogue"
+    And I set the following fields to these values:
+      | cm | Test label |
+      | Required completion status | must be marked complete |
+    And I press "Save changes"
+    And I hide section "2"
+    And I navigate to "Settings" in current page administration
+    And I set the following fields to these values:
+      | Hidden sections | Hidden sections are shown as not available |
+    And I press "Save and display"
+    When I am on the "Course 1" course page logged in as student1
+    Then I should see "Topic 2" in the "region-main" "region"
+    And I should not see "Test hidden forum 22 name" in the "region-main" "region"
+
+  @javascript
+  Scenario: Students can fully see unrestricted unhidden sections
+    When I am on the "Course 1" course page logged in as student1
+    Then I should see "Topic 2" in the "region-main" "region"
+    And I should see "Test hidden forum 22 name" in the "region-main" "region"
