@@ -1839,6 +1839,7 @@ abstract class base {
      * @param section_info $originalsection The section to be duplicated
      * @return section_info The new duplicated section
      * @since Moodle 4.2
+     * @copyright 2015 includes code copied from David Herney Bernal
      */
     public function duplicate_section(section_info $originalsection): section_info {
         if (!$this->uses_sections()) {
@@ -1846,19 +1847,45 @@ abstract class base {
         }
 
         $course = $this->get_course();
-        $oldsectioninfo = get_fast_modinfo($course)->get_section_info($originalsection->section);
-        $newsection = course_create_section($course, $oldsectioninfo->section + 1); // Place new section after existing one.
+        $context = context_course::instance($course->id);
+        $originalsection = get_fast_modinfo($course)->get_section_info_by_id($originalsection->id);
+        $newsection = course_create_section($course, $originalsection->section + 1); // Place new section after existing one.
 
+        $newsectiondata = new stdClass();
         if (!empty($originalsection->name)) {
-            $newsection->name = get_string('duplicatedsection', 'moodle', $originalsection->name);
+            $newsectiondata->name = get_string('duplicatedsection', 'moodle', $originalsection->name);
         } else {
-            $newsection->name = $originalsection->name;
+            $newsectiondata->name = $originalsection->name;
         }
-        $newsection->summary = $originalsection->summary;
-        $newsection->summaryformat = $originalsection->summaryformat;
-        $newsection->visible = $originalsection->visible;
-        $newsection->availability = $originalsection->availability;
-        course_update_section($course, $newsection, $newsection);
+        $newsectiondata->summary = $originalsection->summary;
+        $newsectiondata->summaryformat = $originalsection->summaryformat;
+        $newsectiondata->visible = $originalsection->visible;
+        $newsectiondata->availability = $originalsection->availability;
+        foreach ($this->section_format_options() as $key => $value) {
+            $newsectiondata->$key = $originalsection->$key;
+        }
+        course_update_section($course, $newsection, $newsectiondata);
+
+        try {
+            $fs = get_file_storage();
+            $files = $fs->get_area_files($context->id, 'course', 'section', $originalsection->id);
+
+            if ($files && is_array($files)) {
+                foreach ($files as $f) {
+
+                    $fileinfo = [
+                        'contextid' => $context->id,
+                        'component' => 'course',
+                        'filearea' => 'section',
+                        'itemid' => $newsection->id,
+                    ];
+
+                    $fs->create_file_from_storedfile($fileinfo, $f);
+                }
+            }
+        } catch (\Exception $e) {
+            debugging('Error copying section files.' . $e->getMessage(), DEBUG_DEVELOPER);
+        }
 
         $modinfo = $this->get_modinfo();
 
@@ -1866,7 +1893,9 @@ abstract class base {
         if (array_key_exists($originalsection->section, $modinfo->sections)) {
             foreach ($modinfo->sections[$originalsection->section] as $modnumber) {
                 $originalcm = $modinfo->cms[$modnumber];
-                duplicate_module($course, $originalcm, $newsection->id, false);
+                if (!$originalcm->deletioninprogress) {
+                    duplicate_module($course, $originalcm, $newsection->id, false);
+                }
             }
         }
 
