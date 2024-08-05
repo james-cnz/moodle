@@ -68,7 +68,7 @@ class format_weeks extends core_courseformat\base {
      * @return string Display name that the course format prefers, e.g. "Topic 2"
      */
     public function get_section_name($section) {
-        $section = $this->get_section($section);
+        $section = is_object($section) ? $section : $this->get_section($section);
         if ((string)$section->name !== '') {
             // Return the name the user set.
             return format_string($section->name, true, array('context' => context_course::instance($this->courseid)));
@@ -124,16 +124,18 @@ class format_weeks extends core_courseformat\base {
      */
     public function get_view_url($section, $options = array()) {
         $course = $this->get_course();
+        $sectioninfo = null;
         if (array_key_exists('sr', $options) && !is_null($options['sr'])) {
             $sectionno = $options['sr'];
         } else if (is_object($section)) {
             $sectionno = $section->section;
+            $sectioninfo = $section;
         } else {
             $sectionno = $section;
         }
         if ((!empty($options['navigation']) || array_key_exists('sr', $options)) && $sectionno !== null) {
             // Display section on separate page.
-            $sectioninfo = $this->get_section($sectionno);
+            $sectioninfo = $sectioninfo ?? $this->get_section($sectionno);
             return new moodle_url('/course/section.php', ['id' => $sectioninfo->id]);
         }
 
@@ -205,7 +207,8 @@ class format_weeks extends core_courseformat\base {
         $modinfo = get_fast_modinfo($course);
         $renderer = $this->get_renderer($PAGE);
         if ($renderer && ($sections = $modinfo->get_section_info_all())) {
-            foreach ($sections as $number => $section) {
+            foreach ($sections as $section) {
+                $number = $section->section;
                 $titles[$number] = $renderer->section_title($section, $course);
                 if ($this->is_section_current($section)) {
                     $current = $number;
@@ -508,7 +511,7 @@ class format_weeks extends core_courseformat\base {
 
         if (!($section instanceof section_info)) {
             $modinfo = course_modinfo::instance($this->courseid);
-            $section = $modinfo->get_section_info($section->section);
+            $section = $modinfo->get_section_info_by_id($section->id);
         }
         $elementclass = $this->get_output_classname('content\\section\\availability');
         $availability = new $elementclass($this, $section);
