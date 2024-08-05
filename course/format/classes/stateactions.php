@@ -179,11 +179,11 @@ class stateactions {
         $this->validate_sections($course, [$targetsectionid], __FUNCTION__);
         $targetsection = $modinfo->get_section_info_by_id($targetsectionid, MUST_EXIST);
 
-        $affectedsections = [$targetsection->section => true];
+        $affectedsections = [$targetsectionid => true];
 
         $sections = $this->get_section_info($modinfo, $ids);
         foreach ($sections as $section) {
-            $affectedsections[$section->section] = true;
+            $affectedsections[$section->id] = true;
             move_section_to($course, $section->section, $targetsection->section);
         }
 
@@ -194,7 +194,7 @@ class stateactions {
         $allsections = $modinfo->get_section_info_all();
         foreach ($allsections as $section) {
             // Ignore the affected sections because they are already in the updates.
-            if (isset($affectedsections[$section->section])) {
+            if (isset($affectedsections[$section->id])) {
                 continue;
             }
             $updates->add_section_put($section->id);
