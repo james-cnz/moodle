@@ -54,13 +54,13 @@ class format_site extends course_format {
      * @return string Display name that the course format prefers, e.g. "Topic 2"
      */
     function get_section_name($section) {
-        $section = $this->get_section($section);
+        $section = is_object($section) ? $section : $this->get_section($section);
         if ((string)$section->name !== '') {
             // Return the name the user set.
             return format_string($section->name, true, array('context' => context_course::instance($this->courseid)));
         }
         // The section zero is located in a block.
-        if ($section->sectionnum == 0) {
+        if ($section->section == 0) {
             return get_string('block');
         }
         return get_string('site');
