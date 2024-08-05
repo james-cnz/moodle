@@ -93,7 +93,7 @@ class controlmenu extends controlmenu_base {
         $sectionreturn = $format->get_sectionnum();
 
         if ($sectionreturn) {
-            $url = course_get_url($course, $section->section);
+            $url = course_get_url($course, $section);
         } else {
             $url = course_get_url($course);
         }

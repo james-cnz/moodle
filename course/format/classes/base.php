@@ -505,19 +505,20 @@ abstract class base {
      * @return ?section_info
      */
     final public function get_section($section, $strictness = IGNORE_MISSING) {
-        if (is_object($section)) {
-            $sectionnum = $section->section;
+        if ($course = $this->get_course()) {
+            $modinfo = get_fast_modinfo($course);
+            if (is_object($section)) {
+                return $modinfo->get_section_info_by_id($section->id, $strictness);
+            } else {
+                return $modinfo->get_section_info($section, $strictness);
+            }
         } else {
-            $sectionnum = $section;
+            if ($strictness == MUST_EXIST) {
+                throw new moodle_exception('sectionnotexist');
+            } else {
+                return null;
+            }
         }
-        $sections = $this->get_sections();
-        if (array_key_exists($sectionnum, $sections)) {
-            return $sections[$sectionnum];
-        }
-        if ($strictness == MUST_EXIST) {
-            throw new moodle_exception('sectionnotexist');
-        }
-        return null;
     }
 
     /**
@@ -872,16 +873,18 @@ abstract class base {
         $course = $this->get_course();
         $url = new moodle_url('/course/view.php', ['id' => $course->id]);
 
+        $sectioninfo = null;
         if (array_key_exists('sr', $options)) {
             $sectionno = $options['sr'];
         } else if (is_object($section)) {
             $sectionno = $section->section;
+            $sectioninfo = $section;
         } else {
             $sectionno = $section;
         }
         if ((!empty($options['navigation']) || array_key_exists('sr', $options)) && $sectionno !== null) {
             // Display section on separate page.
-            $sectioninfo = $this->get_section($sectionno);
+            $sectioninfo = $sectioninfo ?? $this->get_section($sectionno);
             return new moodle_url('/course/section.php', ['id' => $sectioninfo->id]);
         }
         if ($this->uses_sections() && $sectionno !== null) {
@@ -1812,7 +1815,7 @@ abstract class base {
         $displayvalue = $title = get_section_name($section->course, $section);
         if ($linkifneeded) {
             // Display link under the section name if the course format setting is to display one section per page.
-            $url = course_get_url($section->course, $section->section, array('navigation' => true));
+            $url = course_get_url($section->course, $section, array('navigation' => true));
             if ($url) {
                 $displayvalue = html_writer::link($url, $title);
             }
@@ -1958,7 +1961,7 @@ abstract class base {
         $renderer = $this->get_renderer($PAGE);
 
         if (!($section instanceof section_info)) {
-            $section = $modinfo->get_section_info($section->section);
+            $section = $modinfo->get_section_info_by_id($section->id);
         }
 
         if (!is_null($sr)) {

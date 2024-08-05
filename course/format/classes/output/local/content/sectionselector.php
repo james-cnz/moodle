@@ -81,15 +81,18 @@ class sectionselector implements named_templatable, renderable {
         // Add the section selector.
         $sectionmenu = [];
         $sectionmenu[course_get_url($course)->out(false)] = get_string('maincoursepage');
-        $section = 1;
         $numsections = $format->get_last_section_number();
-        while ($section <= $numsections) {
-            $thissection = $modinfo->get_section_info($section);
-            $url = course_get_url($course, $section, ['navigation' => true]);
-            if ($thissection->uservisible && $url && $section != $data->currentsection) {
-                $sectionmenu[$url->out(false)] = get_section_name($course, $section);
+        foreach ($modinfo->get_listed_section_info_all() as $thissection) {
+            $section = $thissection->section;
+            if ($section == 0) {
+                continue;
+            } else if ($section > $numsections) {
+                break;
             }
-            $section++;
+            $url = course_get_url($course, $thissection, ['navigation' => true]);
+            if ($thissection->uservisible && $url && $section != $data->currentsection) {
+                $sectionmenu[$url->out(false)] = get_section_name($course, $thissection);
+            }
         }
 
         $select = new url_select($sectionmenu, '', ['' => get_string('jumpto')]);

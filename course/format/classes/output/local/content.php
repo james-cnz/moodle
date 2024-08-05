@@ -155,7 +155,7 @@ class content implements named_templatable, renderable {
         $sections = [];
         $stealthsections = [];
         $numsections = $format->get_last_section_number();
-        foreach ($this->get_sections_to_display($modinfo) as $sectionnum => $thissection) {
+        foreach ($this->get_sections_to_display($modinfo) as $thissection) {
             // The course/view.php check the section existence but the output can be called
             // from other parts so we need to check it.
             if (!$thissection) {
@@ -163,21 +163,19 @@ class content implements named_templatable, renderable {
                     format_string($course->fullname));
             }
 
+            $sectionnum = $thissection->section;
             $section = new $this->sectionclass($format, $thissection);
 
-            if ($sectionnum > $numsections) {
+            if ($sectionnum <= $numsections) {
+                if ($format->is_section_visible($thissection)) {
+                    $sections[] = $section->export_for_template($output);
+                }
+            } else {
                 // Activities inside this section are 'orphaned', this section will be printed as 'stealth' below.
                 if (!empty($modinfo->sections[$sectionnum])) {
                     $stealthsections[] = $section->export_for_template($output);
                 }
-                continue;
             }
-
-            if (!$format->is_section_visible($thissection)) {
-                continue;
-            }
-
-            $sections[] = $section->export_for_template($output);
         }
         if (!empty($stealthsections)) {
             $sections = array_merge($sections, $stealthsections);

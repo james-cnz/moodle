@@ -241,7 +241,8 @@ class format_singleactivity extends core_courseformat\base {
      */
     public function reorder_activities() {
         course_create_sections_if_missing($this->courseid, array(0, 1));
-        foreach ($this->get_sections() as $sectionnum => $section) {
+        foreach ($this->get_sections() as $section) {
+            $sectionnum = $section->section;
             if (($sectionnum && $section->visible) ||
                     (!$sectionnum && !$section->visible)) {
                 // Make sure that 0 section is visible and all others are hidden.

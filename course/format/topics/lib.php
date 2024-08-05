@@ -63,7 +63,7 @@ class format_topics extends core_courseformat\base {
      * @return string Display name that the course format prefers, e.g. "Topic 2"
      */
     public function get_section_name($section) {
-        $section = $this->get_section($section);
+        $section = is_object($section) ? $section : $this->get_section($section);
         if ((string)$section->name !== '') {
             return format_string($section->name, true,
                 ['context' => context_course::instance($this->courseid)]);
@@ -82,8 +82,8 @@ class format_topics extends core_courseformat\base {
      * @return string The default value for the section name.
      */
     public function get_default_section_name($section) {
-        $section = $this->get_section($section);
-        if ($section->sectionnum == 0) {
+        $section = is_object($section) ? $section : (object)['section' => $section];
+        if ($section->section == 0) {
             return get_string('section0name', 'format_topics');
         }
 
@@ -111,16 +111,18 @@ class format_topics extends core_courseformat\base {
      */
     public function get_view_url($section, $options = []) {
         $course = $this->get_course();
+        $sectioninfo = null;
         if (array_key_exists('sr', $options) && !is_null($options['sr'])) {
             $sectionno = $options['sr'];
         } else if (is_object($section)) {
             $sectionno = $section->section;
+            $sectioninfo = $section;
         } else {
             $sectionno = $section;
         }
         if ((!empty($options['navigation']) || array_key_exists('sr', $options)) && $sectionno !== null) {
             // Display section on separate page.
-            $sectioninfo = $this->get_section($sectionno);
+            $sectioninfo = $sectioninfo ?? $this->get_section($sectionno);
             return new moodle_url('/course/section.php', ['id' => $sectioninfo->id]);
         }
 
@@ -194,7 +196,8 @@ class format_topics extends core_courseformat\base {
         $modinfo = get_fast_modinfo($course);
         $renderer = $this->get_renderer($PAGE);
         if ($renderer && ($sections = $modinfo->get_section_info_all())) {
-            foreach ($sections as $number => $section) {
+            foreach ($sections as $section) {
+                $number = $section->section;
                 $titles[$number] = $renderer->section_title($section, $course);
             }
         }
@@ -392,7 +395,7 @@ class format_topics extends core_courseformat\base {
 
         if (!($section instanceof section_info)) {
             $modinfo = course_modinfo::instance($this->courseid);
-            $section = $modinfo->get_section_info($section->section);
+            $section = $modinfo->get_section_info_by_id($section->id);
         }
         $elementclass = $this->get_output_classname('content\\section\\availability');
         $availability = new $elementclass($this, $section);
