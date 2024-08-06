@@ -64,7 +64,9 @@
     {{/elements}}
 </div>
 {{#js}}
+{{$ core_course/local/overview/overviewpage.js}}
 require(['core_course/local/overview/overviewpage'], function(overviewpage) {
     overviewpage.init('#course-overview-page');
 });
+{{/ core_course/local/overview/overviewpage.js}}
 {{/js}}

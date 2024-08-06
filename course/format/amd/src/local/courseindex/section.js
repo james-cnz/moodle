@@ -89,11 +89,7 @@ export default class Component extends DndSection {
         // Drag and drop is only available for components compatible course formats.
         if (this.reactive.isEditing && this.reactive.supportComponents) {
             // Init the inner dragable element passing the full section as affected region.
-            const titleitem = new SectionTitle({
-                ...this,
-                element: sectionItem,
-                fullregion: this.element,
-            });
+            const titleitem = this._newSectionTitle(sectionItem);
             this.configDragDrop(titleitem);
         }
         // Check if the current url is the section url.
@@ -102,6 +98,20 @@ export default class Component extends DndSection {
             this.reactive.dispatch('setPageItem', 'section', this.id);
             sectionItem.scrollIntoView();
         }
+    }
+
+    /**
+     * Create a new SectionTitle object.
+     *
+     * @param {Element} sectionItem the SectionTitle's element
+     * @return {SectionTitle} the new object
+     */
+    _newSectionTitle(sectionItem) {
+        return new SectionTitle({
+            ...this,
+            element: sectionItem,
+            fullregion: this.element,
+        });
     }
 
     /**
@@ -132,7 +142,8 @@ export default class Component extends DndSection {
      * @param {Object} param details the update details.
      * @param {Object} param.element the section element
      */
-    _refreshSection({element}) {
+    _refreshSection(param) {
+        const element = param.element;
         // Update classes.
         const sectionItem = this.getElement(this.selectors.SECTION_ITEM);
         sectionItem.classList.toggle(this.classes.SECTIONHIDDEN, !element.visible);
@@ -142,6 +153,16 @@ export default class Component extends DndSection {
         this.element.classList.toggle(this.classes.LOCKED, element.locked ?? false);
         this.locked = element.locked;
         // Update title.
+        this._refreshSectionTitle(param);
+    }
+
+    /**
+     * Update a course index section title using the state information.
+     *
+     * @param {Object} param details the update details.
+     * @param {Object} param.element the section element
+     */
+    _refreshSectionTitle({element}) {
         this.getElement(this.selectors.SECTION_TITLE).innerHTML = element.title;
     }
 
