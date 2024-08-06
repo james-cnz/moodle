@@ -94,10 +94,7 @@ export default class Component extends BaseComponent {
         const data = exporter.course(state);
         try {
             // To render an HTML into our component we just use the regular Templates module.
-            const {html, js} = await Templates.renderForPromise(
-                'core_courseformat/local/courseindex/courseindex',
-                data,
-            );
+            const {html, js} = await this._renderCourseIndex(data);
             Templates.replaceNode(this.element, html, js);
             this.pendingContent.resolve();
 
@@ -107,5 +104,18 @@ export default class Component extends BaseComponent {
             this.pendingContent.resolve(error);
             throw error;
         }
+    }
+
+    /**
+     * Render the course index template.
+     *
+     * @param {Object} data the render data
+     * @return {Promise<{html: string, js: string}>} the new HTML and JS
+     */
+    _renderCourseIndex(data) {
+        return Templates.renderForPromise(
+            'core_courseformat/local/courseindex/courseindex',
+            data,
+        );
     }
 }
