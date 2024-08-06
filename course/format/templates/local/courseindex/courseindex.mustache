@@ -105,7 +105,9 @@
     {{/sections}}
 </div>
 {{#js}}
+{{$ core_courseformat/local/courseindex/courseindex.js}}
 require(['core_courseformat/local/courseindex/courseindex'], function(component) {
     component.init('#course-index');
 });
+{{/ core_courseformat/local/courseindex/courseindex.js}}
 {{/js}}

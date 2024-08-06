@@ -219,7 +219,9 @@
     {{/bulkedittools}}
 </div>
 {{#js}}
+{{$ core_courseformat/local/content.js}}
 require(['core_courseformat/local/content'], function(component) {
     component.init('#page', {}, {{sectionreturn}});
 });
+{{/ core_courseformat/local/content.js}}
 {{/js}}
