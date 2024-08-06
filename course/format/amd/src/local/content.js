@@ -93,7 +93,7 @@ export default class Component extends BaseComponent {
      * @return {Component}
      */
     static init(target, selectors, sectionReturn) {
-        return new Component({
+        return new this({
             element: document.getElementById(target),
             reactive: getCurrentCourseEditor(),
             selectors,
@@ -133,7 +133,7 @@ export default class Component extends BaseComponent {
         if (this.reactive.supportComponents) {
             // Actions are only available in edit mode.
             if (this.reactive.isEditing) {
-                new DispatchActions(this);
+                this._newDispatchActions();
             }
 
             // Mark content as state ready.
@@ -153,6 +153,15 @@ export default class Component extends BaseComponent {
             "scroll",
             this._scrollHandler
         );
+    }
+
+    /**
+     * Create a new DispatchActions object.
+     *
+     * @returns {DispatchActions} the newly created object
+     */
+    _newDispatchActions() {
+        return new DispatchActions(this);
     }
 
     /**
