@@ -99,7 +99,7 @@ export default class Component extends BaseComponent {
             log.debug('Init component with id is deprecated, use a query selector instead.');
             element = document.getElementById(target);
         }
-        return new Component({
+        return new this({
             element,
             reactive: getCurrentCourseEditor(),
             selectors,
@@ -139,7 +139,7 @@ export default class Component extends BaseComponent {
         if (this.reactive.supportComponents) {
             // Actions are only available in edit mode.
             if (this.reactive.isEditing) {
-                new DispatchActions(this);
+                this._newDispatchActions();
             }
 
             // Mark content as state ready.
@@ -159,6 +159,15 @@ export default class Component extends BaseComponent {
             "scroll",
             throttle(this._scrollHandler.bind(this), 50)
         );
+    }
+
+    /**
+     * Create a new DispatchActions object.
+     *
+     * @return {DispatchActions} the new object
+     */
+    _newDispatchActions() {
+        return new DispatchActions(this);
     }
 
     /**
@@ -521,19 +530,35 @@ export default class Component extends BaseComponent {
         this._scanIndex(
             this.selectors.SECTION,
             this.sections,
-            (item) => {
-                return new Section(item);
-            }
+            this._newSection
         );
 
         // Find unindexed cms.
         this._scanIndex(
             this.selectors.CM,
             this.cms,
-            (item) => {
-                return new CmItem(item);
-            }
+            this._newCmItem
         );
+    }
+
+    /**
+     * Create a new Section object.
+     *
+     * @param {Object} item the constructor data
+     * @return {Section} the new object
+     */
+    _newSection(item) {
+        return new Section(item);
+    }
+
+    /**
+     * Create a new CM object.
+     *
+     * @param {Object} item the constructor data
+     * @return {CmItem} the new object
+     */
+    _newCmItem(item) {
+        return new CmItem(item);
     }
 
     /**

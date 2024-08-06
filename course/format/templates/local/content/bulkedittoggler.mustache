@@ -33,7 +33,9 @@
     {{#str}} bulkedit, core_courseformat {{/str}} {{#pix}} i/bulk_edit, core {{/pix}}
 </button>
 {{#js}}
+{{$ core_courseformat/local/content/bulkedittoggler.js}}
 require(['core_courseformat/local/content/bulkedittoggler'], function(component) {
     component.init('#bulk-enable-{{uniqid}}');
 });
+{{/ core_courseformat/local/content/bulkedittoggler.js}}
 {{/js}}
