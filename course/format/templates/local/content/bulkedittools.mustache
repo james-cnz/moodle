@@ -86,7 +86,9 @@
     {{/ stickycontent }}
 {{/ core/sticky_footer }}
 {{#js}}
+{{$ core_courseformat/local/content/bulkedittools.js}}
 require(['core_courseformat/local/content/bulkedittools'], function(component) {
     component.init('[data-for="bulkedittools"]');
 });
+{{/ core_courseformat/local/content/bulkedittools.js}}
 {{/js}}

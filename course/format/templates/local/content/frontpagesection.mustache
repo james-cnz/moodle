@@ -46,10 +46,12 @@
     </div>
 </div>
 {{#js}}
+{{$ core_courseformat/local/content.js}}
 {{! The home page should be as fast as possible, we only load the editor when needed.}}
 {{#editing}}
 require(['core_courseformat/local/content'], function(component) {
     component.init('#courseformat-frontpage-main-topic', {});
 });
 {{/editing}}
+{{/ core_courseformat/local/content.js}}
 {{/js}}
