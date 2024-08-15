@@ -41,6 +41,10 @@ use core_external\external_api;
 use stdClass;
 use cache;
 use core_courseformat\output\legacy_renderer;
+use core_xapi\state_store;
+use core_xapi\local\state;
+use core_xapi\local\statement\item_agent;
+use core_xapi\local\statement\item_activity;
 
 /**
  * Base class for course formats
@@ -89,6 +93,10 @@ abstract class base {
     private static $classesforformat = array('site' => 'site');
     /** @var sectionmanager the format section manager. */
     protected $sectionmanager = null;
+    /** @var  state_store|null xAPI state store */
+    protected ?state_store $xapistatestore = null;
+    /** @var state|null xAPI state */
+    protected ?state $xapistate = null;
 
     /**
      * Creates a new instance of class
@@ -99,8 +107,13 @@ abstract class base {
      * @param int $courseid
      */
     protected function __construct($format, $courseid) {
+        global $USER;
         $this->format = $format;
         $this->courseid = $courseid;
+        $this->xapistatestore = new state_store($format);
+        $xapiagent = item_agent::create_from_user($USER);
+        $xapiactivity = item_activity::create_from_id($courseid);
+        $this->xapistate = new state($xapiagent, $xapiactivity, "coursesectionspreferences", null, null);
     }
 
     /**
@@ -702,7 +715,7 @@ abstract class base {
         $sectionpreferences = $this->get_sections_preferences_by_preference();
 
         foreach ($sectionpreferences as $preference => $sectionids) {
-            if (!empty($sectionids) && is_array($sectionids)) {
+            if (!empty($sectionids) && (is_array($sectionids) || is_object($sectionids))) {
                 foreach ($sectionids as $sectionid) {
                     if (!isset($result[$sectionid])) {
                         $result[$sectionid] = new stdClass();
@@ -725,13 +738,7 @@ abstract class base {
         global $USER;
         $course = $this->get_course();
         try {
-            $sectionpreferences = json_decode(
-                get_user_preferences("coursesectionspreferences_{$course->id}", '', $USER->id),
-                true,
-            );
-            if (empty($sectionpreferences)) {
-                $sectionpreferences = [];
-            }
+            $sectionpreferences = (array)($this->xapistatestore->get($this->xapistate)?->get_state_data() ?? []);
         } catch (\Throwable $e) {
             $sectionpreferences = [];
         }
@@ -764,6 +771,8 @@ abstract class base {
         $sectionpreferences = $this->get_sections_preferences_by_preference();
         if (!isset($sectionpreferences[$preferencename])) {
             $sectionpreferences[$preferencename] = [];
+        } else if (!is_array($sectionpreferences[$preferencename])) {
+            $sectionpreferences[$preferencename] = (array)$sectionpreferences[$preferencename];
         }
         foreach ($sectionids as $sectionid) {
             if (!in_array($sectionid, $sectionpreferences[$preferencename])) {
@@ -786,6 +795,8 @@ abstract class base {
         $sectionpreferences = $this->get_sections_preferences_by_preference();
         if (!isset($sectionpreferences[$preferencename])) {
             $sectionpreferences[$preferencename] = [];
+        } else if (!is_array($sectionpreferences[$preferencename])) {
+            $sectionpreferences[$preferencename] = (array)$sectionpreferences[$preferencename];
         }
         foreach ($sectionids as $sectionid) {
             if (($key = array_search($sectionid, $sectionpreferences[$preferencename])) !== false) {
@@ -805,7 +816,8 @@ abstract class base {
     ): void {
         global $USER;
         $course = $this->get_course();
-        set_user_preference('coursesectionspreferences_' . $course->id, json_encode($sectionpreferences), $USER->id);
+        $this->xapistate->set_state_data((object)$sectionpreferences);
+        $this->xapistatestore->put($this->xapistate);
         // Invalidate section preferences cache.
         $coursesectionscache = cache::make('core', 'coursesectionspreferences');
         $coursesectionscache->delete($course->id);
