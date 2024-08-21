@@ -104,3 +104,165 @@ Feature: Show/hide course sections
     And I click on "Section 3" "link" in the "region-main" "region"
     And I should not see "Section 2" in the "region-main" "region"
     And I should see "Section 1" in the "region-main" "region"
+
+  @javascript
+  Scenario: Students can not see fully restricted sections, regardless of whether they are hidden
+    Given I navigate to "Settings" in current page administration
+    And I set the following fields to these values:
+      | Course layout | Show all sections on one page |
+    And I press "Save and display"
+    # Fully restrict the section
+    And I am on "Course 1" course homepage with editing mode on
+    And the following "activities" exist:
+      | activity | course | section | name       | completion |
+      | label    | C1     | 1       | Test label | 1          |
+    And I edit the section "2"
+    And I expand all fieldsets
+    And I click on "Add restriction..." "button"
+    And I click on "Activity completion" "button" in the "Add restriction..." "dialogue"
+    And I set the following fields to these values:
+      | cm | Test label |
+      | Required completion status | must be marked complete |
+    And I click on ".availability-item .availability-eye[title$=' Click to hide']" "css_element"
+    And I press "Save changes"
+    And I log out
+    # Check fully restricted and unhidden
+    When I am on the "Course 1" course page logged in as student1
+    Then I should not see "Section 2" in the "region-main" "region"
+    And I should not see "Not available" in the "region-main" "region"
+    And I should not see "Test hidden forum 22 name" in the "region-main" "region"
+    And I log out
+    # Check fully restricted and partly hidden
+    Given I log in as "teacher1"
+    And I am on "Course 1" course homepage with editing mode on
+    And I hide section "2"
+    And I navigate to "Settings" in current page administration
+    And I set the following fields to these values:
+      | Hidden sections | Hidden sections are shown as not available |
+    And I press "Save and display"
+    And I log out
+    When I am on the "Course 1" course page logged in as student1
+    Then I should not see "Section 2" in the "region-main" "region"
+    And I should not see "Not available" in the "region-main" "region"
+    And I should not see "Test hidden forum 22 name" in the "region-main" "region"
+    And I log out
+    # Check fully restricted and fully hidden
+    Given I log in as "teacher1"
+    And I am on "Course 1" course homepage with editing mode on
+    And I navigate to "Settings" in current page administration
+    And I set the following fields to these values:
+      | Hidden sections | Hidden sections are completely invisible |
+    And I press "Save and display"
+    And I log out
+    When I am on the "Course 1" course page logged in as student1
+    Then I should not see "Section 2" in the "region-main" "region"
+    And I should not see "Not available" in the "region-main" "region"
+    And I should not see "Test hidden forum 22 name" in the "region-main" "region"
+
+  @javascript
+  Scenario: Students can not see fully hidden sections, regardless of whether they are partly restricted
+    Given I navigate to "Settings" in current page administration
+    And I set the following fields to these values:
+      | Course layout | Show all sections on one page |
+    And I press "Save and display"
+    # Fully hide the section
+    And I am on "Course 1" course homepage with editing mode on
+    And I hide section "2"
+    And I navigate to "Settings" in current page administration
+    And I set the following fields to these values:
+      | Hidden sections | Hidden sections are completely invisible |
+    And I press "Save and display"
+    And I log out
+    # Check fully hidden and unrestricted
+    When I am on the "Course 1" course page logged in as student1
+    Then I should not see "Section 2" in the "region-main" "region"
+    And I should not see "Not available" in the "region-main" "region"
+    And I should not see "Test hidden forum 22 name" in the "region-main" "region"
+    And I log out
+    # Check fully hidden and partly restricted
+    Given I log in as "teacher1"
+    And I am on "Course 1" course homepage with editing mode on
+    And the following "activities" exist:
+      | activity | course | section | name       | completion |
+      | label    | C1     | 1       | Test label | 1          |
+    And I edit the section "2"
+    And I expand all fieldsets
+    And I click on "Add restriction..." "button"
+    And I click on "Activity completion" "button" in the "Add restriction..." "dialogue"
+    And I set the following fields to these values:
+      | cm | Test label |
+      | Required completion status | must be marked complete |
+    And I press "Save changes"
+    And I log out
+    When I am on the "Course 1" course page logged in as student1
+    Then I should not see "Section 2" in the "region-main" "region"
+    And I should not see "Not available" in the "region-main" "region"
+    And I should not see "Test hidden forum 22 name" in the "region-main" "region"
+
+  @javascript
+  Scenario: Students can partly see partly restricted sections, regardless of whether they are partly hidden
+    Given I navigate to "Settings" in current page administration
+    And I set the following fields to these values:
+      | Course layout | Show all sections on one page |
+    And I press "Save and display"
+    # Partly restrict the section
+    And the following "activities" exist:
+      | activity | course | section | name       | completion |
+      | label    | C1     | 1       | Test label | 1          |
+    And I edit the section "2"
+    And I expand all fieldsets
+    And I click on "Add restriction..." "button"
+    And I click on "Activity completion" "button" in the "Add restriction..." "dialogue"
+    And I set the following fields to these values:
+      | cm | Test label |
+      | Required completion status | must be marked complete |
+    And I press "Save changes"
+    And I log out
+    # Check partly restricted and unhidden
+    When I am on the "Course 1" course page logged in as student1
+    Then I should see "Section 2" in the "region-main" "region"
+    And I should see "Not available unless: The activity Test label is marked complete" in the "region-main" "region"
+    And I should not see "Test hidden forum 22 name" in the "region-main" "region"
+    And I log out
+    # Check partly restricted and partly hidden
+    Given I log in as "teacher1"
+    And I am on "Course 1" course homepage with editing mode on
+    And I hide section "2"
+    And I navigate to "Settings" in current page administration
+    And I set the following fields to these values:
+      | Hidden sections | Hidden sections are shown as not available |
+    And I press "Save and display"
+    When I am on the "Course 1" course page logged in as student1
+    Then I should see "Section 2" in the "region-main" "region"
+    And I should see "Not available" in the "region-main" "region"
+    And I should not see "Not available unless: The activity Test label is marked complete" in the "region-main" "region"
+    And I should not see "Test hidden forum 22 name" in the "region-main" "region"
+
+  @javascript
+  Scenario: Students can partly see partly hidden unrestricted sections
+    Given I navigate to "Settings" in current page administration
+    And I set the following fields to these values:
+      | Course layout | Show all sections on one page |
+    And I press "Save and display"
+    And I am on "Course 1" course homepage with editing mode on
+    And I hide section "2"
+    And I navigate to "Settings" in current page administration
+    And I set the following fields to these values:
+      | Hidden sections | Hidden sections are shown as not available |
+    And I press "Save and display"
+    When I am on the "Course 1" course page logged in as student1
+    Then I should see "Section 2" in the "region-main" "region"
+    And I should see "Not available" in the "region-main" "region"
+    And I should not see "Test hidden forum 22 name" in the "region-main" "region"
+
+  @javascript
+  Scenario: Students can fully see unrestricted unhidden sections
+    Given I navigate to "Settings" in current page administration
+    And I set the following fields to these values:
+      | Course layout | Show all sections on one page |
+    And I press "Save and display"
+    And I log out
+    When I am on the "Course 1" course page logged in as student1
+    Then I should see "Section 2" in the "region-main" "region"
+    And I should not see "Not available" in the "region-main" "region"
+    And I should see "Test hidden forum 22 name" in the "region-main" "region"
