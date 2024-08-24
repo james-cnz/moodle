@@ -17,6 +17,7 @@
 namespace core_courseformat\local;
 
 use stdClass;
+use cache;
 
 /**
  * Section format actions class tests.
@@ -337,6 +338,203 @@ class sectionactions_test extends \advanced_testcase {
 
         $result = $sectionactions->create_if_missing([1, 2, 3]);
         $this->assertFalse($result);
+    }
+
+    /**
+     * Test move section down.
+     * @covers ::move_sections_to
+     */
+    public function test_move_section_down(): void {
+        global $DB;
+        $this->resetAfterTest(true);
+
+        $this->getDataGenerator()->create_course(['numsections'=>5], ['createsections'=>true]);
+        $course = $this->getDataGenerator()->create_course(['numsections'=>10], ['createsections'=>true]);
+
+        $sectionactions = new sectionactions($course);
+
+        $oldsections = [];
+        foreach ($DB->get_records('course_sections', ['course'=>$course->id]) as $section) {
+            $oldsections[$section->section] = $section->id;
+        }
+        ksort($oldsections);
+
+        // Test move section down..
+        $sectionactions->move_sections_to([(object)['id' => $oldsections[2]]], (object)['previd' => $oldsections[4]]);
+        $sections = [];
+        foreach ($DB->get_records('course_sections', ['course'=>$course->id]) as $section) {
+            $sections[$section->section] = $section->id;
+        }
+        ksort($sections);
+
+        $this->assertEquals($oldsections[0], $sections[0]);
+        $this->assertEquals($oldsections[1], $sections[1]);
+        $this->assertEquals($oldsections[2], $sections[4]);
+        $this->assertEquals($oldsections[3], $sections[2]);
+        $this->assertEquals($oldsections[4], $sections[3]);
+        $this->assertEquals($oldsections[5], $sections[5]);
+        $this->assertEquals($oldsections[6], $sections[6]);
+    }
+
+    /**
+     * Test move section up.
+     * @covers ::move_sections_to
+     */
+    public function test_move_section_up(): void {
+        global $DB;
+        $this->resetAfterTest(true);
+
+        $this->getDataGenerator()->create_course(['numsections'=>5], ['createsections'=>true]);
+        $course = $this->getDataGenerator()->create_course(['numsections'=>10], ['createsections'=>true]);
+
+        $sectionactions = new sectionactions($course);
+
+        $oldsections = [];
+        foreach ($DB->get_records('course_sections', ['course'=>$course->id]) as $section) {
+            $oldsections[$section->section] = $section->id;
+        }
+        ksort($oldsections);
+
+        // Test move section up..
+        $sectionactions->move_sections_to([(object)['id' => $oldsections[6]]], (object)['nextid' => $oldsections[4]]);
+        $sections = array();
+        foreach ($DB->get_records('course_sections', ['course'=>$course->id]) as $section) {
+            $sections[$section->section] = $section->id;
+        }
+        ksort($sections);
+
+        $this->assertEquals($oldsections[0], $sections[0]);
+        $this->assertEquals($oldsections[1], $sections[1]);
+        $this->assertEquals($oldsections[2], $sections[2]);
+        $this->assertEquals($oldsections[3], $sections[3]);
+        $this->assertEquals($oldsections[4], $sections[5]);
+        $this->assertEquals($oldsections[5], $sections[6]);
+        $this->assertEquals($oldsections[6], $sections[4]);
+    }
+
+    /**
+     * Test move section marker.
+     * @covers ::move_sections_to
+     */
+    public function test_move_section_marker(): void {
+        global $DB;
+        $this->resetAfterTest(true);
+
+        $this->getDataGenerator()->create_course(['numsections'=>5], ['createsections'=>true]);
+        $course = $this->getDataGenerator()->create_course(['numsections'=>10], ['createsections'=>true]);
+
+        $sectionactions = new sectionactions($course);
+
+        // Set course marker to the section we are going to move..
+        course_set_marker($course->id, 2);
+        // Verify that the course marker is set correctly.
+        $course = $DB->get_record('course', ['id' => $course->id]);
+        $this->assertEquals(2, $course->marker);
+
+        // Test move the marked section down..
+        $sectionactions->move_sections_to([(object)['section' => 2]], (object)['section' => 4]);
+
+        // Verify that the course marker has been moved along with the section..
+        $course = $DB->get_record('course', ['id' => $course->id]);
+        $this->assertEquals(4, $course->marker);
+
+        // Test move the marked section up..
+        $sectionactions->move_sections_to([(object)['section' => 4]], (object)['section' => 3]);
+
+        // Verify that the course marker has been moved along with the section..
+        $course = $DB->get_record('course', ['id' => $course->id]);
+        $this->assertEquals(3, $course->marker);
+
+        // Test moving a non-marked section above the marked section..
+        $sectionactions->move_sections_to([(object)['section' => 4]], (object)['section' => 2]);
+
+        // Verify that the course marker has been moved down to accomodate..
+        $course = $DB->get_record('course', ['id' => $course->id]);
+        $this->assertEquals(4, $course->marker);
+
+        // Test moving a non-marked section below the marked section..
+        $sectionactions->move_sections_to([(object)['section' => 3]], (object)['section' => 6]);
+
+        // Verify that the course marker has been up to accomodate..
+        $course = $DB->get_record('course', ['id' => $course->id]);
+        $this->assertEquals(3, $course->marker);
+    }
+
+    /**
+     * Test move_sections_to method with caching
+     * @covers ::move_sections_to
+     */
+    public function test_move_section_with_section_cache(): void {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+        $cache = cache::make('core', 'coursemodinfo');
+
+        // Generate the course and pre-requisite module.
+        $course = $this->getDataGenerator()->create_course(['format' => 'topics', 'numsections' => 3], ['createsections' => true]);
+
+        $sectionactions = new sectionactions($course);
+
+        // Reset course cache.
+        rebuild_course_cache($course->id, true);
+
+        // Build course cache.
+        $modinfo = get_fast_modinfo($course->id);
+        // Get the course modinfo cache.
+        $coursemodinfo = $cache->get_versioned($course->id, $course->cacherev);
+        // Get the section cache.
+        $sectioncaches = $coursemodinfo->sectioncache;
+
+        $numberedsections = $modinfo->get_section_info_all();
+
+        // Make sure that we will have 4 section caches here.
+        $this->assertCount(4, $sectioncaches);
+        $this->assertArrayHasKey($numberedsections[0]->id, $sectioncaches);
+        $this->assertArrayHasKey($numberedsections[1]->id, $sectioncaches);
+        $this->assertArrayHasKey($numberedsections[2]->id, $sectioncaches);
+        $this->assertArrayHasKey($numberedsections[3]->id, $sectioncaches);
+
+        // Move section.
+        $sectionactions->move_sections_to([(object)['section' => 2]], (object)['nextid' => null]);
+        // Get the course modinfo cache.
+        $coursemodinfo = $cache->get_versioned($course->id, $course->cacherev);
+        // Get the section cache.
+        $sectioncaches = $coursemodinfo->sectioncache;
+
+        // Make sure that we will have 2 section caches left.
+        $this->assertCount(2, $sectioncaches);
+        $this->assertArrayHasKey($numberedsections[0]->id, $sectioncaches);
+        $this->assertArrayHasKey($numberedsections[1]->id, $sectioncaches);
+        $this->assertArrayNotHasKey($numberedsections[2]->id, $sectioncaches);
+        $this->assertArrayNotHasKey($numberedsections[3]->id, $sectioncaches);
+    }
+
+    /**
+     * Test move_sections_to method.
+     * Make sure that we only update the moving sections, not all the sections in the current course.
+     * @covers ::move_sections_to
+     */
+    public function test_move_section_to(): void {
+        global $DB, $CFG;
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        // Generate the course and pre-requisite module.
+        $course = $this->getDataGenerator()->create_course(['format' => 'topics', 'numsections' => 3], ['createsections' => true]);
+
+        $sectionactions = new sectionactions($course);
+
+        ob_start();
+        $DB->set_debug(true);
+        // Move section.
+        $sectionactions->move_sections_to([(object)['section' => 2]], (object)['nextid' => null]);
+        $DB->set_debug(false);
+        $debuginfo = ob_get_contents();
+        ob_end_clean();
+        $sectionmovequerycount = substr_count($debuginfo, 'UPDATE ' . $CFG->phpunit_prefix . 'course_sections SET');
+        // We are updating the course_section table in steps to avoid breaking database uniqueness constraint.
+        // So the queries will be doubled. See: course/lib.php:1423
+        // Make sure that we only need 4 queries to update the position of section 2 and section 3.
+        $this->assertEquals(4, $sectionmovequerycount);
     }
 
     /**

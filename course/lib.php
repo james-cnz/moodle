@@ -1077,64 +1077,48 @@ function course_module_calendar_event_update_process($instance, $cm) {
  * not id!.
  *
  * @param object $course
- * @param int $section Section number (not id!!!)
- * @param int $destination
- * @param bool $ignorenumsections
- * @return boolean Result
+ * @param int $originnum Section number (not id!!!)
+ * @param int $destinationnum
+ * @param bool $includeorphan
+ * @return bool Result
+ * @deprecated since Moodle 5.0, see MDL-77919.
+ *      Use \core_courseformat\formatactions::section($courseorid)->move_sections_to($origins, $destination, $include) instead.
  */
-function move_section_to($course, $section, $destination, $ignorenumsections = false) {
-/// Moves a whole course section up and down within the course
-    global $USER, $DB;
+function move_section_to($course, $originnum, $destinationnum, $includeorphan = false) {
+    // Moves a whole course section up and down within the course.
+    global $DB;
 
-    if (!$destination && $destination != 0) {
+    if (!$destinationnum && $destinationnum != 0) {
         return true;
     }
 
-    // compartibility with course formats using field 'numsections'
+    // Compatibility with course formats using field 'numsections'.
     $courseformatoptions = course_get_format($course)->get_format_options();
-    if ((!$ignorenumsections && array_key_exists('numsections', $courseformatoptions) &&
-            ($destination > $courseformatoptions['numsections'])) || ($destination < 1)) {
+    if ((!$includeorphan && array_key_exists('numsections', $courseformatoptions) &&
+            ($destinationnum > $courseformatoptions['numsections'])) || ($destinationnum < 1)) {
         return false;
     }
 
-    // Get all sections for this course and re-order them (2 of them should now share the same section number)
-    if (!$sections = $DB->get_records_menu('course_sections', array('course' => $course->id),
-            'section ASC, id ASC', 'id, section')) {
+    // Adjust function parameters for the new move method.
+    $lastsectionnum = $DB->get_field_sql(
+        'SELECT max(section) from {course_sections} WHERE course = ?',
+        [$course->id]
+    );
+    $destination = ($destinationnum > $lastsectionnum) ?
+                    (object)['nextid' => null]
+                    : (object)['section' => $destinationnum];
+
+    // Call the new move method.
+    try {
+        formatactions::section($course)->move_sections_to(
+            [(object)['section' => $originnum]],
+            $destination,
+            $includeorphan ? 2 : 0
+        );
+    } catch (\moodle_exception $e) {
         return false;
     }
 
-    $movedsections = reorder_sections($sections, $section, $destination);
-
-    // Update all sections. Do this in 2 steps to avoid breaking database
-    // uniqueness constraint
-    $transaction = $DB->start_delegated_transaction();
-    foreach ($movedsections as $id => $position) {
-        if ((int) $sections[$id] !== $position) {
-            $DB->set_field('course_sections', 'section', -$position, ['id' => $id]);
-            // Invalidate the section cache by given section id.
-            course_modinfo::purge_course_section_cache_by_id($course->id, $id);
-        }
-    }
-    foreach ($movedsections as $id => $position) {
-        if ((int) $sections[$id] !== $position) {
-            $DB->set_field('course_sections', 'section', $position, ['id' => $id]);
-            // Invalidate the section cache by given section id.
-            course_modinfo::purge_course_section_cache_by_id($course->id, $id);
-        }
-    }
-
-    // If we move the highlighted section itself, then just highlight the destination.
-    // Adjust the higlighted section location if we move something over it either direction.
-    if ($section == $course->marker) {
-        course_set_marker($course->id, $destination);
-    } else if ($section > $course->marker && $course->marker >= $destination) {
-        course_set_marker($course->id, $course->marker+1);
-    } else if ($section < $course->marker && $course->marker <= $destination) {
-        course_set_marker($course->id, $course->marker-1);
-    }
-
-    $transaction->allow_commit();
-    rebuild_course_cache($course->id, true, true);
     return true;
 }
 
@@ -1151,8 +1135,9 @@ function move_section_to($course, $section, $destination, $ignorenumsections = f
  * @return bool whether section was deleted
  */
 function course_delete_section($course, $sectionornum, $forcedeleteifnotempty = true, $async = false) {
-    $sectionnum = (is_object($sectionornum)) ? $sectionornum->section : (int)$sectionornum;
-    $sectioninfo = get_fast_modinfo($course)->get_section_info($sectionnum);
+    $sectioninfo = is_object($sectionornum) ?
+                    get_fast_modinfo($course)->get_section_info_by_id($sectionornum->id)
+                    : get_fast_modinfo($course)->get_section_info($sectionornum);
     if (!$sectioninfo) {
         return false;
     }
@@ -1242,13 +1227,12 @@ function course_can_delete_section($course, $section) {
  * Reordering algorithm for course sections. Given an array of section->section indexed by section->id,
  * an original position number and a target position number, rebuilds the array so that the
  * move is made without any duplication of section positions.
- * Note: The target_position is the position AFTER WHICH the moved section will be inserted. If you want to
- * insert a section before the first one, you must give 0 as the target (section 0 can never be moved).
  *
  * @param array $sections
  * @param int $origin_position
  * @param int $target_position
  * @return array|false
+ * @deprecated since Moodle 5.0, see MDL-77919.
  */
 function reorder_sections($sections, $origin_position, $target_position) {
     if (!is_array($sections)) {

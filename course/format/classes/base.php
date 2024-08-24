@@ -41,6 +41,7 @@ use core_external\external_api;
 use stdClass;
 use cache;
 use core_courseformat\output\legacy_renderer;
+use core_courseformat\formatactions;
 
 /**
  * Base class for course formats
@@ -1714,16 +1715,13 @@ abstract class base {
             course_set_marker($course->id, 0);
         }
 
-        $lastsection = $DB->get_field_sql('SELECT max(section) from {course_sections}
-                            WHERE course = ?', array($course->id));
-
         // Find out if we need to descrease the 'numsections' property later.
         $courseformathasnumsections = array_key_exists('numsections',
             $this->get_format_options());
         $decreasenumsections = $courseformathasnumsections && ($section->section <= $course->numsections);
 
         // Move the section to the end.
-        move_section_to($course, $section->section, $lastsection, true);
+        formatactions::section($course)->move_sections_to([$section], (object)['nextid' => null], 2);
 
         // Delete all modules from the section.
         foreach (preg_split('/,/', $section->sequence, -1, PREG_SPLIT_NO_EMPTY) as $cmid) {
@@ -1767,26 +1765,25 @@ abstract class base {
     /**
      * Moves a section just after the target section.
      *
-     * @param section_info $section the section to move
-     * @param section_info $destination the section that should be below the moved section
-     * @return boolean if the section can be moved or not
+     * @param section_info $origin the section to move
+     * @param section_info $prevsection the section that should be before the moved section
+     * @return boolean if the section was moved or not
+     * @deprecated since Moodle 5.0, see MDL-77919.
+     *      Use \core_courseformat\formatactions::section($courseorid)->move_sections_to($origins, $destination, $include) instead.
      */
-    public function move_section_after(section_info $section, section_info $destination): bool {
-        if ($section->section == $destination->section || $section->section == $destination->section + 1) {
+    public function move_section_after(section_info $origin, section_info $prevsection): bool {
+        if ($origin->id == $prevsection->id) {
             return true;
         }
-        // The move_section_to moves relative to the section to move. However, this
-        // method will move the target section always after the destination.
-        if ($section->section > $destination->section) {
-            $newsectionnumber = $destination->section + 1;
-        } else {
-            $newsectionnumber = $destination->section;
+        try {
+            formatactions::section($this->get_course())->move_sections_to(
+                [$origin],
+                (object)['previd' => $prevsection->id],
+            );
+        } catch (\moodle_exception $e) {
+            return false;
         }
-        return move_section_to(
-            $this->get_course(),
-            $section->section,
-            $newsectionnumber
-        );
+        return true;
     }
 
     /**

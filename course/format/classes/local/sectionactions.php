@@ -40,15 +40,27 @@ class sectionactions extends baseactions {
      */
     protected function create_from_object(stdClass $fields, bool $skipcheck = false): stdClass {
         global $DB;
-        [
-            'position' => $position,
-            'lastsection' => $lastsection,
-        ] = $this->calculate_positions($fields, $skipcheck);
+
+        $skipcheck = $skipcheck && isset($fields->section);
+
+        // Determine the create position, and adapt fields for the move method, if necessary.
+        if ($skipcheck) {
+            $createnum = $fields->section;
+        } else {
+            $createnum = $DB->get_field_sql(
+                'SELECT max(section) from {course_sections} WHERE course = ?',
+                [$this->course->id]
+            ) + 1;
+            if ((!isset($fields->section) || $fields->section > $createnum) && !isset($fields->nextid)) {
+                unset($fields->section);
+                $fields->nextid = null;
+            }
+        }
 
         // First add section to the end.
         $sectionrecord = (object) [
             'course' => $this->course->id,
-            'section' => $lastsection + 1,
+            'section' => $createnum,
             'summary' => $fields->summary ?? '',
             'summaryformat' => $fields->summaryformat ?? FORMAT_HTML,
             'sequence' => '',
@@ -61,56 +73,21 @@ class sectionactions extends baseactions {
         ];
         $sectionrecord->id = $DB->insert_record("course_sections", $sectionrecord);
 
-        // Now move it to the specified position.
-        if ($position > 0 && $position <= $lastsection) {
-            move_section_to($this->course, $sectionrecord->section, $position, true);
-            $sectionrecord->section = $position;
+        // Now move it to the specified position, if necessary.
+        if (!$skipcheck && !(!empty($fields->component) && property_exists($fields, 'nextid') && $fields->nextid == null)) {
+            try {
+                $movednews = $this->move_sections_to([$sectionrecord], $fields, !empty($fields->component) ? 2 : 1);
+                $sectionrecord->section = $movednews[$sectionrecord->id]->section;
+            } catch (\moodle_exception $e) {
+                $DB->delete_records('course_sections', [$id => $sectionrecord->id]);
+                throw $e;
+            }
         }
 
         \core\event\course_section_created::create_from_section($sectionrecord)->trigger();
 
         rebuild_course_cache($this->course->id, true);
         return $sectionrecord;
-    }
-
-    /**
-     * Calculate the position and lastsection values.
-     *
-     * Each section number must be unique inside a course. However, the section creation is not always
-     * explicit about the final position. By default, regular sections are created at the last position.
-     * However, delegated section can alter that order, because all delegated sections should have higher
-     * numbers. Apart, restore operations can also create sections with a forced specific number.
-     *
-     * This method returns what is the best position for a new section data and, also, what is the current
-     * last section number. The last section is needed to decide if the new section must be moved or not after
-     * insertion.
-     *
-     * @param stdClass $fields the fields to set on the section
-     * @param bool $skipcheck the position check has already been made and we know it can be used
-     * @return array with the new section position (position key) and the course last section value (lastsection key)
-     */
-    private function calculate_positions($fields, $skipcheck): array {
-        if (!isset($fields->section)) {
-            $skipcheck = false;
-        }
-        if ($skipcheck) {
-            return [
-                'position' => $fields->section,
-                'lastsection' => $fields->section - 1,
-            ];
-        }
-
-        $lastsection = $this->get_last_section_number();
-        if (!empty($fields->component)) {
-            return [
-                'position' => $fields->section ?? $lastsection + 1,
-                'lastsection' => $lastsection,
-            ];
-        }
-        return [
-            'position' => $fields->section ?? $this->get_last_section_number(false) + 1,
-            'lastsection' => $lastsection,
-        ];
     }
 
     /**
@@ -160,13 +137,13 @@ class sectionactions extends baseactions {
      * This will become sectionnum of the new section. All existing sections at this or bigger
      * position will be shifted down.
      *
-     * @param int $position The position to add to, 0 means to the end.
+     * @param int $position the position to add to, 0 means to the end.
      * @param bool $skipcheck the check has already been made and we know that the section with this position does not exist
-     * @return stdClass created section object)
+     * @return stdClass created section object
      */
     public function create(int $position = 0, bool $skipcheck = false): stdClass {
         $record = (object) [
-            'section' => $position,
+            'section' => ($position == 0 && !$skipcheck) ? null : $position,
         ];
         return $this->create_from_object($record, $skipcheck);
     }
@@ -197,6 +174,220 @@ class sectionactions extends baseactions {
             $result = true;
         }
         return $result;
+    }
+
+    /**
+     * Moves sections within a course.
+     *
+     * @param object[] $origins  the origin section(s) to be moved
+     *      Given as an array of objects with section ID or number.
+     * @param \stdClass $destination  the new location for the origin section(s)
+     *      Given as an object with previd, nextid, or section number.  Use nextid of null for end of course.
+     * @param int $include  What types of sections are included in the move?
+     *      0 regular only, 1 also orphan, 2 also delegated
+     *      Specifies whether moved sections should be within numsections (0), within non-delegated (1), or not checked (2).
+     *      Use in combination with nextid of null to move to the end of non-delegated (1) or all sections (2).
+     * @return object[]  objects containing section numbers for the moved section(s), indexed by id
+     */
+    public function move_sections_to(array $origins, \stdClass $destination, int $include = 0): array {
+        global $DB;
+
+        // Get all sections for this course and re-order them.
+        $sections = $DB->get_records('course_sections', ['course' => $this->course->id], 'section', 'id, section, component');
+        if (!$sections) {
+            throw new \moodle_exception('cannotcreateorfindstructs');
+        }
+        $movedsections = $this->reorder_sections($sections, $origins, $destination, $include);
+
+        try {
+            $transaction = $DB->start_delegated_transaction();
+
+            // Update all sections. Do this in 2 steps to avoid breaking database
+            // uniqueness constraint.
+            foreach ($movedsections as $id => $movedsection) {
+                if ((int) $sections[$id]->section != $movedsection->section) {
+                    $DB->set_field('course_sections', 'section', -$movedsection->section, ['id' => $id]);
+                }
+            }
+            foreach ($movedsections as $id => $movedsection) {
+                if ((int) $sections[$id]->section != $movedsection->section) {
+                    $DB->set_field('course_sections', 'section', $movedsection->section, ['id' => $id]);
+                    // Invalidate the section cache by given section id.
+                    \course_modinfo::purge_course_section_cache_by_id($this->course->id, $id);
+                }
+            }
+
+            // Adjust the higlighted section location if necessary.
+            $markernum = $DB->get_field('course', 'marker', ['id' => $this->course->id]);
+            $markerid = null;
+            foreach ($sections as $section) {
+                if ($section->section == $markernum) {
+                    $markerid = $section->id;
+                    break;
+                }
+            }
+            if ($markerid && $movedsections[$markerid]->section != $sections[$markerid]->section) {
+                course_set_marker($this->course->id, $movedsections[$markerid]->section);
+            }
+
+            $transaction->allow_commit();
+        } catch (\Exception $e) {
+            if ($transaction) {
+                $transaction->rollback($e);
+            }
+            throw $e;
+        }
+
+        rebuild_course_cache($this->course->id, true, true);
+
+        // Provide new section numbers for moved sections.
+        $movedorigins = [];
+        foreach ($origins as $origin) {
+            if (isset($origin->id)) {
+                $originid = $origin->id;
+            } else {
+                foreach ($sections as $section) {
+                    if ($section->section == $origin->section) {
+                        $originid = $section->id;
+                        break;
+                    }
+                }
+            }
+            $movedorigins[$originid] = (object)['id' => $originid, 'section' => $movedsections[$originid]->section];
+        }
+
+        return $movedorigins;
+
+    }
+
+    /**
+     * Reordering algorithm for course sections. Given an array of sections indexed by section->id,
+     * origin sections and a destination, rebuilds the array so that the
+     * move is made without any duplication of section positions.
+     *
+     * @param object[] $sections  array of sections indexed by id
+     *      Must include id, section, and component fields.
+     * @param object[] $origins  the origin section(s) to be moved
+     *      Given as an array of objects with section number or ID.
+     * @param \stdClass $destination  the new location for the origin section(s)
+     *      Given as an object with previd, nextid, or section number.  Use nextid of null for end of course.
+     * @param int $include  What types of sections are included in the move?
+     *      0 regular only, 1 also orphan, 2 also delegated
+     * @return object[]
+     */
+    protected function reorder_sections(array $sections, array $origins, \stdClass $destination, int $include): array {
+
+        // Ignore delegated sections if appropriate.
+        $ignoredsections = [];
+        if ($include < 2) {
+            foreach ($sections as $id => $section) {
+                if (!empty($section->component)) {
+                    $ignoredsections[$id] = $section;
+                    unset($sections[$id]);
+                }
+            }
+        }
+
+        // Locate and extract origin sections.
+        $originsections = [];
+        foreach ($origins as $origin) {
+
+            // Locate origin section in sections array.
+            $originsection = null;
+            if (isset($origin->id)) {
+                $originsection = $sections[$origin->id] ?? null;
+            } else if (isset($origin->section)) {
+                foreach ($sections as $id => $section) {
+                    if ($section->section == $origin->section) {
+                        $originsection = $section;
+                        break;
+                    }
+                }
+            }
+            if (!$originsection) {
+                throw new \moodle_exception('sectionnotexist');
+            }
+
+            // We can't move section position 0.
+            if ($originsection->section <= 0) {
+                throw new \moodle_exception('Cannot move section number 0.');
+            }
+
+            // Extract origin section.
+            $originsections[$originsection->id] = $originsection;
+            unset($sections[$originsection->id]);
+
+        }
+
+        // Find offset of target position and extract following sections.
+        $found = false;
+        $followingsections = [];
+        $newposition = 0;
+        foreach ($sections as $id => $section) {
+            if ($found) {
+                $followingsections[$id] = $section;
+                unset($sections[$id]);
+            } else if (
+                isset($destination->nextid) && $id == $destination->nextid
+                || isset($destination->section) && $newposition == $destination->section
+            ) {
+                $found = true;
+                $followingsections[$id] = $section;
+                unset($sections[$id]);
+            } else if (isset($destination->previd) && $id == $destination->previd) {
+                $found = true;
+            }
+            $newposition++;
+        }
+        if (
+            !$found &&
+            (property_exists($destination, 'nextid') && $destination->nextid == null
+            || isset($destination->section) && $newposition == $destination->section)
+        ) {
+            $found = true;
+        }
+
+        if (!$found) {
+            throw new \moodle_exception('sectionnotexist');
+        }
+        if (count($sections) == 0) {
+            throw new \moodle_exception('Cannot move section number 0.');
+        }
+
+        // Compatibility with course formats using field 'numsections'.
+        if ($include < 1) {
+            $courseformatoptions = course_get_format($this->course)->get_format_options();
+            $numsections = $courseformatoptions['numsections'] ?? PHP_INT_MAX;
+            if (count($sections) + count($originsections) > $numsections) {
+                throw new \moodle_exception('Moved sections would be outside numsections.');
+            }
+        }
+
+        // Append moved sections.
+        foreach ($originsections as $id => $section) {
+            $sections[$id] = $section;
+        }
+
+        // Append following sections.
+        foreach ($followingsections as $id => $section) {
+            $sections[$id] = $section;
+        }
+
+        // Append ignored sections.
+        foreach ($ignoredsections as $id => $section) {
+            $sections[$id] = $section;
+        }
+
+        // Renumber positions.
+        $position = 0;
+        foreach ($sections as $id => $section) {
+            $sections[$id] = clone($section);
+            $sections[$id]->section = $position;
+            $position++;
+        }
+
+        return $sections;
+
     }
 
     /**
