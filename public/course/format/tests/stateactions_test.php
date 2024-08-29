@@ -2127,31 +2127,28 @@ final class stateactions_test extends \advanced_testcase {
 
         $actions = new stateactions();
         $updates = new stateupdates($courseformat);
+        $this->expectException(\moodle_exception::class);
         $actions->section_duplicate($updates, $course, [$sectiontoduplicate->id]);
 
+        // Duplicating subsections is not supported yet.
+        // The course should be left in the original state.
+
         $results = $this->summarize_updates($updates);
-        $this->assertCount(5, $results['put']['section']);
-        $this->assertCount(3, $results['put']['cm']);
+        $this->assertCount(4, $results['put']['section']);
+        $this->assertCount(2, $results['put']['cm']);
 
         // Validate structure.
+        rebuild_course_cache($course->id, true);
         $modinfo = course_modinfo::instance($course);
 
         $sections = $modinfo->get_section_info_all();
-        $this->assertCount(5, $sections);
+        $this->assertCount(4, $sections);
         $cms = $modinfo->get_cms();
-        $this->assertCount(3, $cms);
+        $this->assertCount(2, $cms);
 
         $originalsection = $modinfo->get_section_info(3);
         $this->assertEquals($sectiontoduplicate->id, $originalsection->id);
         $cms = $originalsection->get_sequence_cm_infos();
         $this->assertEquals($forum->cmid, $cms[0]->id);
-
-        $duplicatedsection = $modinfo->get_section_info(4);
-        $cms = $duplicatedsection->get_sequence_cm_infos();
-        $this->assertEquals($forum->name, $cms[0]->get_name());
-
-        // Duplicating subsections is not supported yet. Any duplicated subsection
-        // will be promoted to a section.
-        $this->assertFalse($duplicatedsection->is_delegated());
     }
 }
