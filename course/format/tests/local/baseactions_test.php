@@ -18,6 +18,7 @@ namespace core_courseformat\local;
 use ReflectionMethod;
 use section_info;
 use cm_info;
+use core_courseformat\formatactions;
 
 /**
  * Base format actions class tests.
@@ -100,7 +101,7 @@ class baseactions_test extends \advanced_testcase {
 
         // Section info should be always the most updated one.
         course_update_section($course, $originalsection, (object)['name' => 'New name']);
-        move_section_to($course, 1, 3);
+        formatactions::section($course)->move_sections_to([(object)['section' => 1]], (object)['section' => 3]);
 
         $sectioninfo = $method->invoke($baseactions, $originalsection->id);
         $this->assertInstanceOf(section_info::class, $sectioninfo);
