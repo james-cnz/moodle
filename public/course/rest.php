@@ -29,6 +29,8 @@ if (!defined('AJAX_SCRIPT')) {
 require_once(__DIR__ . '/../config.php');
 require_once($CFG->dirroot.'/course/lib.php');
 
+use core_courseformat\formatactions;
+
 // Initialise ALL the incoming parameters here, up front.
 $courseid   = required_param('courseId', PARAM_INT);
 $class      = required_param('class', PARAM_ALPHA);
@@ -62,7 +64,10 @@ if ($class === 'section' && $field === 'move') {
     }
 
     require_capability('moodle/course:movesections', $coursecontext);
-    move_section_to($course, $id, $value);
+    formatactions::section($course)->move_sections_to(
+        [(object)['section' => $id]],
+        (object)['section' => $value]
+    );
     // See if format wants to do something about it.
     $response = course_get_format($course)->ajax_section_move();
     if ($response !== null) {
