@@ -195,7 +195,7 @@ class format_topics extends core_courseformat\base {
         $renderer = $this->get_renderer($PAGE);
         if ($renderer && ($sections = $modinfo->get_section_info_all())) {
             foreach ($sections as $number => $section) {
-                $titles[$number] = $renderer->section_title($section, $course);
+                $titles[$number] = $renderer->section_title_opt_link($section, $course, true);
             }
         }
         return ['sectiontitles' => $titles, 'action' => 'move'];

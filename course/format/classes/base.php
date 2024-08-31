@@ -552,6 +552,16 @@ abstract class base {
     }
 
     /**
+     * Returns the subtitle for the section.
+     *
+     * @param section_info|stdClass $section The course section object
+     * @return string|null
+     */
+    public function get_section_subtitle(section_info|stdClass $section): ?string {
+        return null;
+    }
+
+    /**
      * Returns the name for the highlighted section.
      *
      * @return string The name for the highlighted section based on the given course format.

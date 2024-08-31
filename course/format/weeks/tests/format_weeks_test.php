@@ -105,21 +105,26 @@ class format_weeks_test extends \advanced_testcase {
         // Get section names for course.
         $coursesections = $DB->get_records('course_sections', array('course' => $course->id));
 
-        // Test get_default_section_name with default section names.
+        // Test get_default_section_name with default section names, and test get_section_subtitle.
         $courseformat = course_get_format($course);
         foreach ($coursesections as $section) {
             if ($section->section == 0) {
                 $sectionname = get_string('section0name', 'format_weeks');
                 $this->assertEquals($sectionname, $courseformat->get_default_section_name($section));
+
+                $this->assertEquals(null, $courseformat->get_section_subtitle($section));
             } else {
+                $sectionname = get_string('section') . ' ' . $section->section;
+                $this->assertEquals($sectionname, $courseformat->get_default_section_name($section));
+
                 $dates = $courseformat->get_section_dates($section);
                 $dates->end = ($dates->end - 86400);
                 $dateformat = get_string('strftimedateshort');
                 $weekday = userdate($dates->start, $dateformat);
                 $endweekday = userdate($dates->end, $dateformat);
-                $sectionname = $weekday.' - '.$endweekday;
+                $sectionsubtitle = $weekday.' – '.$endweekday;
 
-                $this->assertEquals($sectionname, $courseformat->get_default_section_name($section));
+                $this->assertEquals($sectionsubtitle, $courseformat->get_section_subtitle($section));
             }
         }
     }

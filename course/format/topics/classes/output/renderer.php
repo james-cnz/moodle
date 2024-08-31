@@ -43,24 +43,14 @@ class renderer extends section_renderer {
     }
 
     /**
-     * Generate the section title, wraps it in a link to the section page if page is to be displayed on a separate page.
+     * Generate the section title, optionally wraps it in a link to the section page if page is to be displayed on a separate page.
      *
-     * @param section_info|stdClass $section The course_section entry from DB
+     * @param \section_info|\stdClass $section The course section object
      * @param stdClass $course The course entry from DB
+     * @param bool $linkifneeded Whether to wrap in a link
      * @return string HTML to output.
      */
-    public function section_title($section, $course) {
-        return $this->render(course_get_format($course)->inplace_editable_render_section_name($section));
-    }
-
-    /**
-     * Generate the section title to be displayed on the section page, without a link.
-     *
-     * @param section_info|stdClass $section The course_section entry from DB
-     * @param int|stdClass $course The course entry from DB
-     * @return string HTML to output.
-     */
-    public function section_title_without_link($section, $course) {
-        return $this->render(course_get_format($course)->inplace_editable_render_section_name($section, false));
+    public function section_title_opt_link(\section_info|\stdClass $section, \stdClass $course, bool $linkifneeded): string {
+        return $this->render(course_get_format($course)->inplace_editable_render_section_name($section, $linkifneeded));
     }
 }

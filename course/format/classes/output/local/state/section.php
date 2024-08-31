@@ -79,6 +79,7 @@ class section implements renderable {
             'section' => $section->section,
             'number' => $section->section,
             'title' => $format->get_section_name($section),
+            'subtitle' => $format->get_section_subtitle($section),
             'hassummary' => !empty($section->summary),
             'rawtitle' => $section->name,
             'cmlist' => [],

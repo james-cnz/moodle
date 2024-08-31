@@ -423,6 +423,10 @@ export default class Component extends BaseComponent {
                 }
             }
         }
+        const targetSubtitle = target.querySelector(".section-subtitle");
+        if (targetSubtitle) {
+            targetSubtitle.textContent = element.subtitle ?? "";
+        }
     }
 
     /**

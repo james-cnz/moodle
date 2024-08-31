@@ -89,19 +89,34 @@ abstract class section_renderer extends core_course_renderer {
     }
 
     /**
+     * Generate the section title, optionally wraps it in a link to the section page if page is to be displayed on a separate page.
+     *
+     * @param section_info|stdClass $section The course section object
+     * @param stdClass $course The course entry from DB
+     * @param bool $linkifneeded Whether to wrap in a link
+     * @return string HTML to output.
+     */
+    public function section_title_opt_link(section_info|stdClass $section, stdClass $course, bool $linkifneeded): string {
+        $title = get_section_name($course, $section);
+        if ($linkifneeded) {
+            $url = course_get_url($course, $section->section, ['navigation' => true]);
+            if ($url) {
+                $title = html_writer::link($url, $title);
+            }
+        }
+        return $title;
+    }
+
+    /**
      * Generate the section title, wraps it in a link to the section page if page is to be displayed on a separate page
      *
      * @param stdClass $section The course_section entry from DB
      * @param stdClass $course The course entry from DB
      * @return string HTML to output.
+     * @deprecated since Moodle 5.0, use section_title_opt_link instead.
      */
     public function section_title($section, $course) {
-        $title = get_section_name($course, $section);
-        $url = course_get_url($course, $section->section, array('navigation' => true));
-        if ($url) {
-            $title = html_writer::link($url, $title);
-        }
-        return $title;
+        return $this->section_title_opt_link($section, $course, true);
     }
 
     /**
@@ -110,9 +125,10 @@ abstract class section_renderer extends core_course_renderer {
      * @param stdClass $section The course_section entry from DB
      * @param stdClass $course The course entry from DB
      * @return string HTML to output.
+     * @deprecated since Moodle 5.0, use section_title_opt_link instead.
      */
     public function section_title_without_link($section, $course) {
-        return get_section_name($course, $section);
+        return $this->section_title_opt_link($section, $course, false);
     }
 
     /**

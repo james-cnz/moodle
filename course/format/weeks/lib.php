@@ -90,17 +90,34 @@ class format_weeks extends core_courseformat\base {
         if ($section->section == 0) {
             // Return the general section.
             return get_string('section0name', 'format_weeks');
+        } else if (empty($section->component)) {
+            return get_string('section') . ' ' . $section->section;
         } else {
-            $dates = $this->get_section_dates($section);
-
-            // We subtract 24 hours for display purposes.
-            $dates->end = ($dates->end - 86400);
-
-            $dateformat = get_string('strftimedateshort');
-            $weekday = userdate($dates->start, $dateformat);
-            $endweekday = userdate($dates->end, $dateformat);
-            return $weekday.' - '.$endweekday;
+            return '';
         }
+    }
+
+    /**
+     * Returns the subtitle for the section
+     *
+     * @param section_info|stdClass $section The course section object
+     * @return string|null
+     */
+    public function get_section_subtitle(section_info|stdClass $section): ?string {
+
+        if ($section->section == 0 || !empty($section->component)) {
+            return null;
+        }
+
+        $dates = $this->get_section_dates($section);
+
+        // We subtract 24 hours for display purposes.
+        $dates->end = ($dates->end - 86400);
+
+        $dateformat = get_string('strftimedateshort');
+        $weekday = userdate($dates->start, $dateformat);
+        $endweekday = userdate($dates->end, $dateformat);
+        return $weekday.' – '.$endweekday;
     }
 
     /**
@@ -206,7 +223,7 @@ class format_weeks extends core_courseformat\base {
         $renderer = $this->get_renderer($PAGE);
         if ($renderer && ($sections = $modinfo->get_section_info_all())) {
             foreach ($sections as $number => $section) {
-                $titles[$number] = $renderer->section_title($section, $course);
+                $titles[$number] = $renderer->section_title_opt_link($section, $course, true);
                 if ($this->is_section_current($section)) {
                     $current = $number;
                 }
