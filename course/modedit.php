@@ -35,7 +35,9 @@ $add    = optional_param('add', '', PARAM_ALPHANUM);     // Module name.
 $update = optional_param('update', 0, PARAM_INT);
 $return = optional_param('return', 0, PARAM_BOOL);    //return to course/view.php if false or mod/modname/view.php if true
 $type   = optional_param('type', '', PARAM_ALPHANUM); //TODO: hopefully will be removed in 2.0
-$sectionreturn = optional_param('sr', null, PARAM_INT);
+$sectionreturn = optional_param('sr', null, PARAM_INT); // Deprecated since Moodle 5.0 (MDL-83224).
+$pagesectionid = optional_param('pagesectionid', null, PARAM_INT);
+$pagelevel = optional_param('pagelevel', null, PARAM_INT);
 $beforemod = optional_param('beforemod', 0, PARAM_INT);
 $showonly = optional_param('showonly', '', PARAM_TAGLIST); // Settings group to show expanded and hide the rest.
 
@@ -43,10 +45,22 @@ $showonly = optional_param('showonly', '', PARAM_TAGLIST); // Settings group to 
 if ($sectionreturn < 0) {
     $sectionreturn = null;
 }
+if ($pagesectionid < 0) {
+    $pagesectionid = null;
+}
+if ($pagelevel < 0) {
+    $pagelevel = null;
+}
 
 $url = new moodle_url('/course/modedit.php');
 if (!is_null($sectionreturn)) {
     $url->param('sr', $sectionreturn);
+}
+if (!is_null($pagesectionid)) {
+    $url->param('pagesectionid', $pagesectionid);
+}
+if (!is_null($pagelevel)) {
+    $url->param('pagelevel', $pagelevel);
 }
 if (!empty($return)) {
     $url->param('return', $return);
@@ -70,7 +84,7 @@ if (!empty($add)) {
     // There is no page for this in the navigation. The closest we'll have is the course section.
     // If the course section isn't displayed on the navigation this will fall back to the course which
     // will be the closest match we have.
-    navigation_node::override_active_url(course_get_url($course, $section));
+    navigation_node::override_active_url(course_get_url($course, $section, ['pagelevel' => null]));
 
     // MDL-69431 Validate that $section (url param) does not exceed the maximum for this course / format.
     // If too high (e.g. section *id* not number) non-sequential sections inserted in course_sections table.
@@ -85,6 +99,12 @@ if (!empty($add)) {
     $data->return = 0;
     if (!is_null($sectionreturn)) {
         $data->sr = $sectionreturn;
+    }
+    if (!is_null($pagesectionid)) {
+        $data->pagesectionid = $pagesectionid;
+    }
+    if (!is_null($pagelevel)) {
+        $data->pagelevel = $pagelevel;
     }
     $data->add = $add;
     $data->beforemod = $beforemod;
@@ -118,6 +138,12 @@ if (!empty($add)) {
     $data->return = $return;
     if (!is_null($sectionreturn)) {
         $data->sr = $sectionreturn;
+    }
+    if (!is_null($pagesectionid)) {
+        $data->pagesectionid = $pagesectionid;
+    }
+    if (!is_null($pagelevel)) {
+        $data->pagelevel = $pagelevel;
     }
     $data->update = $update;
     if (!empty($showonly)) {
@@ -175,6 +201,12 @@ if ($mform->is_cancelled()) {
         if (!is_null($sectionreturn)) {
             $options['sr'] = $sectionreturn;
         }
+        if (!is_null($pagesectionid)) {
+            $options['pagesectionid'] = $pagesectionid;
+        }
+        if (!is_null($pagelevel)) {
+            $options['pagelevel'] = $pagelevel;
+        }
         redirect(course_get_url($course, $cw->section, $options));
     }
 } else if ($fromform = $mform->get_data()) {
@@ -200,6 +232,12 @@ if ($mform->is_cancelled()) {
         $options = [];
         if (!is_null($sectionreturn)) {
             $options['sr'] = $sectionreturn;
+        }
+        if (!is_null($pagesectionid)) {
+            $options['pagesectionid'] = $pagesectionid;
+        }
+        if (!is_null($pagelevel)) {
+            $options['pagelevel'] = $pagelevel;
         }
         $url = course_get_url($course, $cw->section, $options);
     }

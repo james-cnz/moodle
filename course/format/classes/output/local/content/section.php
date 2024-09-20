@@ -147,6 +147,8 @@ class section implements named_templatable, renderable {
         $format = $this->format;
         $course = $format->get_course();
         $section = $this->section;
+        $pagesectionid = $format->get_sectionid() ?? 0;
+        $pagelevel = $format->get_page_level_for_section($section);
 
         $summary = new $this->summaryclass($format, $section);
 
@@ -154,6 +156,8 @@ class section implements named_templatable, renderable {
             'num' => $section->section ?? '0',
             'id' => $section->id,
             'sectionreturnnum' => $format->get_sectionnum(),
+            'pagesectionid' => is_null($pagelevel) ? $pagesectionid : false,
+            'pagelevel' => $pagelevel ?? false,
             'insertafter' => false,
             'summary' => $summary->export_for_template($output),
             'highlightedlabel' => $format->get_section_highlighted_name(),
@@ -314,10 +318,16 @@ class section implements named_templatable, renderable {
             $data->controlmenu = $controlmenu->export_for_template($output);
         }
         if (!$this->isstealth) {
+            $pagesectionid = $this->format->get_sectionid() ?? 0;
+            $pagelevel = $this->format->get_page_level_for_section($this->section);
             $data->cmcontrols = $output->course_section_add_cm_control(
                 $course,
                 $this->section->section,
-                $this->format->get_sectionnum()
+                $this->format->get_sectionnum(),
+                null,
+                null,
+                is_null($pagelevel) ? $pagesectionid : null,
+                $pagelevel
             );
         }
         return true;

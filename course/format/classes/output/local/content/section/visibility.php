@@ -144,8 +144,22 @@ class visibility implements named_templatable, renderable {
      * @return array
      */
     private function get_option_data(string $name, string $action): array {
-        $baseurl = course_get_url($this->section->course, $this->section);
+        $format = $this->format;
+        $sectionreturn = $format->get_sectionnum();
+        $pagesectionid = $format->get_sectionid() ?? 0;
+        $pagelevel = $format->get_page_level_for_section($this->section);
+
+        $baseurl = course_get_url($this->section->course);
+        if (!is_null($sectionreturn)) {
+            $baseurl->param('sectionid', $format->get_sectionid());
+        }
+        if (is_null($pagelevel)) {
+            $baseurl->param('pagesectionid', $pagesectionid);
+        } else {
+            $baseurl->param('pagelevel', $pagelevel);
+        }
         $baseurl->param('sesskey', sesskey());
+
         $baseurl->param($action,  $this->section->section);
 
         return [

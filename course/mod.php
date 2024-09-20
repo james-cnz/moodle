@@ -26,7 +26,9 @@
 require("../config.php");
 require_once("lib.php");
 
-$sectionreturn = optional_param('sr', null, PARAM_INT);
+$sectionreturn = optional_param('sr', null, PARAM_INT); // Deprecated since Moodle 5.0 (MDL-83224).
+$pagesectionid = optional_param('pagesectionid', null, PARAM_INT);
+$pagelevel     = optional_param('pagelevel', null, PARAM_INT);
 $add           = optional_param('add', '', PARAM_ALPHANUM);
 $type          = optional_param('type', '', PARAM_ALPHA);
 $indent        = optional_param('indent', 0, PARAM_INT);
@@ -55,10 +57,24 @@ foreach (compact('indent','update','hide','show','copy','moveto','movetosection'
 if ($sectionreturn < 0) {
     $sectionreturn = null;
 }
+if ($pagesectionid < 0) {
+    $pagesectionid = null;
+}
+if ($pagelevel < 0) {
+    $pagelevel = null;
+}
 $urloptions = [];
 if (!is_null($sectionreturn)) {
     $url->param('sr', $sectionreturn);
     $urloptions['sr'] = $sectionreturn;
+}
+if (!is_null($pagesectionid)) {
+    $url->param('pagesectionid', $pagesectionid);
+    $urloptions['pagesectionid'] = $pagesectionid;
+}
+if (!is_null($pagelevel)) {
+    $url->param('pagelevel', $pagelevel);
+    $urloptions['pagelevel'] = $pagelevel;
 }
 if ($add !== '') {
     $url->param('add', $add);
@@ -92,6 +108,12 @@ if (!empty($add)) {
     if (!is_null($sectionreturn)) {
         $params['sr'] = $sectionreturn;
     }
+    if (!is_null($pagesectionid)) {
+        $params['pagesectionid'] = $pagesectionid;
+    }
+    if (!is_null($pagelevel)) {
+        $params['pagelevel'] = $pagelevel;
+    }
 
     redirect(
         new moodle_url(
@@ -110,6 +132,12 @@ if (!empty($add)) {
     ];
     if (!is_null($sectionreturn)) {
         $params['sr'] = $sectionreturn;
+    }
+    if (!is_null($pagesectionid)) {
+        $params['pagesectionid'] = $pagesectionid;
+    }
+    if (!is_null($pagelevel)) {
+        $params['pagelevel'] = $pagelevel;
     }
     redirect(
         new moodle_url(
@@ -153,6 +181,12 @@ if (!empty($add)) {
         ];
         if (!is_null($sectionreturn)) {
             $optionsyes['sr'] = $sectionreturn;
+        }
+        if (!is_null($pagesectionid)) {
+            $optionsyes['pagesectionid'] = $pagesectionid;
+        }
+        if (!is_null($pagelevel)) {
+            $optionsyes['pagelevel'] = $pagelevel;
         }
         $strdeletecheck = get_string('deletecheck', '', $fullmodulename);
         $strparams = (object)array('type' => $fullmodulename, 'name' => $cm->name);
@@ -266,7 +300,7 @@ if ((!empty($movetosection) or !empty($moveto)) and confirm_sesskey()) {
     if (set_coursemodule_visible($cm->id, 1, 0)) {
         \core\event\course_module_updated::create_from_cm($cm)->trigger();
     }
-    redirect(course_get_url($course, $cm->sectionnum, array('sr' => $sectionreturn)));
+    redirect(course_get_url($course, $cm->sectionnum, $urloptions));
 
 } else if (!empty($show) and confirm_sesskey()) {
     list($course, $cm) = get_course_and_cm_from_cmid($show);
@@ -323,7 +357,7 @@ if ((!empty($movetosection) or !empty($moveto)) and confirm_sesskey()) {
     unset($USER->activitycopycourse);
     unset($USER->activitycopyname);
     unset($USER->activitycopysectionreturn);
-    redirect(course_get_url($course, $cm->sectionnum, $urloptions));
+    redirect(course_get_url($course, $cm->sectionnum, ['pagelevel' => null]));
 } else {
     throw new \moodle_exception('unknowaction');
 }
