@@ -2257,7 +2257,7 @@ class global_navigation extends navigation_node {
                 if (empty($cm->url) && $activity->delegatedsection) {
                     $url = $format->get_view_url(
                         $activity->delegatedsection->sectionnum,
-                        ['navigation' => true]
+                        ['navigation' => true, 'pagelevel' => null]
                     );
                 }
 
@@ -2380,7 +2380,7 @@ class global_navigation extends navigation_node {
     public function load_section_navigation($parentnode, $section, $activitiesdata): navigation_node {
         $format = course_get_format($section->course);
         $sectionname = $format->get_section_name($section);
-        $url = $format->get_view_url($section, ['navigation' => true]);
+        $url = $format->get_view_url($section, ['navigation' => true, 'pagelevel' => null]);
 
         $sectionnode = $parentnode->add(
             text: $sectionname,
