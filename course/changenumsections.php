@@ -34,6 +34,9 @@ $insertsection = optional_param('insertsection', null, PARAM_INT); // Insert sec
 $numsections = optional_param('numsections', 1, PARAM_INT);        // Number of sections to insert.
 $returnurl = optional_param('returnurl', null, PARAM_LOCALURL);    // Where to return to after the action.
 $sectionreturn = optional_param('sectionreturn', null, PARAM_INT); // Section to return to, ignored if $returnurl is specified.
+                                                                   // TODO: To be removed in Moodle 6.1 (MDL-83308).
+$pagesectionid = optional_param('pagesectionid', null, PARAM_INT); // What page to return to, ignored if $returnurl is specified.
+$pagelevel = optional_param('pagelevel', null, PARAM_INT);         // What level to return to, ignored if $returnurl is specified.
 
 $course = $DB->get_record('course', array('id' => $courseid), '*', MUST_EXIST);
 $courseformatoptions = course_get_format($course)->get_format_options();
@@ -100,8 +103,17 @@ if (isset($courseformatoptions['numsections']) && $increase !== null) {
         $sections[] = course_create_section($course, $insertsection);
     }
     if (!$returnurl) {
-        $returnurl = course_get_url($course, $sections[0]->section,
-            ($sectionreturn !== null) ? ['sr' => $sectionreturn] : []);
+        $urloptions = [];
+        if (!is_null($sectionreturn)) {
+            $urloptions['sr'] = $sectionreturn;
+        }
+        if (!is_null($pagesectionid)) {
+            $urloptions['pagesectionid'] = $pagesectionid;
+        }
+        if (!is_null($pagelevel)) {
+            $urloptions['pagelevel'] = $pagelevel;
+        }
+        $returnurl = course_get_url($course, $sections[0], $urloptions);
     }
 }
 

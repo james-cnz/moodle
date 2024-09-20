@@ -119,25 +119,16 @@ class format_weeks extends core_courseformat\base {
      *     if omitted the course view page is returned
      * @param array $options options for view URL. At the moment core uses:
      *     'navigation' (bool) if true and section not empty, the function returns section page; otherwise, it returns course page.
-     *     'sr' (int) used by course formats to specify to which section to return
+     *          TODO: To be removed in Moodle 6.1 (MDL-83308)
+     *     'sr' (int) used by course formats to specify to which section to return  TODO: To be removed in Moodle 6.1 (MDL-83308)
+     *     'pagesectionid' (int) the page to display
+     *     'pagelevel' (int) the level of page to display
+     *     'permalink' (bool) if true, the section ID will be used in the link
      * @return null|moodle_url
      */
-    public function get_view_url($section, $options = array()) {
-        $course = $this->get_course();
-        if (array_key_exists('sr', $options) && !is_null($options['sr'])) {
-            $sectionno = $options['sr'];
-        } else if (is_object($section)) {
-            $sectionno = $section->section;
-        } else {
-            $sectionno = $section;
-        }
-        if ((!empty($options['navigation']) || array_key_exists('sr', $options)) && $sectionno !== null) {
-            // Display section on separate page.
-            $sectioninfo = $this->get_section($sectionno);
-            return new moodle_url('/course/section.php', ['id' => $sectioninfo->id]);
-        }
-
-        return new moodle_url('/course/view.php', ['id' => $course->id]);
+    public function get_view_url($section, $options = []) {
+        $options['expanded'] = false;
+        return parent::get_view_url($section, $options);
     }
 
     /**

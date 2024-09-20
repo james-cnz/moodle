@@ -80,6 +80,8 @@
         "cmcontrols": "[Add an activity or resource]",
         "iscoursedisplaymultipage": true,
         "sectionreturnnum": 0,
+        "pagelevel": 2,
+        "pagesectionid": 34,
         "contentcollapsed": false,
         "insertafter": true,
         "numsections": 42,
@@ -93,6 +95,8 @@
             {{#isstealth}} orphaned {{/isstealth}}"
     data-sectionid="{{num}}"
     data-sectionreturnnum="{{sectionreturnnum}}"
+    {{#pagelevel}}data-pagelevel="{{.}}"{{/pagelevel}}
+    {{#pagesectionid}}data-pagesectionid="{{.}}"{{/pagesectionid}}
     data-for="section"
     data-id="{{id}}"
     data-number="{{num}}"

@@ -147,6 +147,7 @@ class section implements named_templatable, renderable {
         $format = $this->format;
         $course = $format->get_course();
         $section = $this->section;
+        $pagelevel = $format->get_page_level_for_section($section);
 
         $summary = new $this->summaryclass($format, $section);
 
@@ -154,6 +155,7 @@ class section implements named_templatable, renderable {
             'num' => $section->section ?? '0',
             'id' => $section->id,
             'sectionreturnnum' => $format->get_sectionnum(),
+            'pagelevel' => $pagelevel,
             'insertafter' => false,
             'summary' => $summary->export_for_template($output),
             'highlightedlabel' => $format->get_section_highlighted_name(),

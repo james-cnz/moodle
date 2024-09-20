@@ -28,7 +28,9 @@ require_once("lib.php");
 require_once($CFG->libdir . '/formslib.php');
 
 $id = required_param('id', PARAM_INT);    // course_sections.id
-$sectionreturn = optional_param('sr', null, PARAM_INT);
+$sectionreturn = optional_param('sr', null, PARAM_INT); // TODO: To be removed in Moodle 6.1 (MDL-83308).
+$pagesectionid = optional_param('pagesectionid', null, PARAM_INT);
+$pagelevel = optional_param('pagelevel', null, PARAM_INT);
 $deletesection = optional_param('delete', 0, PARAM_BOOL);
 $showonly = optional_param('showonly', 0, PARAM_TAGLIST);
 
@@ -37,6 +39,14 @@ $params = ['id' => $id];
 if (!is_null($sectionreturn)) {
     $params['sr'] = $sectionreturn;
     $returnparams['sr'] = $sectionreturn;
+}
+if (!is_null($pagesectionid)) {
+    $params['pagesectionid'] = $pagesectionid;
+    $returnparams['pagesectionid'] = $pagesectionid;
+}
+if (!is_null($pagelevel)) {
+    $params['pagelevel'] = $pagelevel;
+    $returnparams['pagelevel'] = $pagelevel;
 }
 if (!empty($showonly)) {
     $params['showonly'] = $showonly;

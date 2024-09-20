@@ -92,6 +92,7 @@ class content implements named_templatable, renderable {
             'sections' => $sections,
             'format' => $format->get_format(),
             'sectionreturn' => null,
+            'pagesectionid' => $format->get_sectionid() ?? 0,
         ];
 
         // The single section format has extra navigation.

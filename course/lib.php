@@ -1329,10 +1329,12 @@ function moveto_module($mod, $section, $beforemod=NULL) {
  *
  * @param cm_info $mod The module to produce editing buttons for
  * @param int $indent The current indenting (default -1 means no move left-right actions)
- * @param int $sr The section to link back to (used for creating the links)
+ * @param int $sr The section to link back to  TODO: To be removed in Moodle 6.1 (MDL-83308)
+ * @param int|null $pagesectionid What page to link back to
+ * @param int|null $pagelevel What level to link back to
  * @return array array of action_link or pix_icon objects
  */
-function course_get_cm_edit_actions(cm_info $mod, $indent = -1, $sr = null) {
+function course_get_cm_edit_actions(cm_info $mod, $indent = -1, $sr = null, $pagesectionid = null, $pagelevel = null) {
     global $COURSE, $SITE, $CFG;
 
     static $str;
@@ -1370,6 +1372,12 @@ function course_get_cm_edit_actions(cm_info $mod, $indent = -1, $sr = null) {
 
     if ($sr !== null) {
         $baseurl->param('sr', $sr);
+    }
+    if (!is_null($pagesectionid)) {
+        $baseurl->param('pagesectionid', $pagesectionid);
+    }
+    if (!is_null($pagelevel)) {
+        $baseurl->param('pagelevel', $pagelevel);
     }
     $actions = array();
 
