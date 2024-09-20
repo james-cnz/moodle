@@ -2349,10 +2349,12 @@ function lti_get_types_for_add_instance() {
  * Returns a list of configured types in the given course
  *
  * @param int $courseid The id of the course to retieve types for
- * @param int $sectionreturn section to return to for forming the URLs
+ * @param int $sectionreturn section to return to for forming the URLs  Deprecated since Moodle 5.0 (MDL-83224)
+ * @param int|null $pagesectionid The page to return to
+ * @param int|null $pagelevel Alternatively, the page level to return to (PAGE_LEVEL_*)
  * @return array Array of lti types. Each element is object with properties: name, title, icon, help, helplink, link
  */
-function lti_get_configured_types($courseid, $sectionreturn = 0) {
+function lti_get_configured_types($courseid, $sectionreturn = null, $pagesectionid = null, $pagelevel = null) {
     global $OUTPUT, $USER;
     $types = [];
     $preconfiguredtypes = \mod_lti\local\types_helper::get_lti_types_by_course($courseid, $USER->id,
@@ -2388,6 +2390,12 @@ function lti_get_configured_types($courseid, $sectionreturn = 0) {
         ];
         if (!is_null($sectionreturn)) {
             $params['sr'] = $sectionreturn;
+        }
+        if (!is_null($pagesectionid)) {
+            $params['pagesectionid'] = $pagesectionid;
+        }
+        if (!is_null($pagelevel)) {
+            $params['pagelevel'] = $pagelevel;
         }
         $type->link = new moodle_url('/course/modedit.php', $params);
         $types[] = $type;
