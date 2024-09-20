@@ -33,6 +33,8 @@
     data-action="open-chooser"
     data-sectionnum="{{sectionnum}}"
     {{#sectionreturn}}data-sectionreturnnum="{{.}}"{{/sectionreturn}}
+    {{#pagesectionid}}data-pagesectionid="{{.}}"{{/pagesectionid}}
+    {{#pagelevel}}data-pagelevel="{{.}}"{{/pagelevel}}
     {{#modid}}
         data-beforemod="{{modid}}"
         aria-label="{{#str}}insertresourceoractivitybefore, core, { "activityname": {{#quote}} {{activityname}} {{/quote}} } {{/str}}"

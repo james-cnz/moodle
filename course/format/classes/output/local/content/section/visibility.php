@@ -146,10 +146,22 @@ class visibility implements named_templatable, renderable {
      */
     private function get_option_data(string $name, string $mutation, string $stateaction): array {
         $format = $this->format;
+        $sectionreturn = $format->get_sectionnum();
+        $pagesectionid = $format->get_sectionid() ?? 0;
+        $pagelevel = $format->get_page_level_for_section($this->section);
+        $returnurl = course_get_url($this->section->course, $this->section);
+        if (!is_null($sectionreturn)) {
+            $returnurl->param('sr', $sectionreturn);
+        }
+        if (is_null($pagelevel)) {
+            $returnurl->param('pagesectionid', $pagesectionid);
+        } else {
+            $returnurl->param('pagelevel', $pagelevel);
+        }
         $nonajaxurl = $format->get_update_url(
             action: $stateaction,
             ids: [$this->section->id],
-            returnurl: $format->get_view_url($format->get_sectionnum(), ['navigation' => true]),
+            returnurl: $returnurl,
         );
 
         return [

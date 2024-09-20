@@ -83,11 +83,17 @@ class controlmenu extends controlmenu_base {
         $section = $this->section;
         $course = $format->get_course();
         $sectionreturn = $format->get_sectionnum();
+        $pagesectionid = $format->get_sectionid() ?? 0;
+        $pagelevel = $format->get_page_level_for_section($section);
 
-        if ($sectionreturn) {
-            $url = course_get_url($course, $section->sectionnum);
+        $url = course_get_url($course);
+        if (!is_null($sectionreturn)) {
+            $baseurl->param('sectionid', $format->get_sectionid());
+        }
+        if (is_null($pagelevel)) {
+            $url->param('pagesectionid', $pagesectionid);
         } else {
-            $url = course_get_url($course);
+            $url->param('pagelevel', $pagelevel);
         }
         $url->param('sesskey', sesskey());
         return $url;
@@ -172,9 +178,7 @@ class controlmenu extends controlmenu_base {
         $course = $format->get_course();
         $sectionreturn = $format->get_sectionnum();
         $url = $this->get_course_url();
-        if (!is_null($sectionreturn)) {
-            $url->param('sectionid', $format->get_sectionid());
-        }
+        $url->param('sectionid', $section->id);
 
         $highlightoff = get_string('highlightoff');
         $highlightofficon = 'i/marked';

@@ -225,12 +225,17 @@ class core_course_renderer extends plugin_renderer_base {
      *
      * @param stdClass $course
      * @param int $section relative section number (field course_sections.section)
-     * @param int $sectionreturn The section to link back to
+     * @param int $sectionreturn The section to link back to  Deprecated since Moodle 5.0 (MDL-83224)
      * @param array $displayoptions additional display options, for example blocks add
      *     option 'inblock' => true, suggesting to display controls vertically
+     * @param int|null $sectionid reserved for future use
+     * @param int|null $pagesectionid the page to return to
+     * @param int|null $pagelevel alternatively, the page level to return to
      * @return string
      */
-    function course_section_add_cm_control($course, $section, $sectionreturn = null, $displayoptions = array()) {
+    public function course_section_add_cm_control(
+        $course, $section, $sectionreturn = null, $displayoptions = [], $sectionid = null, $pagesectionid = null, $pagelevel = null
+    ) {
         // Check to see if user can add menus.
         if (!has_capability('moodle/course:manageactivities', context_course::instance($course->id))
                 || !$this->page->user_is_editing()) {
@@ -239,7 +244,9 @@ class core_course_renderer extends plugin_renderer_base {
 
         $sectioninfo = get_fast_modinfo($course)->get_section_info($section);
 
-        $activitychooserbutton = new \core_course\output\activitychooserbutton($sectioninfo, null, $sectionreturn);
+        $activitychooserbutton = new \core_course\output\activitychooserbutton(
+            $sectioninfo, null, $sectionreturn, [], $pagesectionid, $pagelevel
+        );
 
         // Load the JS for the modal.
         $this->course_activitychooser($course->id);

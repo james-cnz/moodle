@@ -136,13 +136,18 @@ class controlmenu extends basecontrolmenu {
             return null;
         }
 
-        $url = new url(
-            '/course/editsection.php',
-            [
-                'id' => $this->section->id,
-                'sr' => $this->section->sectionnum,
-            ]
-        );
+        $pagesectionid = $this->format->get_sectionid() ?? 0;
+        $pagelevel = $this->format->get_page_level_for_section($this->section);
+        $params = [
+            'id' => $this->section->id,
+            'sr' => $this->section->sectionnum,
+        ];
+        if (is_null($pagelevel)) {
+            $params['pagesectionid'] = $pagesectionid;
+        } else {
+            $params['pagelevel'] = $pagelevel;
+        }
+        $url = new url('/course/editsection.php', $params);
 
         return new link_secondary(
                 url: $url,
@@ -460,7 +465,9 @@ class controlmenu extends basecontrolmenu {
         $format = $this->format;
         $section = $this->section;
         $course = $format->get_course();
-        $sectionreturn = !is_null($format->get_sectionid()) ? $format->get_sectionnum() : null;
+        $sectionreturn = $format->get_sectionnum();
+        $pagesectionid = $format->get_sectionid() ?? 0;
+        $pagelevel = $format->get_page_level_for_section($section);
         $user = $USER;
 
         $usecomponents = $format->supports_components();
@@ -468,7 +475,15 @@ class controlmenu extends basecontrolmenu {
         $numsections = $format->get_last_section_number();
         $isstealth = $section->is_orphan();
 
-        $baseurl = course_get_url($course, $sectionreturn);
+        $baseurl = course_get_url($course);
+        if (!is_null($sectionreturn)) {
+            $baseurl->param('sectionid', $format->get_sectionid());
+        }
+        if (is_null($pagelevel)) {
+            $baseurl->param('pagesectionid', $pagesectionid);
+        } else {
+            $baseurl->param('pagelevel', $pagelevel);
+        }
         $baseurl->param('sesskey', sesskey());
 
         $controls = [];
@@ -486,7 +501,14 @@ class controlmenu extends basecontrolmenu {
 
         if (!$isstealth && has_capability('moodle/course:update', $coursecontext, $user)) {
             $params = ['id' => $section->id];
-            $params['sr'] = $section->section;
+            if (!is_null($sectionreturn)) {
+                $params['sr'] = $sectionreturn;
+            }
+            if (is_null($pagelevel)) {
+                $params['pagesectionid'] = $pagesectionid;
+            } else {
+                $params['pagelevel'] = $pagelevel;
+            }
             if (get_string_manager()->string_exists('editsection', 'format_'.$format->get_format())) {
                 $streditsection = get_string('editsection', 'format_'.$format->get_format());
             } else {
@@ -520,9 +542,6 @@ class controlmenu extends basecontrolmenu {
 
         if ($section->section) {
             $url = clone($baseurl);
-            if (!is_null($sectionreturn)) {
-                $url->param('sectionid', $format->get_sectionid());
-            }
             if (!$isstealth) {
                 if (has_capability('moodle/course:sectionvisibility', $coursecontext, $user)) {
                     $strhidefromothers = get_string('hidefromothers', 'format_' . $course->format);
@@ -569,7 +588,7 @@ class controlmenu extends basecontrolmenu {
                         // This tool will appear only when the state is ready.
                         $url = clone ($baseurl);
                         $url->param('movesection', $section->section);
-                        $url->param('section', $section->section);
+                        $url->param('sectionid', $section->id);
                         $controls['movesection'] = [
                             'url' => $url,
                             'icon' => 'i/dragdrop',
@@ -585,7 +604,7 @@ class controlmenu extends basecontrolmenu {
                     // Legacy move up and down links for non component-based formats.
                     $url = clone($baseurl);
                     if ($section->section > 1) { // Add a arrow to move section up.
-                        $url->param('section', $section->section);
+                        $url->param('sectionid', $section->id);
                         $url->param('move', -1);
                         $strmoveup = get_string('moveup');
                         $controls['moveup'] = [
@@ -599,7 +618,7 @@ class controlmenu extends basecontrolmenu {
 
                     $url = clone($baseurl);
                     if ($section->section < $numsections) { // Add a arrow to move section down.
-                        $url->param('section', $section->section);
+                        $url->param('sectionid', $section->id);
                         $url->param('move', 1);
                         $strmovedown = get_string('movedown');
                         $controls['movedown'] = [
@@ -627,6 +646,11 @@ class controlmenu extends basecontrolmenu {
                 if (!is_null($sectionreturn)) {
                     $params['sr'] = $sectionreturn;
                 }
+                if (is_null($pagelevel)) {
+                    $params['pagesectionid'] = $pagesectionid;
+                } else {
+                    $params['pagelevel'] = $pagelevel;
+                }
                 $url = new url(
                     '/course/editsection.php',
                     $params,
@@ -652,10 +676,7 @@ class controlmenu extends basecontrolmenu {
                 'moodle/course:sectionvisibility',
             ], $coursecontext)
         ) {
-            $sectionlink = new url(
-                '/course/section.php',
-                ['id' => $section->id]
-            );
+            $sectionlink = $format->get_view_url($section, ['navigation' => true, 'pagelevel' => null, 'permalink' => true]);
             $controls['permalink'] = [
                 'url' => $sectionlink,
                 'icon' => 'i/link',

@@ -57,7 +57,7 @@ class renderer extends section_renderer {
 
             if (empty($modinfo->sections[0]) && course_get_format($course)->activity_has_subtypes()) {
                 // Course format was unable to automatically redirect to add module page.
-                $output .= $this->course_section_add_cm_control($course, 0, 0);
+                $output .= $this->course_section_add_cm_control($course, 0);
             }
         }
         return $output;

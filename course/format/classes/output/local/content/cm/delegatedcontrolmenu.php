@@ -323,16 +323,31 @@ class delegatedcontrolmenu extends basecontrolmenu {
         $section = $this->section;
         $cm = $this->mod;
         $course = $format->get_course();
-        $sectionreturn = !is_null($format->get_sectionid()) ? $format->get_sectionnum() : null;
+        $sectionreturn = $format->get_sectionnum();
+        $pagesectionid = $format->get_sectionid() ?? 0;
+        $pagelevel = $format->get_page_level_for_section($section);
         $user = $USER;
 
         $usecomponents = $format->supports_components();
         $coursecontext = context_course::instance($course->id);
 
-        $baseurl = course_get_url($course, $sectionreturn);
+        $baseurl = course_get_url($course);
+        if (!is_null($sectionreturn)) {
+            $baseurl->param('sectionid', $format->get_sectionid());
+        }
+        if (is_null($pagelevel)) {
+            $baseurl->param('pagesectionid', $pagesectionid);
+        } else {
+            $baseurl->param('pagelevel', $pagelevel);
+        }
         $baseurl->param('sesskey', sesskey());
 
         $cmbaseurl = new url('/course/mod.php');
+        if (is_null($pagelevel)) {
+            $cmbaseurl->param('pagesectionid', $pagesectionid);
+        } else {
+            $cmbaseurl->param('pagelevel', $pagelevel);
+        }
         $cmbaseurl->param('sesskey', sesskey());
 
         $hasmanageactivities = has_capability('moodle/course:manageactivities', $coursecontext);
@@ -353,7 +368,14 @@ class delegatedcontrolmenu extends basecontrolmenu {
 
         if (has_capability('moodle/course:update', $coursecontext, $user)) {
             $params = ['id' => $section->id];
-            $params['sr'] = $section->section;
+            if (!is_null($sectionreturn)) {
+                $params['sr'] = $sectionreturn;
+            }
+            if (is_null($pagelevel)) {
+                $params['pagesectionid'] = $pagesectionid;
+            } else {
+                $params['pagelevel'] = $pagelevel;
+            }
             if (get_string_manager()->string_exists('editsection', 'format_'.$format->get_format())) {
                 $streditsection = get_string('editsection', 'format_'.$format->get_format());
             } else {
@@ -376,9 +398,6 @@ class delegatedcontrolmenu extends basecontrolmenu {
         $availablevisibility = has_capability('moodle/course:sectionvisibility', $coursecontext, $user) && $parentsection->visible;
         if ($availablevisibility) {
             $url = clone($baseurl);
-            if (!is_null($sectionreturn)) {
-                $url->param('sr', $format->get_sectionid());
-            }
             $strhidefromothers = get_string('hidefromothers', 'format_' . $course->format);
             $strshowfromothers = get_string('showfromothers', 'format_' . $course->format);
             if ($section->visible) { // Show the hide/show eye.
@@ -460,10 +479,7 @@ class delegatedcontrolmenu extends basecontrolmenu {
                 'moodle/course:sectionvisibility',
             ], $coursecontext)
         ) {
-            $sectionlink = new url(
-                '/course/section.php',
-                ['id' => $section->id]
-            );
+            $sectionlink = course_get_url($course, $section, ['navigation' => true, 'pagelevel' => null, 'permalink' => true]);
             $controls['permalink'] = [
                 'url' => $sectionlink,
                 'icon' => 'i/link',
