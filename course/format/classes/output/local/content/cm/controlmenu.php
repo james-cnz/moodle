@@ -157,11 +157,13 @@ class controlmenu extends basecontrolmenu {
         $format = $this->format;
         $mod = $this->mod;
         $sectionreturn = $format->get_sectionnum();
+        $pagesectionid = $format->get_sectionid() ?? 0;
+        $pagelevel = $format->get_page_level_for_section($this->section);
         if (!empty($this->displayoptions['disableindentation']) || !$format->uses_indentation()) {
             $indent = -1;
         } else {
             $indent = $mod->indent;
         }
-        return course_get_cm_edit_actions($mod, $indent, $sectionreturn);
+        return course_get_cm_edit_actions($mod, $indent, $sectionreturn, is_null($pagelevel) ? $pagesectionid : null, $pagelevel);
     }
 }

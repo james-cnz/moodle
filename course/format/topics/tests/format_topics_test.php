@@ -258,13 +258,14 @@ class format_topics_test extends \advanced_testcase {
         // Navigation.
         $this->assertStringContainsString('course/view.php', $format->get_view_url(0));
         $this->assertStringContainsString('course/view.php', $format->get_view_url(1));
-        $this->assertStringContainsString('course/section.php', $format->get_view_url(0, ['navigation' => 1]));
-        $this->assertStringContainsString('course/section.php', $format->get_view_url(1, ['navigation' => 1]));
-        // When sr parameter is defined, the section.php page should be returned.
-        $this->assertStringContainsString('course/section.php', $format->get_view_url(0, ['sr' => 1]));
-        $this->assertStringContainsString('course/section.php', $format->get_view_url(1, ['sr' => 1]));
-        $this->assertStringContainsString('course/section.php', $format->get_view_url(0, ['sr' => 0]));
-        $this->assertStringContainsString('course/section.php', $format->get_view_url(1, ['sr' => 0]));
+        $this->assertStringContainsString('course/view.php', $format->get_view_url(0, ['pagelevel' => PAGE_LEVEL_COURSE]));
+        $this->assertStringContainsString('course/view.php', $format->get_view_url(1, ['pagelevel' => PAGE_LEVEL_COURSE]));
+        $this->assertStringContainsString('course/section.php', $format->get_view_url(0, ['pagelevel' => PAGE_LEVEL_SECTION]));
+        $this->assertStringContainsString('course/section.php', $format->get_view_url(1, ['pagelevel' => PAGE_LEVEL_SECTION]));
+        $this->assertStringContainsString('course/view.php', $format->get_view_url(0, ['pagelevel' => PAGE_LEVEL_DELEGATED]));
+        $this->assertStringContainsString('course/view.php', $format->get_view_url(1, ['pagelevel' => PAGE_LEVEL_DELEGATED]));
+        $this->assertStringContainsString('course/section.php', $format->get_view_url(0, ['pagelevel' => PAGE_LEVEL_SPECIFIED]));
+        $this->assertStringContainsString('course/section.php', $format->get_view_url(1, ['pagelevel' => PAGE_LEVEL_SPECIFIED]));
     }
 
     /**

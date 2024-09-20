@@ -40,18 +40,24 @@ class activitychooserbutton implements templatable, renderable {
      *
      * @param section_info $section the section info
      * @param cm_info|null $mod the course module ionfo
-     * @param int|null $sectionreturn the section to return to
+     * @param int|null $sectionreturn the section to return to (deprecated)
      * @param array|null $actionlinks the action links
+     * @param int|null $pagesectionid the page to return to
+     * @param int|null $pagelevel alternatively, the page level to return to
      */
     public function __construct(
         /** @var section_info the section object */
         protected section_info $section,
         /** @var cm_info|null the course module instance */
         protected ?cm_info $mod = null,
-        /** @var sectionreturn|null the section to return to */
+        /** @var int|null the section to return to (deprecated) */
         protected ?int $sectionreturn = null,
         /** @var array|null action_link[] the action links */
         protected ?array $actionlinks = [],
+        /** @var int|null the page to return to */
+        protected ?int $pagesectionid = null,
+        /** @var int|null alternatively, the page level to return to */
+        protected ?int $pagelevel = null,
     ) {
     }
 
@@ -74,6 +80,8 @@ class activitychooserbutton implements templatable, renderable {
         return (object)[
             'sectionnum' => $this->section->section,
             'sectionreturn' => $this->sectionreturn ?? false,
+            'pagesectionid' => $this->pagesectionid ?? false,
+            'pagelevel' => $this->pagelevel ?? false,
             'modid' => $this->mod ? $this->mod->id : false,
             'activityname' => $this->mod ? $this->mod->get_formatted_name() : false,
             'hasactionlinks' => !empty($this->actionlinks),

@@ -100,7 +100,7 @@ class sectionnavigation implements named_templatable, renderable {
                     $data->previoushidden = true;
                 }
                 $data->previousname = get_section_name($course, $sections[$back]);
-                $data->previousurl = course_get_url($course, $back, ['navigation' => true]);
+                $data->previousurl = course_get_url($course, $back, ['navigation' => true, 'pagelevel' => PAGE_LEVEL_SECTION]);
                 $data->hasprevious = true;
             }
             $back--;
@@ -114,7 +114,7 @@ class sectionnavigation implements named_templatable, renderable {
                     $data->nexthidden = true;
                 }
                 $data->nextname = get_section_name($course, $sections[$forward]);
-                $data->nexturl = course_get_url($course, $forward, ['navigation' => true]);
+                $data->nexturl = course_get_url($course, $forward, ['navigation' => true, 'pagelevel' => PAGE_LEVEL_SECTION]);
                 $data->hasnext = true;
             }
             $forward++;
