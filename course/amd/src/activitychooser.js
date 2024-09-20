@@ -175,8 +175,11 @@ const registerListenerEvents = (courseId, chooserConfig) => {
                 const builtModuleData = sectionMapper(
                     data,
                     sectionnum,
-                    caller.dataset.sectionreturnnum,
-                    caller.dataset.beforemod
+                    caller.dataset?.sectionreturnnum ?? null,
+                    caller.dataset.beforemod,
+                    null,
+                    caller.dataset?.pagesectionid ?? null,
+                    caller.dataset?.pagelevel ?? null
                 );
 
                 ChooserDialogue.displayChooser(
@@ -205,16 +208,27 @@ const registerListenerEvents = (courseId, chooserConfig) => {
  * @param {Object} webServiceData Our original data from the Web service call
  * @param {Number} num The number of the section we need to append to the links
  * @param {Number|null} sectionreturnnum The number of the section return we need to append to the links
+ *                                       Deprecated since Moodle 5.0 (MDL-83224)
  * @param {Number|null} beforemod The ID of the cm we need to append to the links
+ * @param {Number|null} id Future use
+ * @param {Number|null} pagesectionid The page to return to
+ * @param {Number|null} pagelevel Alternatively, the page level to return to (PAGE_LEVEL_*)
  * @return {Array} [modules] with URL's built
  */
-const sectionMapper = (webServiceData, num, sectionreturnnum, beforemod) => {
+// eslint-disable-next-line no-unused-vars
+const sectionMapper = (webServiceData, num, sectionreturnnum, beforemod, id = null, pagesectionid = null, pagelevel = null) => {
     // We need to take a fresh deep copy of the original data as an object is a reference type.
     const newData = JSON.parse(JSON.stringify(webServiceData));
     newData.content_items.forEach((module) => {
         module.link += '&section=' + num + '&beforemod=' + (beforemod ?? 0);
-        if (sectionreturnnum) {
+        if (sectionreturnnum !== null) {
             module.link += '&sr=' + sectionreturnnum;
+        }
+        if (pagesectionid !== null) {
+            module.link += '&pagesectionid=' + pagesectionid;
+        }
+        if (pagelevel !== null) {
+            module.link += '&pagelevel=' + pagelevel;
         }
     });
     return newData.content_items;

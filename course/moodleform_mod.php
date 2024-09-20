@@ -873,6 +873,14 @@ abstract class moodleform_mod extends moodleform {
         $mform->addElement('hidden', 'sr', -1);
         $mform->setType('sr', PARAM_INT);
 
+        // The page to return to.
+        $mform->addElement('hidden', 'pagesectionid', -1);
+        $mform->setType('pagesectionid', PARAM_INT);
+
+        // Alternatively, the page level to return to (PAGE_LEVEL_*).
+        $mform->addElement('hidden', 'pagelevel', -1);
+        $mform->setType('pagelevel', PARAM_INT);
+
         $mform->addElement('hidden', 'beforemod', 0);
         $mform->setType('beforemod', PARAM_INT);
 
