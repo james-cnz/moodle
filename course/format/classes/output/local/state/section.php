@@ -83,7 +83,11 @@ class section implements renderable {
             'rawtitle' => $section->name,
             'cmlist' => [],
             'visible' => !empty($section->visible),
-            'sectionurl' => course_get_url($course, $section->section, ['navigation' => true])->out(),
+            'sectionurl' => course_get_url(
+                $course,
+                $section,
+                ['navigation' => true, 'coursedisplaylevel' => COURSE_DISPLAY_LEVEL_SPECIFIED]
+            )->out(),
             'current' => $format->is_section_current($section),
             'indexcollapsed' => $indexcollapsed,
             'contentcollapsed' => $contentcollapsed,

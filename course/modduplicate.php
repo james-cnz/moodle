@@ -32,14 +32,15 @@ require_once(__DIR__ . '/../config.php');
 
 $cmid           = required_param('cmid', PARAM_INT);
 $courseid       = required_param('course', PARAM_INT);
-$sectionreturn  = optional_param('sr', null, PARAM_INT);
+$sectionreturn  = optional_param('sr', null, PARAM_INT); // TODO: To be removed in Moodle 6.1 (MDL-83308).
+$coursedisplaylevel = optional_param('coursedisplaylevel', null, PARAM_INT);
 
 require_sesskey();
 
 debugging('Please use moodle_url(\'/course/mod.php\', array(\'duplicate\' => $cmid
-    , \'id\' => $courseid, \'sesskey\' => sesskey(), \'sr\' => $sectionreturn)))
+    , \'id\' => $courseid, \'sesskey\' => sesskey(), \'coursedisplaylevel\' => $coursedisplaylevel)))
     instead of new moodle_url(\'/course/modduplicate.php\', array(\'cmid\' => $cmid
-    , \'course\' => $courseid, \'sr\' => $sectionreturn))', DEBUG_DEVELOPER);
+    , \'course\' => $courseid, \'coursedisplaylevel\' => $coursedisplaylevel))', DEBUG_DEVELOPER);
 
-redirect(new moodle_url('/course/mod.php', array('duplicate' => $cmid, 'id' => $courseid,
-                                                 'sesskey' => sesskey(), 'sr' => $sectionreturn)));
+redirect(new moodle_url('/course/mod.php', ['duplicate' => $cmid, 'id' => $courseid,
+                                    'sesskey' => sesskey(), 'sr' => $sectionreturn, 'coursedisplaylevel' => $coursedisplaylevel]));

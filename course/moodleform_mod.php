@@ -873,6 +873,10 @@ abstract class moodleform_mod extends moodleform {
         $mform->addElement('hidden', 'sr', -1);
         $mform->setType('sr', PARAM_INT);
 
+        // Where to return: COURSE_DISPLAY_LEVEL_*.
+        $mform->addElement('hidden', 'coursedisplaylevel', COURSE_DISPLAY_LEVEL_COURSE);
+        $mform->setType('coursedisplaylevel', PARAM_INT);
+
         $mform->addElement('hidden', 'beforemod', 0);
         $mform->setType('beforemod', PARAM_INT);
 

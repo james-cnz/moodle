@@ -176,7 +176,8 @@ const registerListenerEvents = (courseId, chooserConfig) => {
                     data,
                     sectionnum,
                     caller.dataset.sectionreturnnum,
-                    caller.dataset.beforemod
+                    caller.dataset.beforemod,
+                    caller.dataset.coursedisplaylevel
                 );
 
                 ChooserDialogue.displayChooser(
@@ -204,17 +205,21 @@ const registerListenerEvents = (courseId, chooserConfig) => {
  * @method sectionMapper
  * @param {Object} webServiceData Our original data from the Web service call
  * @param {Number} num The number of the section we need to append to the links
- * @param {Number|null} sectionreturnnum The number of the section return we need to append to the links
+ * @param {Number|null} sectionreturnnum The number of the section return we need to append to the links (deprecated)
  * @param {Number|null} beforemod The ID of the cm we need to append to the links
+ * @param {Number|null} coursedisplaylevel What level to return to
  * @return {Array} [modules] with URL's built
  */
-const sectionMapper = (webServiceData, num, sectionreturnnum, beforemod) => {
+const sectionMapper = (webServiceData, num, sectionreturnnum, beforemod, coursedisplaylevel = null) => {
     // We need to take a fresh deep copy of the original data as an object is a reference type.
     const newData = JSON.parse(JSON.stringify(webServiceData));
     newData.content_items.forEach((module) => {
         module.link += '&section=' + num + '&beforemod=' + (beforemod ?? 0);
         if (sectionreturnnum) {
             module.link += '&sr=' + sectionreturnnum;
+        }
+        if (coursedisplaylevel !== null) {
+            module.link += '&coursedisplaylevel=' + coursedisplaylevel;
         }
     });
     return newData.content_items;

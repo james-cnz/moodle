@@ -42,6 +42,7 @@ $move = optional_param('move', 0, PARAM_INT);
 $marker = optional_param('marker', -1 , PARAM_INT);
 $switchrole = optional_param('switchrole', -1, PARAM_INT); // Deprecated, use course/switchrole.php instead.
 $return = optional_param('return', 0, PARAM_LOCALURL);
+$coursedisplaylevel = optional_param('coursedisplaylevel', null, PARAM_INT);
 
 $params = [];
 if (!empty($name)) {
@@ -202,30 +203,24 @@ if ($PAGE->user_allowed_editing()) {
     if (has_capability('moodle/course:sectionvisibility', $context)) {
         if ($hide && confirm_sesskey()) {
             set_section_visible($course->id, $hide, '0');
-            if ($sectionid) {
-                redirect(course_get_url($course, $section, ['navigation' => true]));
-            } else {
-                redirect($PAGE->url);
-            }
+            redirect(course_get_url($course, $hide, [
+                'sr' => $section,
+                'coursedisplaylevel' => $coursedisplaylevel,
+            ]));
         }
 
         if ($show && confirm_sesskey()) {
             set_section_visible($course->id, $show, '1');
-            if ($sectionid) {
-                redirect(course_get_url($course, $section, ['navigation' => true]));
-            } else {
-                redirect($PAGE->url);
-            }
+            redirect(course_get_url($course, $show, [
+                'sr' => $section,
+                'coursedisplaylevel' => $coursedisplaylevel,
+            ]));
         }
     }
 
     if ($marker >= 0 && confirm_sesskey()) {
         course_set_marker($course->id, $marker);
-        if ($sectionid) {
-            redirect(course_get_url($course, $section, ['navigation' => true]));
-        } else {
-            redirect($PAGE->url);
-        }
+        redirect(course_get_url($course, $section, ['coursedisplaylevel' => $coursedisplaylevel]));
     }
 
     if (
@@ -233,7 +228,7 @@ if ($PAGE->user_allowed_editing()) {
         && has_capability('moodle/course:update', $context) && confirm_sesskey()
     ) {
         $newsection = $format->duplicate_section($coursesections);
-        redirect(course_get_url($course, $newsection->section));
+        redirect(course_get_url($course, $newsection, ['coursedisplaylevel' => $coursedisplaylevel]));
     }
 
     if (!empty($section) && !empty($move) &&
@@ -243,11 +238,7 @@ if ($PAGE->user_allowed_editing()) {
             if ($course->id == SITEID) {
                 redirect($CFG->wwwroot . '/?redirect=0');
             } else {
-                if ($format->get_course_display() == COURSE_DISPLAY_MULTIPAGE) {
-                    redirect(course_get_url($course));
-                } else {
-                    redirect(course_get_url($course, $destsection));
-                }
+                redirect(course_get_url($course, $destsection, ['coursedisplaylevel' => $coursedisplaylevel]));
             }
         } else {
             echo $OUTPUT->notification('An error occurred while moving a section');

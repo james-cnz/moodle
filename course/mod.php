@@ -26,7 +26,8 @@
 require("../config.php");
 require_once("lib.php");
 
-$sectionreturn = optional_param('sr', null, PARAM_INT);
+$sectionreturn = optional_param('sr', null, PARAM_INT); // TODO: To be removed in Moodle 6.1 (MDL-83308).
+$coursedisplaylevel = optional_param('coursedisplaylevel', null, PARAM_INT);
 $add           = optional_param('add', '', PARAM_ALPHANUM);
 $type          = optional_param('type', '', PARAM_ALPHA);
 $indent        = optional_param('indent', 0, PARAM_INT);
@@ -60,6 +61,10 @@ if (!is_null($sectionreturn)) {
     $url->param('sr', $sectionreturn);
     $urloptions['sr'] = $sectionreturn;
 }
+if (!is_null($coursedisplaylevel)) {
+    $url->param('coursedisplaylevel', $coursedisplaylevel);
+    $urloptions['coursedisplaylevel'] = $coursedisplaylevel;
+}
 if ($add !== '') {
     $url->param('add', $add);
 }
@@ -92,6 +97,9 @@ if (!empty($add)) {
     if (!is_null($sectionreturn)) {
         $params['sr'] = $sectionreturn;
     }
+    if (!is_null($coursedisplaylevel)) {
+        $params['coursedisplaylevel'] = $coursedisplaylevel;
+    }
 
     redirect(
         new moodle_url(
@@ -110,6 +118,9 @@ if (!empty($add)) {
     ];
     if (!is_null($sectionreturn)) {
         $params['sr'] = $sectionreturn;
+    }
+    if (!is_null($coursedisplaylevel)) {
+        $params['coursedisplaylevel'] = $coursedisplaylevel;
     }
     redirect(
         new moodle_url(
@@ -149,6 +160,9 @@ if (!empty($add)) {
         ];
         if (!is_null($sectionreturn)) {
             $optionsyes['sr'] = $sectionreturn;
+        }
+        if (!is_null($coursedisplaylevel)) {
+            $optionsyes['coursedisplaylevel'] = $coursedisplaylevel;
         }
         $strdeletecheck = get_string('deletecheck', '', $fullmodulename);
         $strparams = (object)array('type' => $fullmodulename, 'name' => $cm->name);
@@ -208,10 +222,12 @@ if ((!empty($movetosection) or !empty($moveto)) and confirm_sesskey()) {
     moveto_module($cm, $section, $beforecm);
 
     $sectionreturn = $USER->activitycopysectionreturn;
+    $coursedisplaylevel = $USER->activitycopycoursedisplaylevel;
     unset($USER->activitycopy);
     unset($USER->activitycopycourse);
     unset($USER->activitycopyname);
     unset($USER->activitycopysectionreturn);
+    unset($USER->activitycopycoursedisplaylevel);
 
     redirect(course_get_url($course, $section->section, $urloptions));
 
@@ -262,7 +278,7 @@ if ((!empty($movetosection) or !empty($moveto)) and confirm_sesskey()) {
     if (set_coursemodule_visible($cm->id, 1, 0)) {
         \core\event\course_module_updated::create_from_cm($cm)->trigger();
     }
-    redirect(course_get_url($course, $cm->sectionnum, array('sr' => $sectionreturn)));
+    redirect(course_get_url($course, $cm->sectionnum, ['sr' => $sectionreturn, 'coursedisplaylevel' => $coursedisplaylevel]));
 
 } else if (!empty($show) and confirm_sesskey()) {
     list($course, $cm) = get_course_and_cm_from_cmid($show);
@@ -305,6 +321,7 @@ if ((!empty($movetosection) or !empty($moveto)) and confirm_sesskey()) {
     $USER->activitycopycourse        = $cm->course;
     $USER->activitycopyname          = $cm->name;
     $USER->activitycopysectionreturn = $sectionreturn;
+    $USER->activitycopycoursedisplaylevel = $coursedisplaylevel;
 
     redirect(course_get_url($course, $section->section, $urloptions));
 
@@ -315,10 +332,13 @@ if ((!empty($movetosection) or !empty($moveto)) and confirm_sesskey()) {
 
     $cm     = get_coursemodule_from_id('', $USER->activitycopy, 0, true, IGNORE_MISSING);
     $sectionreturn = $USER->activitycopysectionreturn;
+    $coursedisplaylevel = $USER->activitycopycoursedisplaylevel;
     unset($USER->activitycopy);
     unset($USER->activitycopycourse);
     unset($USER->activitycopyname);
     unset($USER->activitycopysectionreturn);
+    unset($USER->activitycopycoursedisplaylevel);
+    $urloptions['coursedisplaylevel'] = null;
     redirect(course_get_url($course, $cm->sectionnum, $urloptions));
 } else {
     throw new \moodle_exception('unknowaction');

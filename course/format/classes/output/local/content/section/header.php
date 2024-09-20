@@ -109,7 +109,11 @@ class header implements named_templatable, renderable {
         }
 
         if (!$data->editing && $section->uservisible) {
-            $data->url = course_get_url($course, $section->section, ['navigation' => true]);
+            $data->url = course_get_url(
+                $course,
+                $section,
+                ['navigation' => true, 'coursedisplaylevel' => COURSE_DISPLAY_LEVEL_SPECIFIED]
+            );
         }
         $data->name = get_section_name($course, $section);
         $data->selecttext = $format->get_format_string('selectsection', $data->name);

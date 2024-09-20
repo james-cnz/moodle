@@ -146,7 +146,19 @@ class section implements named_templatable, renderable {
 
         $format = $this->format;
         $course = $format->get_course();
+        $modinfo = get_fast_modinfo($course);
         $section = $this->section;
+
+        $coursedisplaylevel = $format->get_course_display_level();
+        if (!empty($section->component)) {
+            $regularsectionid = ($section->component == 'mod_subsection') ?
+                $modinfo->get_instances_of('subsection')[$section->itemid]->section : null;
+        } else {
+            $regularsectionid = $section->id;
+        }
+        if ($coursedisplaylevel <= COURSE_DISPLAY_LEVEL_SECTION && $regularsectionid != $format->get_sectionid()) {
+            $coursedisplaylevel = COURSE_DISPLAY_LEVEL_CONTAINING_SECTION;
+        }
 
         $summary = new $this->summaryclass($format, $section);
 
@@ -154,6 +166,7 @@ class section implements named_templatable, renderable {
             'num' => $section->section ?? '0',
             'id' => $section->id,
             'sectionreturnnum' => $format->get_sectionnum(),
+            'coursedisplaylevel' => $coursedisplaylevel,
             'insertafter' => false,
             'summary' => $summary->export_for_template($output),
             'highlightedlabel' => $format->get_section_highlighted_name(),
