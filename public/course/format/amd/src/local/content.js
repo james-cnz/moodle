@@ -212,10 +212,21 @@ export default class Component extends BaseComponent {
         const target = event.target.closest(this.selectors.TOGGLEALL);
         const isAllCollapsed = target.classList.contains(this.classes.COLLAPSED);
 
+        const sectionIsCollapsible = this._getCollapsibleSections();
+
+        // Filter section list by collapsibility.
         const course = this.reactive.get('course');
+        let sectionCollapsibleList = [];
+        for (let section of course.sectionlist ?? []) {
+            if (sectionIsCollapsible[section]) {
+                sectionCollapsibleList.push(section);
+            }
+        }
+
+        // Toggle sections' collapse states.
         this.reactive.dispatch(
             'sectionContentCollapsed',
-            course.sectionlist ?? [],
+            sectionCollapsibleList,
             !isAllCollapsed
         );
     }
@@ -339,13 +350,21 @@ export default class Component extends BaseComponent {
                 }
             }
         );
-        if (allcollapsed) {
-            target.classList.add(this.classes.COLLAPSED);
-            target.setAttribute('aria-expanded', false);
-        }
-        if (allexpanded) {
-            target.classList.remove(this.classes.COLLAPSED);
-            target.setAttribute('aria-expanded', true);
+
+        // Refresh all-sections toggler.
+        if (allexpanded && allcollapsed) {
+            // No collapsible sections.
+            target.style.visibility = "hidden";
+        } else {
+            if (allcollapsed) {
+                target.classList.add(this.classes.COLLAPSED);
+                target.setAttribute('aria-expanded', false);
+            }
+            if (allexpanded) {
+                target.classList.remove(this.classes.COLLAPSED);
+                target.setAttribute('aria-expanded', true);
+            }
+            target.style.visibility = "visible";
         }
     }
 
@@ -641,6 +660,7 @@ export default class Component extends BaseComponent {
                 }
                 Templates.replaceNode(cmitem, html, js);
                 this._indexContents();
+                this._refreshAllSectionsToggler(this.reactive.stateManager.state);
                 pendingReload.resolve();
                 return true;
             }).catch(() => {
@@ -704,6 +724,7 @@ export default class Component extends BaseComponent {
             promise.then((html, js) => {
                 Templates.replaceNode(sectionitem, html, js);
                 this._indexContents();
+                this._refreshAllSectionsToggler(this.reactive.stateManager.state);
                 pendingReload.resolve();
             }).catch(() => {
                 pendingReload.resolve();

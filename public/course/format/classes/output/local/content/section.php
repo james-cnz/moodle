@@ -212,8 +212,8 @@ class section implements named_templatable, renderable {
         $format = $this->format;
 
         $showsummary = ($section->section != 0 &&
-            $section->section != $format->get_sectionnum() &&
-            $format->get_course_display() == COURSE_DISPLAY_MULTIPAGE &&
+            $section->id != $format->get_sectionid() &&
+            (!empty($section->component) ? $format->get_course_display_subsections() : $format->get_course_display()) &&
             !$format->show_editor()
         );
 
@@ -327,9 +327,14 @@ class section implements named_templatable, renderable {
         $section = $this->section;
         $format = $this->format;
 
-        $data->iscoursedisplaymultipage = ($format->get_course_display() == COURSE_DISPLAY_MULTIPAGE);
+        $data->iscoursedisplaymultipage =
+            !empty($section->component) ? $format->get_course_display_subsections() : $format->get_course_display();
 
-        if ($data->num === 0 && !$data->iscoursedisplaymultipage) {
+        if (
+            ($data->num === 0 || $data->id == $format->get_sectionid()) &&
+            !($format->get_course_display() && $format->get_course_display_subsections()) &&
+            empty($section->component)
+        ) {
             $data->collapsemenu = true;
         }
 

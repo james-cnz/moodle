@@ -373,6 +373,15 @@ abstract class base {
     }
 
     /**
+     * Get the course display value for subsections.
+     *
+     * @return int The current value (COURSE_DISPLAY_MULTIPAGE or COURSE_DISPLAY_SINGLEPAGE)
+     */
+    public function get_course_display_subsections(): int {
+        return COURSE_DISPLAY_SINGLEPAGE;
+    }
+
+    /**
      * Return the current course modinfo.
      *
      * This method is used mainly by the output components to avoid unnecesary get_fast_modinfo calls.
