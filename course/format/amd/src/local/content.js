@@ -445,9 +445,10 @@ export default class Component extends BaseComponent {
      * Refresh a section cm list.
      *
      * @param {Object} param
+     * @param {Object} param.state the full state object.
      * @param {Object} param.element details the update details.
      */
-    _refreshSectionCmlist({element}) {
+    _refreshSectionCmlist({state, element}) {
         const cmlist = element.cmlist ?? [];
         const section = this.getElement(this.selectors.SECTION, element.id);
         const listparent = section?.querySelector(this.selectors.SECTION_CMLIST);
@@ -456,6 +457,7 @@ export default class Component extends BaseComponent {
         if (listparent) {
             this._fixOrder(listparent, cmlist, this.selectors.CM, this.dettachedCms, createCm);
         }
+        this._refreshAllSectionsToggler(state);
     }
 
     /**
@@ -476,6 +478,7 @@ export default class Component extends BaseComponent {
         if (listparent) {
             this._fixOrder(listparent, sectionlist, this.selectors.SECTION, this.dettachedSections, createSection);
         }
+        this._refreshAllSectionsToggler(state);
     }
 
     /**
