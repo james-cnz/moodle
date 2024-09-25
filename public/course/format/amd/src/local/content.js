@@ -69,6 +69,7 @@ export default class Component extends BaseComponent {
         // Default classes to toggle on refresh.
         this.classes = {
             COLLAPSED: `collapsed`,
+            INVISIBLE: `v-hidden`,
             // Course content classes.
             ACTIVITY: `activity`,
             STATEDREADY: `stateready`,
@@ -208,10 +209,15 @@ export default class Component extends BaseComponent {
      * @param {boolean} collapse whether all sections should be collapsed
      */
     _allSectionToggler(event, collapse) {
+        // Filter section list by collapsibility.
         const course = this.reactive.get('course');
+        const sectionIsCollapsible = this._getCollapsibleSections();
+        const sectionCollapsibleList = (course.sectionlist ?? []).filter(section => sectionIsCollapsible[section]);
+
+        // Toggle sections' collapse states.
         this.reactive.dispatch(
             'sectionContentCollapsed',
-            course.sectionlist ?? [],
+            sectionCollapsibleList,
             collapse
         );
     }
@@ -325,27 +331,37 @@ export default class Component extends BaseComponent {
             return;
         }
 
-        const sectionIsCollapsible = this._getCollapsibleSections();
+        const sectionIsCollapsible = this._getCollapsibleSections(true);
         const sections = [...state.section.values()].filter(
-            section => sectionIsCollapsible[section.id] && section.component === null
+            section => sectionIsCollapsible[section.id]
         );
 
         // The toggler only offers to expand all when every listed section is collapsed.
         const allcollapsed = sections.length > 0 && sections.every(section => section.contentcollapsed);
 
+        // Refresh all-sections toggler.
+        target.classList.toggle(this.classes.INVISIBLE, sections.length == 0);
         target.classList.toggle(this.classes.COLLAPSED, allcollapsed);
         target.setAttribute('aria-expanded', !allcollapsed);
     }
 
     /**
      * Find collapsible sections.
+     *
+     * @param {bool} excludeContained
      */
-    _getCollapsibleSections() {
+    _getCollapsibleSections(excludeContained = false) {
         let sectionIsCollapsible = {};
         const togglerDoms = this.element.querySelectorAll(this.selectors.COLLAPSE);
         for (let togglerDom of togglerDoms) {
             const headerDom = togglerDom.closest(this.selectors.SECTION_ITEM);
-            if (headerDom) {
+            if (
+                headerDom
+                && (
+                    !excludeContained
+                    || !headerDom.closest(".course-content-item-content.collapse, .course-content-item-content.collapsing")
+                )
+            ) {
                 sectionIsCollapsible[headerDom.dataset.id] = true;
             }
         }
@@ -629,6 +645,7 @@ export default class Component extends BaseComponent {
                 }
                 Templates.replaceNode(cmitem, html, js);
                 this._indexContents();
+                this._refreshAllSectionsToggler(this.reactive.state);
                 pendingReload.resolve();
                 return true;
             }).catch(() => {
