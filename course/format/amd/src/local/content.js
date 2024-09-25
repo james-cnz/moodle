@@ -311,13 +311,23 @@ export default class Component extends BaseComponent {
         if (!target) {
             return;
         }
+
+        // Find collapsible sections.
+        let sectionIsCollapsible = {};
+        const togglerDoms = this.element.querySelectorAll(this.selectors.SECTION_ITEM + " " + this.selectors.COLLAPSE);
+        for (let togglerDom of togglerDoms) {
+            sectionIsCollapsible[togglerDom.closest(this.selectors.SECTION).dataset.id] = true;
+        }
+
         // Check if we have all sections collapsed/expanded.
         let allcollapsed = true;
         let allexpanded = true;
         state.section.forEach(
             section => {
-                allcollapsed = allcollapsed && section.contentcollapsed;
-                allexpanded = allexpanded && !section.contentcollapsed;
+                if (sectionIsCollapsible[section.id]) {
+                    allcollapsed = allcollapsed && section.contentcollapsed;
+                    allexpanded = allexpanded && !section.contentcollapsed;
+                }
             }
         );
         if (allcollapsed) {
@@ -476,6 +486,7 @@ export default class Component extends BaseComponent {
         if (listparent) {
             this._fixOrder(listparent, sectionlist, this.selectors.SECTION, this.dettachedSections, createSection);
         }
+        this._refreshAllSectionsToggler(state);
     }
 
     /**
