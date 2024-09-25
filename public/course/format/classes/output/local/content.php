@@ -110,7 +110,7 @@ class content implements named_templatable, renderable {
             $data->sectionreturn = $singlesectionnum;
         }
 
-        if (empty($data->hasnavigation) && $format->get_course_display() != COURSE_DISPLAY_MULTIPAGE) {
+        if (empty($this->format->get_page_section()?->component)) {
             $data->collapsemenu = true;
         }
 
