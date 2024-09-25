@@ -68,6 +68,7 @@ export default class Component extends BaseComponent {
         // Default classes to toggle on refresh.
         this.classes = {
             COLLAPSED: `collapsed`,
+            INVISIBLE: `v-hidden`,
             // Course content classes.
             ACTIVITY: `activity`,
             STATEDREADY: `stateready`,
@@ -212,10 +213,16 @@ export default class Component extends BaseComponent {
         const target = event.target.closest(this.selectors.TOGGLEALL);
         const isAllCollapsed = target.classList.contains(this.classes.COLLAPSED);
 
+        const sectionIsCollapsible = this._getCollapsibleSections();
+
+        // Filter section list by collapsibility.
         const course = this.reactive.get('course');
+        const sectionCollapsibleList = (course.sectionlist ?? []).filter(section => sectionIsCollapsible[section]);
+
+        // Toggle sections' collapse states.
         this.reactive.dispatch(
             'sectionContentCollapsed',
-            course.sectionlist ?? [],
+            sectionCollapsibleList,
             !isAllCollapsed
         );
     }
@@ -329,21 +336,24 @@ export default class Component extends BaseComponent {
         const sectionIsCollapsible = this._getCollapsibleSections();
 
         // Check if we have all sections collapsed/expanded.
-        let allcollapsed = true;
-        let allexpanded = true;
+        let allCollapsed = true;
+        let allExpanded = true;
         state.section.forEach(
             section => {
                 if (sectionIsCollapsible[section.id]) {
-                    allcollapsed = allcollapsed && section.contentcollapsed;
-                    allexpanded = allexpanded && !section.contentcollapsed;
+                    allCollapsed = allCollapsed && section.contentcollapsed;
+                    allExpanded = allExpanded && !section.contentcollapsed;
                 }
             }
         );
-        if (allcollapsed) {
+
+        // Refresh all-sections toggler.
+        target.classList.toggle(this.classes.INVISIBLE, allCollapsed && allExpanded);
+        if (allCollapsed) {
             target.classList.add(this.classes.COLLAPSED);
             target.setAttribute('aria-expanded', false);
         }
-        if (allexpanded) {
+        if (allExpanded) {
             target.classList.remove(this.classes.COLLAPSED);
             target.setAttribute('aria-expanded', true);
         }
@@ -641,6 +651,7 @@ export default class Component extends BaseComponent {
                 }
                 Templates.replaceNode(cmitem, html, js);
                 this._indexContents();
+                this._refreshAllSectionsToggler(this.reactive.stateManager.state);
                 pendingReload.resolve();
                 return true;
             }).catch(() => {
@@ -704,6 +715,7 @@ export default class Component extends BaseComponent {
             promise.then((html, js) => {
                 Templates.replaceNode(sectionitem, html, js);
                 this._indexContents();
+                this._refreshAllSectionsToggler(this.reactive.stateManager.state);
                 pendingReload.resolve();
             }).catch(() => {
                 pendingReload.resolve();

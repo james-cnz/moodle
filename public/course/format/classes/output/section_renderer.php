@@ -30,6 +30,7 @@ use moodle_page;
 use renderable;
 use section_info;
 use stdClass;
+use course_modinfo;
 
 /**
  * Contains the default section course format output class.
@@ -196,6 +197,26 @@ abstract class section_renderer extends core_course_renderer {
             return null;
         }
         $widgetclass = $format->get_output_classname('content\\bulkedittoggler');
+        $widget = new $widgetclass($format);
+        return $this->render($widget);
+    }
+
+    /**
+     * Render the collapse/expand all sections toggler.
+     * @param course_format $format the course format
+     * @return string|null the collapse/expand all sections toggler HTML (or null if not available).
+     */
+    public function collapse_expand_all_toggler(course_format $format): ?string {
+        $course = $format->get_course();
+        $modinfo = course_modinfo::instance($course);
+        $section = $modinfo->get_section_info_by_id($format->get_sectionid() ?? 0);
+
+        $collapsemenu = empty($section->component) && ($format->get_course_display() != COURSE_DISPLAY_MULTIPAGE);
+        if (!$collapsemenu) {
+            return null;
+        }
+
+        $widgetclass = $format->get_output_classname('content\\collapseexpandalltoggler');
         $widget = new $widgetclass($format);
         return $this->render($widget);
     }

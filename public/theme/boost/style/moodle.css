@@ -30507,6 +30507,10 @@ table.calendartable caption {
 /*
  * Course page styles.
  */
+.path-course-view .header-action {
+  display: inline-block;
+}
+
 /* Course content */
 .course-content ul.section-list {
   padding: 0;
@@ -31047,9 +31051,6 @@ body:not(.editing) .single-section > ul > .course-section .section-item .activit
   border-bottom: 1px solid #dee2e6;
 }
 
-.single-section-page .header-action {
-  display: inline-block;
-}
 .single-section-page .page-context-header {
   overflow: visible;
 }
