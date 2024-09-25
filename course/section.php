@@ -164,6 +164,12 @@ if (!empty($bulkbutton)) {
     $PAGE->add_header_action($bulkbutton);
 }
 
+// Add collapse/expand all section toggler.
+$collapseexpandalltoggler = $renderer->collapse_expand_all_toggler($format);
+if (!empty($collapseexpandalltoggler)) {
+    $PAGE->add_header_action($collapseexpandalltoggler);
+}
+
 $outputclass = $format->get_output_classname('content');
 /** @var \core_courseformat\output\local\content */
 $sectionoutput = new $outputclass($format);
