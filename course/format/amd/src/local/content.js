@@ -444,9 +444,10 @@ export default class Component extends BaseComponent {
      * Refresh the section list.
      *
      * @param {Object} param
+     * @param {Object} param.state the full state object.
      * @param {Object} param.element details the update details.
      */
-    _refreshCourseSectionlist({element}) {
+    _refreshCourseSectionlist({state, element}) {
         // If we have a section return means we only show a single section so no need to fix order.
         if (this.reactive.sectionReturn != 0) {
             return;
@@ -458,6 +459,7 @@ export default class Component extends BaseComponent {
         if (listparent) {
             this._fixOrder(listparent, sectionlist, this.selectors.SECTION, this.dettachedSections, createSection);
         }
+        this._refreshAllSectionsToggler(state);
     }
 
     /**
