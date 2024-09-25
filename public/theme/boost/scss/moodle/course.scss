@@ -11,6 +11,10 @@ $divider-color: $gray-300 !default;
 $divider-width: 2px !default;
 $divider-hover-color: $primary !default;
 
+.path-course-view .header-action {
+    display: inline-block;
+}
+
 /* Course content */
 
 .course-content ul.section-list {
@@ -667,14 +671,9 @@ $divider-hover-color: $primary !default;
     }
 }
 
-.single-section-page {
-    .header-action {
-        display: inline-block;
-    }
-    // Revert page header styles to avoid conflict with inplace editable.
-    .page-context-header {
-        overflow: visible;
-    }
+// Revert page header styles to avoid conflict with inplace editable.
+.single-section-page .page-context-header {
+    overflow: visible;
 }
 
 /* Default activity completion page */

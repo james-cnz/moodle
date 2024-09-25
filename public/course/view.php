@@ -337,6 +337,12 @@ if (!empty($bulkbutton)) {
     $PAGE->add_header_action($bulkbutton);
 }
 
+// Add collapse/expand all section toggler.
+$collapseexpandalltoggler = $renderer->collapse_expand_all_toggler($format);
+if (!empty($collapseexpandalltoggler)) {
+    $PAGE->add_header_action($collapseexpandalltoggler);
+}
+
 $PAGE->set_heading($course->fullname);
 
 // Make sure that section 0 exists (this function will create one if it is missing).
