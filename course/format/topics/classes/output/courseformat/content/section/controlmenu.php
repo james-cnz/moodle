@@ -92,11 +92,7 @@ class controlmenu extends controlmenu_base {
         $course = $format->get_course();
         $sectionreturn = $format->get_sectionnum();
 
-        if ($sectionreturn) {
-            $url = course_get_url($course, $section->section);
-        } else {
-            $url = course_get_url($course);
-        }
+        $url = course_get_url($course);
         $url->param('sesskey', sesskey());
         return $url;
     }
