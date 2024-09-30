@@ -471,7 +471,10 @@ class controlmenu extends basecontrolmenu {
         $numsections = $format->get_last_section_number();
         $isstealth = $section->is_orphan();
 
-        $baseurl = course_get_url($course, $sectionreturn);
+        $baseurl = course_get_url($course);
+        if (!is_null($sectionreturn)) {
+            $baseurl->param('sectionid', $format->get_sectionid());
+        }
         $baseurl->param('sesskey', sesskey());
 
         $controls = [];
@@ -523,9 +526,6 @@ class controlmenu extends basecontrolmenu {
 
         if ($section->section) {
             $url = clone($baseurl);
-            if (!is_null($sectionreturn)) {
-                $url->param('sectionid', $format->get_sectionid());
-            }
             if (!$isstealth) {
                 if (has_capability('moodle/course:sectionvisibility', $coursecontext, $user)) {
                     $strhidefromothers = get_string('hidefromothers', 'format_' . $course->format);
@@ -572,7 +572,7 @@ class controlmenu extends basecontrolmenu {
                         // This tool will appear only when the state is ready.
                         $url = clone ($baseurl);
                         $url->param('movesection', $section->section);
-                        $url->param('section', $section->section);
+                        $url->param('sectionid', $section->id);
                         $controls['movesection'] = [
                             'url' => $url,
                             'icon' => 'i/dragdrop',
@@ -588,7 +588,7 @@ class controlmenu extends basecontrolmenu {
                     // Legacy move up and down links for non component-based formats.
                     $url = clone($baseurl);
                     if ($section->section > 1) { // Add a arrow to move section up.
-                        $url->param('section', $section->section);
+                        $url->param('sectionid', $section->id);
                         $url->param('move', -1);
                         $strmoveup = get_string('moveup');
                         $controls['moveup'] = [
@@ -602,7 +602,7 @@ class controlmenu extends basecontrolmenu {
 
                     $url = clone($baseurl);
                     if ($section->section < $numsections) { // Add a arrow to move section down.
-                        $url->param('section', $section->section);
+                        $url->param('sectionid', $section->id);
                         $url->param('move', 1);
                         $strmovedown = get_string('movedown');
                         $controls['movedown'] = [
