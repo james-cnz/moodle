@@ -243,11 +243,7 @@ if ($PAGE->user_allowed_editing()) {
             if ($course->id == SITEID) {
                 redirect($CFG->wwwroot . '/?redirect=0');
             } else {
-                if ($format->get_course_display() == COURSE_DISPLAY_MULTIPAGE) {
-                    redirect(course_get_url($course));
-                } else {
-                    redirect(course_get_url($course, $destsection));
-                }
+                redirect(course_get_url($course, $destsection));
             }
         } else {
             echo $OUTPUT->notification('An error occurred while moving a section');
