@@ -2352,7 +2352,7 @@ function lti_get_types_for_add_instance() {
  * @param int $sectionreturn section to return to for forming the URLs
  * @return array Array of lti types. Each element is object with properties: name, title, icon, help, helplink, link
  */
-function lti_get_configured_types($courseid, $sectionreturn = 0) {
+function lti_get_configured_types($courseid, $sectionreturn = null) {
     global $OUTPUT, $USER;
     $types = [];
     $preconfiguredtypes = \mod_lti\local\types_helper::get_lti_types_by_course($courseid, $USER->id,
