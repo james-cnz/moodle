@@ -310,16 +310,17 @@ class stateactions {
         $coursecontext = context_course::instance($course->id);
         require_capability('moodle/course:update', $coursecontext);
 
+        $modinfo = get_fast_modinfo($course);
+
         // Get course format settings.
         $format = course_get_format($course->id);
-        $lastsectionnumber = $format->get_last_section_number();
+        $numsections = $format->get_last_section_number()
+                        + count($modinfo->get_section_info_all()) - count($modinfo->get_listed_section_info_all());
         $maxsections = $format->get_max_sections();
 
-        if ($lastsectionnumber >= $maxsections) {
+        if ($numsections >= $maxsections) {
             throw new moodle_exception('maxsectionslimit', 'moodle', '', $maxsections);
         }
-
-        $modinfo = get_fast_modinfo($course);
 
         // Get target section.
         if ($targetsectionid) {
