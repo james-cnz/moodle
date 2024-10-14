@@ -2204,7 +2204,7 @@ final class modinfolib_test extends advanced_testcase {
         $property->setValue($format, $courseobject);
 
         $delegatedsection = $modinfo->get_section_info($delegatedsection->section);
-        $this->assertTrue($delegatedsection->is_orphan());
+        $this->assertFalse($delegatedsection->is_orphan());
     }
 
     /**

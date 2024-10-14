@@ -99,7 +99,7 @@ class header implements named_templatable, renderable {
         $coursedisplay = $format->get_course_display();
         $data->headerdisplaymultipage = ($coursedisplay == COURSE_DISPLAY_MULTIPAGE);
 
-        if ($section->section > $format->get_last_section_number()) {
+        if ($section->section > $format->get_last_section_number() && empty($section->component)) {
             // Stealth sections (orphaned) has special title.
             $data->title = get_string('orphanedactivitiesinsectionno', '', $section->section);
         }
