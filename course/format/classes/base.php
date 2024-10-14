@@ -405,14 +405,10 @@ abstract class base {
             return $course->numsections;
         }
         $modinfo = get_fast_modinfo($course);
-        $sections = $modinfo->get_section_info_all();
+        $sections = $modinfo->get_listed_section_info_all();
 
-        // Sections seem to be missing entirely. Avoid subsequent errors and return early.
-        if (count($sections) === 0) {
-            return -1;
-        }
-
-        return (int)max(array_keys($sections));
+        // Ignore the General section.
+        return count($sections) - 1;
     }
 
     /**

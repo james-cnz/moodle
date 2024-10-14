@@ -95,7 +95,7 @@ class section implements named_templatable, renderable {
         $this->format = $format;
         $this->section = $section;
 
-        if ($section->section > $format->get_last_section_number()) {
+        if ($section->section > $format->get_last_section_number() && empty($section->component)) {
             $this->isstealth = true;
         }
 

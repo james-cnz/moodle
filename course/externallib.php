@@ -207,7 +207,7 @@ class core_course_external extends external_api {
                         \core_external\util::format_text($section->summary, $section->summaryformat,
                                 $context, 'course', 'section', $section->id, $options);
                 $sectionvalues['section'] = $section->section;
-                $sectionvalues['hiddenbynumsections'] = $section->section > $coursenumsections ? 1 : 0;
+                $sectionvalues['hiddenbynumsections'] = ($section->section > $coursenumsections && empty($section->component)) ? 1 : 0;
                 $sectionvalues['uservisible'] = $section->uservisible;
                 if (!empty($section->availableinfo)) {
                     $sectionvalues['availabilityinfo'] = \core_availability\info::format_info($section->availableinfo, $course);
