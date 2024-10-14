@@ -3710,7 +3710,7 @@ class section_info implements IteratorAggregate {
         $courseformat = course_get_format($this->modinfo->get_course());
         // There are some cases where a restored course using third-party formats can
         // have orphaned sections due to a fixed section number.
-        if ($this->_sectionnum > $courseformat->get_last_section_number()) {
+        if ($this->_sectionnum > $courseformat->get_last_section_number() && !$this->is_delegated()) {
             $this->_isorphan = true;
             return $this->_isorphan;
         }

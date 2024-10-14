@@ -49,7 +49,10 @@ class permission {
             return false;
         }
         $format = course_get_format($section->course);
-        if ($format->get_last_section_number() >= $format->get_max_sections()) {
+        $modinfo = get_fast_modinfo($section->course);
+        $numsections = $format->get_last_section_number()
+                        + count($modinfo->get_section_info_all()) - count($modinfo->get_listed_section_info_all());
+        if ($numsections >= $format->get_max_sections()) {
             return false;
         }
         if (!$format->supports_components()) {
