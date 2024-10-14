@@ -166,7 +166,7 @@ class core_course_external extends external_api {
             $modinfo = get_fast_modinfo($course);
             $sections = $modinfo->get_section_info_all();
             $courseformat = course_get_format($course);
-            $coursenumsections = $courseformat->get_last_section_number();
+            $coursenumsections = $courseformat->get_last_section_number(0);
             $stealthmodules = array();   // Array to keep all the modules available but not visible in a course section/topic.
 
             $completioninfo = new completion_info($course);
@@ -207,7 +207,7 @@ class core_course_external extends external_api {
                         \core_external\util::format_text($section->summary, $section->summaryformat,
                                 $context, 'course', 'section', $section->id, $options);
                 $sectionvalues['section'] = $section->section;
-                $sectionvalues['hiddenbynumsections'] = $section->section > $coursenumsections ? 1 : 0;
+                $sectionvalues['hiddenbynumsections'] = ($section->section > $coursenumsections && empty($section->component)) ? 1 : 0;
                 $sectionvalues['uservisible'] = $section->uservisible;
                 if (!empty($section->availableinfo)) {
                     $sectionvalues['availabilityinfo'] = \core_availability\info::format_info($section->availableinfo, $course);
@@ -711,7 +711,7 @@ class core_course_external extends external_api {
                     $courseinfo['hiddensections'] = $courseformatoptions['hiddensections'];
                 }
                 // Return numsections for backward-compatibility with clients who expect it.
-                $courseinfo['numsections'] = course_get_format($course)->get_last_section_number();
+                $courseinfo['numsections'] = course_get_format($course)->get_last_section_number(0);
                 $courseinfo['groupmode'] = $course->groupmode;
                 $courseinfo['groupmodeforce'] = $course->groupmodeforce;
                 $courseinfo['defaultgroupingid'] = $course->defaultgroupingid;

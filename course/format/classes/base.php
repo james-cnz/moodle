@@ -383,22 +383,26 @@ abstract class base {
      * This method ensures that 3rd party course format plugins that still use 'numsections' continue to
      * work but at the same time we no longer expect formats to have 'numsections' property.
      *
+     * @param int Sections to include: 0 regular only, 1 also orphan, 2 also delegated, null deprecated broken behaviour
      * @return int The last section number, or -1 if sections are entirely missing
      */
-    public function get_last_section_number() {
+    public function get_last_section_number(int $include = null) {
+        // if ($include === null) {
+        //     debugging('Use of ' . __FUNCTION__ . '() without a parameter has been deprecated.', DEBUG_DEVELOPER);
+        // }
         $course = $this->get_course();
-        if (isset($course->numsections)) {
+        if (($include === null || $include <= 0) && isset($course->numsections)) {
             return $course->numsections;
         }
         $modinfo = get_fast_modinfo($course);
-        $sections = $modinfo->get_section_info_all();
-
-        // Sections seem to be missing entirely. Avoid subsequent errors and return early.
-        if (count($sections) === 0) {
-            return -1;
+        if ($include !== null && $include <= 1) {
+            $sections = $modinfo->get_listed_section_info_all();
+        } else {
+            $sections = $modinfo->get_section_info_all();
         }
 
-        return (int)max(array_keys($sections));
+        // Ignore the General section.
+        return count($sections) - 1;
     }
 
     /**

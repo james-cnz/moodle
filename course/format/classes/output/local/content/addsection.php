@@ -71,7 +71,8 @@ class addsection implements named_templatable, renderable {
         $course = $format->get_course();
         $options = $format->get_format_options();
 
-        $lastsection = $format->get_last_section_number();
+        $lastsection = $format->get_last_section_number(0)
+            + $format->get_last_section_number(2) - $format->get_last_section_number(1);
         $maxsections = $format->get_max_sections();
 
         // Component based formats handle add section button in the frontend.

@@ -83,7 +83,7 @@ class block_section_links extends block_base {
 
         $course = $this->page->course;
         $courseformat = course_get_format($course);
-        $numsections = $courseformat->get_last_section_number();
+        $numsections = $courseformat->get_last_section_number(0);
         $context = context_course::instance($course->id);
 
         // Course format options 'numsections' is required to display the block.

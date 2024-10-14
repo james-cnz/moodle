@@ -107,7 +107,7 @@ class sectionnavigation implements named_templatable, renderable {
         }
 
         $forward = $this->sectionno + 1;
-        $numsections = course_get_format($course)->get_last_section_number();
+        $numsections = course_get_format($course)->get_last_section_number(0);
         while ($forward <= $numsections and empty($data->nexturl)) {
             if ($canviewhidden || $sections[$forward]->uservisible) {
                 if (!$sections[$forward]->visible) {

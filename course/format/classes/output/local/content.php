@@ -154,7 +154,7 @@ class content implements named_templatable, renderable {
         // Generate section list.
         $sections = [];
         $stealthsections = [];
-        $numsections = $format->get_last_section_number();
+        $numsections = $format->get_last_section_number(0);
         foreach ($this->get_sections_to_display($modinfo) as $sectionnum => $thissection) {
             // The course/view.php check the section existence but the output can be called
             // from other parts so we need to check it.
