@@ -534,7 +534,7 @@ class backup_course_structure_step extends backup_structure_step {
         // Even though Moodle does not officially support restore into older verions of Moodle from the
         // version where backup was made, without 'numsections' restoring will go very wrong.
         if (!property_exists($courserec, 'numsections') && course_get_format($courserec)->uses_sections()) {
-            $courserec->numsections = course_get_format($courserec)->get_last_section_number();
+            $courserec->numsections = course_get_format($courserec)->get_last_section_number(0);
         }
 
         $course->set_source_array(array($courserec));
