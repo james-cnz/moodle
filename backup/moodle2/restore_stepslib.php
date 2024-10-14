@@ -1623,23 +1623,24 @@ class restore_section_structure_step extends restore_structure_step {
         $section->component = null;
         $section->itemid = null;
 
-        $secrec = $DB->get_record(
-            'course_sections',
-            ['course' => $this->get_courseid(), 'section' => $data->number, 'component' => null]
-        );
-        $createsection = empty($secrec);
-
-        // Delegated sections are always restored as new sections.
-        if (!empty($data->component)) {
+        if (empty($data->component)) {
+            $secrec = $DB->get_record(
+                'course_sections',
+                ['course' => $this->get_courseid(), 'section' => $section->section, 'component' => null]
+            );
+            $createsection = empty($secrec);
+        } else {
+            // Delegated sections are always restored as new sections.
+            $createsection = true;
             $section->itemid = $this->get_delegated_section_mapping($data->component, $data->itemid);
             // If the delegate component does not set the mapping id, the section must be converted
             // into a regular section. Otherwise, it won't be accessible.
-            $createsection = $createsection || $section->itemid !== null;
             $section->component = ($section->itemid !== null) ? $data->component : null;
             // The section number will be always the last of the course, no matter the case.
-            $section->section = $this->get_last_section_number($this->get_courseid()) + 1;
+            $section->section = $this->get_last_section_number($this->get_courseid(), $section->component ? true : false) + 1;
 
         }
+
         // Section doesn't exist, create it with all the info from backup
         if ($createsection) {
             $section->name = $data->name;
