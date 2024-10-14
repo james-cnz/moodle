@@ -69,19 +69,21 @@ class addsection implements named_templatable, renderable {
 
         $format = $this->format;
         $course = $format->get_course();
+        $modinfo = get_fast_modinfo($course);
         $options = $format->get_format_options();
 
-        $lastsection = $format->get_last_section_number();
+        $numsections = $courseformat->get_last_section_number()
+                        + count($modinfo->get_section_info_all()) - count($modinfo->get_listed_section_info_all());
         $maxsections = $format->get_max_sections();
 
         // Component based formats handle add section button in the frontend.
-        $show = ($lastsection < $maxsections) || $format->supports_components();
+        $show = ($numsections < $maxsections) || $format->supports_components();
 
         $supportsnumsections = array_key_exists('numsections', $options);
         if ($supportsnumsections) {
-            $data = $this->get_num_sections_data($output, $lastsection, $maxsections);
+            $data = $this->get_num_sections_data($output, $numsections, $maxsections);
         } else if (course_get_format($course)->uses_sections() && $show) {
-            $data = $this->get_add_section_data($output, $lastsection, $maxsections);
+            $data = $this->get_add_section_data($output, $numsections, $maxsections);
         }
 
         if (count((array)$data)) {
@@ -98,16 +100,16 @@ class addsection implements named_templatable, renderable {
      * developers to get rid of it (see MDL-57769 on how to do it).
      *
      * @param \renderer_base $output typically, the renderer that's calling this function
-     * @param int $lastsection the last section number
+     * @param int $numsections the number of sections (excluding the General section)
      * @param int $maxsections the maximum number of sections
      * @return stdClass data context for a mustache template
      */
-    protected function get_num_sections_data(\renderer_base $output, int $lastsection, int $maxsections): stdClass {
+    protected function get_num_sections_data(\renderer_base $output, int $numsections, int $maxsections): stdClass {
         $format = $this->format;
         $course = $format->get_course();
         $data = new stdClass();
 
-        if ($lastsection < $maxsections) {
+        if ($numsections < $maxsections) {
             $data->increase = (object) [
                 'url' => new moodle_url(
                     '/course/changenumsections.php',
@@ -136,11 +138,11 @@ class addsection implements named_templatable, renderable {
      * capabilities 'moodle/course:update' and 'moodle/course:movesections'.
      *
      * @param \renderer_base $output typically, the renderer that's calling this function
-     * @param int $lastsection the last section number
+     * @param int $numsections the number of sections (excluding the General section)
      * @param int $maxsections the maximum number of sections
      * @return stdClass data context for a mustache template
      */
-    protected function get_add_section_data(\renderer_base $output, int $lastsection, int $maxsections): stdClass {
+    protected function get_add_section_data(\renderer_base $output, int $numsections, int $maxsections): stdClass {
         $format = $this->format;
         $course = $format->get_course();
         $data = new stdClass();
@@ -157,7 +159,7 @@ class addsection implements named_templatable, renderable {
         $data->addsections = (object) [
             'url' => new moodle_url('/course/changenumsections.php', $params),
             'title' => $addstring,
-            'newsection' => $maxsections - $lastsection,
+            'newsection' => $maxsections - $numsections,
         ];
         return $data;
     }

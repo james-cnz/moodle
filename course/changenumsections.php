@@ -47,14 +47,16 @@ require_sesskey();
 
 $desirednumsections = 0;
 $courseformat = course_get_format($course);
-$lastsectionnumber = $courseformat->get_last_section_number();
+$modinfo = get_fast_modinfo($course);
+$numsectionsbefore = $courseformat->get_last_section_number()
+                + count($modinfo->get_section_info_all()) - count($modinfo->get_listed_section_info_all());
 $maxsections = $courseformat->get_max_sections();
 
 if (isset($courseformatoptions['numsections']) && $increase !== null) {
-    $desirednumsections = $courseformatoptions['numsections'] + 1;
+    $desirednumsections = $numsectionsbefore + 1;
 } else if (course_get_format($course)->uses_sections() && $insertsection !== null) {
-    // Count the sections in the course.
-    $desirednumsections = $lastsectionnumber + $numsections;
+    // Count the sections in the course (include delegated sections, but not orphan sections).
+    $desirednumsections = $numsectionsbefore + $numsections;
 }
 
 if ($desirednumsections > $maxsections) {
