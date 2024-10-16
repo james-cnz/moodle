@@ -54,15 +54,17 @@ class stateactions extends core_actions {
      * @param stateupdates $updates the affected course elements track
      * @param stdClass $course the course object
      * @param string $modname the module name
-     * @param int $targetsectionid target section id
+     * @param int $targetsectionnum target section num
      * @param int|null $targetcmid optional target cm id
+     * @param int|null $targetsectionid target section id
      */
     public function create_module(
         stateupdates $updates,
         stdClass $course,
         string $modname,
-        int $targetsectionid,
-        ?int $targetcmid = null
+        int $targetsectionnum,
+        ?int $targetcmid = null,
+        ?int $targetsectionid = null
     ): void {
     }
 
