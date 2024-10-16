@@ -49,6 +49,7 @@ class before_activitychooserbutton_exported_handler {
             'data-action' => 'addModule',
             'data-modname' => 'subsection',
             'data-sectionnum' => $section->sectionnum,
+            'data-sectionid' => $section->id,
         ];
         if ($hook->get_cm()) {
             $attributes['data-beforemod'] = $hook->get_cm()->id;

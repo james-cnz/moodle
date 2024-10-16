@@ -74,8 +74,9 @@ export default class {
      * @param {string} modName module name
      * @param {number} targetSectionNum target section number
      * @param {number} targetCmId optional target cm id
+     * @param {number} targetSectionId optional target section id
      */
-        async _callAddModuleWebservice(courseId, modName, targetSectionNum, targetCmId) {
+        async _callAddModuleWebservice(courseId, modName, targetSectionNum, targetCmId, targetSectionId = null) {
             const args = {
                 courseid: courseId,
                 modname: modName,
@@ -83,6 +84,9 @@ export default class {
             };
             if (targetCmId) {
                 args.targetcmid = targetCmId;
+            }
+            if (targetSectionId) {
+                args.targetsectionid = targetSectionId;
             }
             let ajaxresult = await ajax.call([{
                 methodname: 'core_courseformat_create_module',
@@ -423,8 +427,9 @@ export default class {
      * @param {string} modName the modulename to add
      * @param {number} targetSectionNum the target section number
      * @param {number} targetCmId optional the target cm id
+     * @param {number} targetSectionId optional the target section id
      */
-    async addModule(stateManager, modName, targetSectionNum, targetCmId) {
+    async addModule(stateManager, modName, targetSectionNum, targetCmId, targetSectionId = null) {
         if (!modName) {
             throw new Error(`Mutation addModule requires moduleName`);
         }
@@ -435,7 +440,7 @@ export default class {
             targetCmId = 0;
         }
         const course = stateManager.get('course');
-        const updates = await this._callAddModuleWebservice(course.id, modName, targetSectionNum, targetCmId);
+        const updates = await this._callAddModuleWebservice(course.id, modName, targetSectionNum, targetCmId, targetSectionId);
         stateManager.processUpdates(updates);
     }
 

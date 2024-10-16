@@ -466,7 +466,8 @@ export default class extends BaseComponent {
      */
     async _requestAddModule(target, event) {
         event.preventDefault();
-        this.reactive.dispatch('addModule', target.dataset.modname, target.dataset.sectionnum, target.dataset.beforemod);
+        this.reactive.dispatch('addModule', target.dataset.modname,
+            target.dataset.sectionnum, target.dataset.beforemod, target.dataset.sectionid ?? null);
     }
 
     /**
