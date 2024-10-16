@@ -1189,19 +1189,28 @@ class stateactions {
      * @param string $modname the module name
      * @param int $targetsectionnum target section number
      * @param int|null $targetcmid optional target cm id
+     * @param int|null $targetsectionid target section id
      */
     public function create_module(
         stateupdates $updates,
         stdClass $course,
         string $modname,
         int $targetsectionnum,
-        ?int $targetcmid = null
+        ?int $targetcmid = null,
+        ?int $targetsectionid = null
     ): void {
         global $CFG;
         require_once($CFG->dirroot . '/course/modlib.php');
 
         $coursecontext = context_course::instance($course->id);
         require_capability('moodle/course:update', $coursecontext);
+
+        // Get section num from section id.
+        if ($targetsectionid) {
+            $moduleinfo = get_fast_modinfo($course->id);
+            $section = $moduleinfo->get_section_info_by_id($targetsectionid);
+            $targetsectionnum = $section->section;
+        }
 
         // Method "can_add_moduleinfo" called in "prepare_new_moduleinfo_data" will handle the capability checks.
         [, , , , $moduleinfo] = prepare_new_moduleinfo_data($course, $modname, $targetsectionnum);
