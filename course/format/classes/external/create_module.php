@@ -45,6 +45,7 @@ class create_module extends external_api {
                 'modname' => new external_value(PARAM_ALPHANUMEXT, 'module name', VALUE_REQUIRED),
                 'targetsectionnum' => new external_value(PARAM_INT, 'target section number', VALUE_REQUIRED, null),
                 'targetcmid' => new external_value(PARAM_INT, 'Optional target cm id', VALUE_DEFAULT, null),
+                'targetsectionid' => new external_value(PARAM_INT, 'target section id', VALUE_DEFAULT, null),
             ]
         );
     }
@@ -70,7 +71,8 @@ class create_module extends external_api {
         int $courseid,
         string $modname,
         int $targetsectionnum,
-        ?int $targetcmid = null
+        ?int $targetcmid = null,
+        ?int $targetsectionid = null
     ): string {
         global $CFG;
 
@@ -81,11 +83,13 @@ class create_module extends external_api {
             'modname' => $modname,
             'targetsectionnum' => $targetsectionnum,
             'targetcmid' => $targetcmid,
+            'targetsectionid' => $targetsectionid,
         ] = self::validate_parameters(self::execute_parameters(), [
             'courseid' => $courseid,
             'modname' => $modname,
             'targetsectionnum' => $targetsectionnum,
             'targetcmid' => $targetcmid,
+            'targetsectionid' => $targetsectionid,
         ]);
 
         self::validate_context(context_course::instance($courseid));
@@ -125,7 +129,7 @@ class create_module extends external_api {
         $course = $courseformat->get_course();
 
         // Execute the action.
-        $actions->$action($updates, $course, $modname, $targetsectionnum, $targetcmid);
+        $actions->$action($updates, $course, $modname, $targetsectionnum, $targetcmid, $targetsectionid);
 
         // Any state action mark the state cache as dirty.
         course_format::session_cache_reset($course);
