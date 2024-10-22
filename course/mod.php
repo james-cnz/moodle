@@ -77,6 +77,7 @@ require_login();
 if (!empty($add)) {
     $id          = required_param('id', PARAM_INT);
     $section     = required_param('section', PARAM_INT);
+    $sectionid   = optional_param('sectionid', null, PARAM_INT);
     $type        = optional_param('type', '', PARAM_ALPHA);
     $returntomod = optional_param('return', 0, PARAM_BOOL);
     $beforemod   = optional_param('beforemod', 0, PARAM_INT);
@@ -89,6 +90,9 @@ if (!empty($add)) {
         'return' => $returntomod,
         'beforemod' => $beforemod,
     ];
+    if (!is_null($sectionid)) {
+        $params['sectionid'] = $sectionid;
+    }
     if (!is_null($sectionreturn)) {
         $params['sr'] = $sectionreturn;
     }
