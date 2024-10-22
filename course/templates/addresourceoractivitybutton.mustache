@@ -32,6 +32,7 @@
     }}{{#hasactionlinks}}dropdown-item{{/hasactionlinks}}"
     data-action="open-chooser"
     data-sectionnum="{{sectionnum}}"
+    {{#sectionid}}data-sectionidreal="{{.}}"{{/sectionid}}
     {{#sectionreturn}}data-sectionreturnnum="{{.}}"{{/sectionreturn}}
     {{#modid}}
         data-beforemod="{{modid}}"
