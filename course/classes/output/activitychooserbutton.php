@@ -73,6 +73,7 @@ class activitychooserbutton implements templatable, renderable {
 
         return (object)[
             'sectionnum' => $this->section->section,
+            'sectionid' => $this->section->id,
             'sectionreturn' => $this->sectionreturn ?? false,
             'modid' => $this->mod ? $this->mod->id : false,
             'activityname' => $this->mod ? $this->mod->get_formatted_name() : false,
