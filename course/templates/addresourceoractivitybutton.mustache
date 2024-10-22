@@ -32,6 +32,9 @@
     }}{{#hasactionlinks}}dropdown-item{{/hasactionlinks}}"
     data-action="open-chooser"
     data-sectionnum="{{sectionnum}}"
+    {{! "data-sectionid" was wrongly used for the section number in Moodle 4.4,
+        so we use "data-section-id" instead for now.  This may be changed in Moodle 6.0. }}
+    {{#sectionid}}data-section-id="{{.}}"{{/sectionid}}
     {{#sectionreturn}}data-sectionreturnnum="{{.}}"{{/sectionreturn}}
     {{#modid}}
         data-beforemod="{{modid}}"
