@@ -57,6 +57,7 @@ if (!empty($showonly)) {
 
 if (!empty($add)) {
     $section = required_param('section', PARAM_INT);
+    $sectionid = optional_param('sectionid', null, PARAM_INT);
     $course  = required_param('course', PARAM_INT);
 
     $url->param('add', $add);
@@ -66,6 +67,10 @@ if (!empty($add)) {
 
     $course = $DB->get_record('course', array('id'=>$course), '*', MUST_EXIST);
     require_login($course);
+
+    if (!is_null($sectionid)) {
+        $section = get_fast_modinfo($course)->get_section_info_by_id($sectionid)->section;
+    }
 
     // There is no page for this in the navigation. The closest we'll have is the course section.
     // If the course section isn't displayed on the navigation this will fall back to the course which
