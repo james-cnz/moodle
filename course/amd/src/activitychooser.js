@@ -116,6 +116,7 @@ const registerListenerEvents = (courseId, chooserConfig) => {
         document.addEventListener(event, async(e) => {
             if (e.target.closest(selectors.elements.sectionmodchooser)) {
                 let caller;
+                let sectionid;
                 // We need to know who called this.
                 // Standard courses use the ID in the main section info.
                 const sectionDiv = e.target.closest(selectors.elements.section);
@@ -129,8 +130,10 @@ const registerListenerEvents = (courseId, chooserConfig) => {
                 if (sectionDiv !== null && sectionDiv.hasAttribute('data-sectionid')) {
                     // We check for attributes just in case of outdated contrib course formats.
                     caller = sectionDiv;
+                    sectionid = sectionDiv.dataset.id;
                 } else {
                     caller = button;
+                    sectionid = caller.dataset?.sectionidreal;
                 }
 
                 // We want to show the modal instantly but loading whilst waiting for our data.
@@ -161,13 +164,14 @@ const registerListenerEvents = (courseId, chooserConfig) => {
                     data,
                     caller.dataset.sectionid,
                     caller.dataset.sectionreturnid,
-                    caller.dataset.beforemod
+                    caller.dataset.beforemod,
+                    sectionid
                 );
 
                 ChooserDialogue.displayChooser(
                     sectionModal,
                     builtModuleData,
-                    partiallyAppliedFavouriteManager(data, caller.dataset.sectionid),
+                    partiallyAppliedFavouriteManager(data, caller.dataset.sectionid, sectionid),
                     footerData,
                 );
 
@@ -191,13 +195,14 @@ const registerListenerEvents = (courseId, chooserConfig) => {
  * @param {Number} id The ID of the section we need to append to the links
  * @param {Number|null} sectionreturnid The ID of the section return we need to append to the links
  * @param {Number|null} beforemod The ID of the cm we need to append to the links
+ * @param {Number|null} idreal The ID of the section we need to append to the links
  * @return {Array} [modules] with URL's built
  */
-const sectionIdMapper = (webServiceData, id, sectionreturnid, beforemod) => {
+const sectionIdMapper = (webServiceData, id, sectionreturnid, beforemod, idreal = null) => {
     // We need to take a fresh deep copy of the original data as an object is a reference type.
     const newData = JSON.parse(JSON.stringify(webServiceData));
     newData.content_items.forEach((module) => {
-        module.link += '&section=' + id + '&beforemod=' + (beforemod ?? 0);
+        module.link += '&section=' + id + (idreal ? '&sectionid=' + idreal : '') + '&beforemod=' + (beforemod ?? 0);
         if (sectionreturnid) {
             module.link += '&sr=' + sectionreturnid;
         }
@@ -353,9 +358,10 @@ const nullFavouriteDomManager = (favouriteTabNav, modalBody) => {
  * @method partiallyAppliedFavouriteManager
  * @param {Array} moduleData This is our raw WS data that we need to manipulate
  * @param {Number} sectionId We need this to add the sectionID to the URL's in the faves area after rerender
+ * @param {Number|null} sectionIdReal We need this to add the sectionID to the URL's in the faves area
  * @return {Function} partially applied function so we can manipulate DOM nodes easily & update our internal array
  */
-const partiallyAppliedFavouriteManager = (moduleData, sectionId) => {
+const partiallyAppliedFavouriteManager = (moduleData, sectionId, sectionIdReal = null) => {
     /**
      * Curried function that is being returned.
      *
@@ -378,7 +384,7 @@ const partiallyAppliedFavouriteManager = (moduleData, sectionId) => {
                 // eslint-disable-next-line camelcase
                 newFaves.content_items = moduleData.content_items.filter(mod => mod.favourite === true);
 
-                const builtFaves = sectionIdMapper(newFaves, sectionId);
+                const builtFaves = sectionIdMapper(newFaves, sectionId, null, null, sectionIdReal);
 
                 const {html, js} = await Templates.renderForPromise('core_course/local/activitychooser/favourites',
                     {favourites: builtFaves});
