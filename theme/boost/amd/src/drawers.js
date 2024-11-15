@@ -613,9 +613,10 @@ export default class Drawers {
         // height can be changed by other elements like sticky footer.
         // To prevent recalculating the boundingRect on every
         // focusin event, we use horizontal overlapping as first fast check.
+        const threshold = currentFocus.closest("#mod_book-chaptersnavigation") ? 0 : THRESHOLD;
         let overlapping = (
-            (element.right + THRESHOLD) > this.boundingRect.left &&
-            (element.left - THRESHOLD) < this.boundingRect.right
+            (element.right + threshold) > this.boundingRect.left &&
+            (element.left - threshold) < this.boundingRect.right
         );
         if (overlapping) {
             const currentBoundingRect = this.drawerNode.getBoundingClientRect();
