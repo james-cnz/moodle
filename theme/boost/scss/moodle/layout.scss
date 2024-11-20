@@ -35,6 +35,8 @@
 
 #page.drawers {
     margin-top: $navbar-height;
+    scroll-padding-top: $navbar-height + 10px;
+    overflow-y: scroll;
     @include thin-scrolls($gray-100);
     .main-inner {
         max-width: 100%;
@@ -215,7 +217,6 @@
 
     #page.drawers {
         position: relative;
-        overflow-y: visible;
         @include transition(0.2s);
         left: 0;
         right: 0;
