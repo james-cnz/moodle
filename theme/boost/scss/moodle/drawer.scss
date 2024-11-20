@@ -1,4 +1,3 @@
-/* Anchor link offset fix. This makes hash links scroll 60px down to account for the fixed header. */
 $fixed-header-y: $navbar-height;
 
 $drawer-width: 285px !default;
@@ -10,11 +9,6 @@ $drawer-offscreen-gutter: 20px !default;
 $drawer-bg-color: $gray-100 !default;
 $drawer-scroll-bg-track: $gray-100 !default;
 $drawer-shadow-color: rgba(0, 0, 0, .25) !default;
-
-:target,
-:focus {
-    scroll-margin-top: $fixed-header-y + 10px;
-}
 
 .pagelayout-embedded :target {
     padding-top: initial;
