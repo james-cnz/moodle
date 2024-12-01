@@ -314,6 +314,7 @@ class cm implements named_templatable, renderable {
             return false;
         }
         $returnsection = $this->format->get_sectionnum();
+        $pagesectionid = $this->format->get_sectionid();
         // Edit actions.
         $controlmenu = new $this->controlmenuclass(
             $this->format,
@@ -325,7 +326,7 @@ class cm implements named_templatable, renderable {
 
         if (!$this->format->supports_components()) {
             // Add the legacy YUI move link.
-            $data->moveicon = course_get_cm_move($this->mod, $returnsection);
+            $data->moveicon = course_get_cm_move($this->mod, $returnsection, $pagesectionid);
         }
         return true;
     }

@@ -499,11 +499,25 @@ class format_weeks extends core_courseformat\base {
         return !$section->section || $section->visible;
     }
 
-    public function section_action($section, $action, $sr) {
+    /**
+     * Callback used in WS core_course_edit_section when teacher performs an AJAX action on a section (show/hide).
+     *
+     * Access to the course is already validated in the WS but the callback has to make sure
+     * that particular action is allowed by checking capabilities
+     *
+     * Course formats should register.
+     *
+     * @param section_info|stdClass $section
+     * @param string $action
+     * @param int|null $sr  Deprecated since Moodle 5.0, see MDL-83857.
+     * @param int|null $pagesectionid
+     * @return null|array any data for the Javascript post-processor (must be json-encodeable)
+     */
+    public function section_action($section, $action, $sr, $pagesectionid) {
         global $PAGE;
 
         // Call the parent method and return the new content for .section_availability element.
-        $rv = parent::section_action($section, $action, $sr);
+        $rv = parent::section_action($section, $action, $sr, $pagesectionid);
         $renderer = $PAGE->get_renderer('format_weeks');
 
         if (!($section instanceof section_info)) {

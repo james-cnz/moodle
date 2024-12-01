@@ -1971,10 +1971,11 @@ abstract class base {
      *
      * @param stdClass|section_info $section
      * @param string $action
-     * @param int $sr the section return
+     * @param int|null $sr section number of the current page.  Deprecated since Moodle 5.0, see MDL-83857.
+     * @param int|null $pagesectionid section ID of the current page
      * @return null|array|stdClass any data for the Javascript post-processor (must be json-encodeable)
      */
-    public function section_action($section, $action, $sr) {
+    public function section_action($section, $action, $sr, $pagesectionid) {
         global $PAGE;
         if (!$this->uses_sections() || !$section->section) {
             // No section actions are allowed if course format does not support sections.
@@ -1991,7 +1992,9 @@ abstract class base {
             $section = $modinfo->get_section_info($section->section);
         }
 
-        if (!is_null($sr)) {
+        if (!is_null($pagesectionid)) {
+            $this->set_sectionid($pagesectionid);
+        } else if (!is_null($sr)) {
             $this->set_sectionnum($sr);
         }
 

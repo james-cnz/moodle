@@ -50,12 +50,21 @@ export default class extends Reactive {
     stateKey = 1;
 
     /**
-     * The current page section return
+     * The section number of the current page
      * @attribute sectionReturn
      * @type number
      * @default null
+     * @deprecated since Moodle 5.0, see MDL-83857
      */
     sectionReturn = null;
+
+    /**
+     * The section ID of the current page
+     * @attribute pageSectionId
+     * @type number
+     * @default null
+     */
+    pageSectionId = null;
 
     /**
      * Set up the course editor when the page is ready.

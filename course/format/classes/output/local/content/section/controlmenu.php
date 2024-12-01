@@ -93,6 +93,7 @@ class controlmenu extends basecontrolmenu {
         $section = $this->section;
         $course = $format->get_course();
         $sectionreturn = !is_null($format->get_sectionid()) ? $format->get_sectionnum() : null;
+        $pagesectionid = $format->get_sectionid();
         $user = $USER;
 
         $usecomponents = $format->supports_components();
@@ -169,6 +170,7 @@ class controlmenu extends basecontrolmenu {
                             'attr' => [
                                 'class' => 'icon editing_showhide',
                                 'data-sectionreturn' => $sectionreturn,
+                                'data-pagesectionid' => $pagesectionid,
                                 'data-action' => ($usecomponents) ? 'sectionHide' : 'hide',
                                 'data-id' => $section->id,
                                 'data-icon' => 'i/show',
@@ -186,6 +188,7 @@ class controlmenu extends basecontrolmenu {
                             'attr' => [
                                 'class' => 'icon editing_showhide',
                                 'data-sectionreturn' => $sectionreturn,
+                                'data-pagesectionid' => $pagesectionid,
                                 'data-action' => ($usecomponents) ? 'sectionShow' : 'show',
                                 'data-id' => $section->id,
                                 'data-icon' => 'i/hide',

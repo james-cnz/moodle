@@ -3634,6 +3634,7 @@ class core_course_external extends external_api {
                     'action: hide, show, stealth, duplicate, delete, moveleft, moveright, group...', VALUE_REQUIRED),
                 'id' => new external_value(PARAM_INT, 'course module id', VALUE_REQUIRED),
                 'sectionreturn' => new external_value(PARAM_INT, 'section to return to', VALUE_DEFAULT, null),
+                'pagesectionid' => new external_value(PARAM_INT, 'section to return to', VALUE_DEFAULT, null),
             ));
     }
 
@@ -3650,17 +3651,19 @@ class core_course_external extends external_api {
      * @since Moodle 3.3
      * @param string $action
      * @param int $id
-     * @param null|int $sectionreturn
+     * @param int|null $sectionreturn  Deprecated since Moodle 5.0, see MDL-83857.
+     * @param int|null $pagesectionid
      * @return string
      */
-    public static function edit_module($action, $id, $sectionreturn = null) {
+    public static function edit_module($action, $id, $sectionreturn = null, $pagesectionid = null) {
         global $PAGE, $DB;
         // Validate and normalize parameters.
         $params = self::validate_parameters(self::edit_module_parameters(),
-            array('action' => $action, 'id' => $id, 'sectionreturn' => $sectionreturn));
+            ['action' => $action, 'id' => $id, 'sectionreturn' => $sectionreturn, 'pagesectionid' => $pagesectionid]);
         $action = $params['action'];
         $id = $params['id'];
         $sectionreturn = $params['sectionreturn'];
+        $pagesectionid = $params['pagesectionid'];
 
         // Set of permissions an editing user may have.
         $contextarray = [
@@ -3678,7 +3681,9 @@ class core_course_external extends external_api {
         $coursecontext = context_course::instance($course->id);
         self::validate_context($modcontext);
         $format = course_get_format($course);
-        if (!is_null($sectionreturn)) {
+        if (!is_null($pagesectionid)) {
+            $format->set_sectionid($pagesectionid);
+        } else if (!is_null($sectionreturn)) {
             $format->set_sectionnum($sectionreturn);
         }
         $renderer = $format->get_renderer($PAGE);
@@ -3771,6 +3776,7 @@ class core_course_external extends external_api {
             array(
                 'id' => new external_value(PARAM_INT, 'course module id', VALUE_REQUIRED),
                 'sectionreturn' => new external_value(PARAM_INT, 'section to return to', VALUE_DEFAULT, null),
+                'pagesectionid' => new external_value(PARAM_INT, 'section ID of current page', VALUE_DEFAULT, null),
             ));
     }
 
@@ -3779,16 +3785,18 @@ class core_course_external extends external_api {
      *
      * @since Moodle 3.3
      * @param int $id
-     * @param null|int $sectionreturn
+     * @param int|null $sectionreturn  Deprecated since Moodle 5.0, see MDL-83857.
+     * @param int|null $pagesectionid
      * @return string
      */
-    public static function get_module($id, $sectionreturn = null) {
+    public static function get_module($id, $sectionreturn = null, $pagesectionid = null) {
         global $PAGE;
         // Validate and normalize parameters.
         $params = self::validate_parameters(self::get_module_parameters(),
-            array('id' => $id, 'sectionreturn' => $sectionreturn));
+            ['id' => $id, 'sectionreturn' => $sectionreturn, 'pagesectionid' => $pagesectionid]);
         $id = $params['id'];
         $sectionreturn = $params['sectionreturn'];
+        $pagesectionid = $params['pagesectionid'];
 
         // Set of permissions an editing user may have.
         $contextarray = [
@@ -3806,7 +3814,9 @@ class core_course_external extends external_api {
         self::validate_context(context_course::instance($course->id));
 
         $format = course_get_format($course);
-        if (!is_null($sectionreturn)) {
+        if (!is_null($pagesectionid)) {
+            $format->set_sectionid($pagesectionid);
+        } else if (!is_null($sectionreturn)) {
             $format->set_sectionnum($sectionreturn);
         }
         $renderer = $format->get_renderer($PAGE);
@@ -3837,7 +3847,8 @@ class core_course_external extends external_api {
             array(
                 'action' => new external_value(PARAM_ALPHA, 'action: hide, show, stealth, setmarker, removemarker', VALUE_REQUIRED),
                 'id' => new external_value(PARAM_INT, 'course section id', VALUE_REQUIRED),
-                'sectionreturn' => new external_value(PARAM_INT, 'section to return to', VALUE_DEFAULT, null),
+                'sectionreturn' => new external_value(PARAM_INT, 'section number of current page', VALUE_DEFAULT, null),
+                'pagesectionid' => new external_value(PARAM_INT, 'section ID of current page', VALUE_DEFAULT, null),
             ));
     }
 
@@ -3847,23 +3858,25 @@ class core_course_external extends external_api {
      * @since Moodle 3.3
      * @param string $action
      * @param int $id section id
-     * @param int $sectionreturn section to return to
+     * @param int|null $sectionreturn section number of the current page  Deprecated since Moodle 5.0, see MDL-83857.
+     * @param int|null $pagesectionid section ID of the current page
      * @return string
      */
-    public static function edit_section($action, $id, $sectionreturn) {
+    public static function edit_section($action, $id, $sectionreturn, $pagesectionid = null) {
         global $DB;
         // Validate and normalize parameters.
         $params = self::validate_parameters(self::edit_section_parameters(),
-            array('action' => $action, 'id' => $id, 'sectionreturn' => $sectionreturn));
+            ['action' => $action, 'id' => $id, 'sectionreturn' => $sectionreturn, 'pagesectionid' => $pagesectionid]);
         $action = $params['action'];
         $id = $params['id'];
         $sr = $params['sectionreturn'];
+        $pagesectionid = $params['pagesectionid'];
 
         $section = $DB->get_record('course_sections', array('id' => $id), '*', MUST_EXIST);
         $coursecontext = context_course::instance($section->course);
         self::validate_context($coursecontext);
 
-        $rv = course_get_format($section->course)->section_action($section, $action, $sectionreturn);
+        $rv = course_get_format($section->course)->section_action($section, $action, $sectionreturn, $pagesectionid);
         if ($rv) {
             return json_encode($rv);
         } else {

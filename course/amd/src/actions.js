@@ -338,7 +338,8 @@ define(
                 methodname: 'core_course_edit_module',
                 args: {id: cmid,
                     action: action,
-                    sectionreturn: target.attr('data-sectionreturn') ? target.attr('data-sectionreturn') : null
+                    sectionreturn: target.attr('data-sectionreturn') ? target.attr('data-sectionreturn') : null,
+                    pagesectionid: target.attr('data-pagesectionid') ? target.attr('data-pagesectionid') : null
                 }
             }], true);
 
@@ -394,20 +395,22 @@ define(
          *
          * @param {JQuery|Element} element
          * @param {Number} cmid
-         * @param {Number} sectionreturn
+         * @param {Number} sectionreturn  Deprecated since Moodle 5.0, see MDL-83857.
+         * @param {Number} [pagesectionid]
          * @return {Promise} the refresh promise
          */
-        var refreshModule = function(element, cmid, sectionreturn) {
+        var refreshModule = function(element, cmid, sectionreturn, pagesectionid) {
 
-            if (sectionreturn === undefined) {
-                sectionreturn = courseeditor.sectionReturn;
+            if (sectionreturn === undefined && pagesectionid === undefined) {
+                sectionreturn = courseeditor?.sectionReturn;
+                pagesectionid = courseeditor?.pageSectionId;
             }
 
             const activityElement = $(element);
             var spinner = addActivitySpinner(activityElement);
             var promises = ajax.call([{
                 methodname: 'core_course_get_module',
-                args: {id: cmid, sectionreturn: sectionreturn}
+                args: {id: cmid, sectionreturn: sectionreturn ?? null, pagesectionid: pagesectionid ?? null}
             }], true);
 
             return new Promise((resolve, reject) => {
@@ -428,20 +431,22 @@ define(
          *
          * @param {JQuery|Element} element
          * @param {Number} sectionid
-         * @param {Number} sectionreturn
+         * @param {Number} sectionreturn  Deprecated since Moodle 5.0, see MDL-83857.
+         * @param {Number} [pagesectionid]
          * @return {Promise} the refresh promise
          */
-        var refreshSection = function(element, sectionid, sectionreturn) {
+        var refreshSection = function(element, sectionid, sectionreturn, pagesectionid) {
 
-            if (sectionreturn === undefined) {
-                sectionreturn = courseeditor.sectionReturn;
+            if (sectionreturn === undefined && pagesectionid === undefined) {
+                sectionreturn = courseeditor?.sectionReturn;
+                pagesectionid = courseeditor?.pageSectionId;
             }
 
             const sectionElement = $(element);
             const action = 'refresh';
             const promises = ajax.call([{
                 methodname: 'core_course_edit_section',
-                args: {id: sectionid, action, sectionreturn},
+                args: {id: sectionid, action, sectionreturn: sectionreturn ?? null, pagesectionid: pagesectionid ?? null},
             }], true);
 
             var spinner = addSectionSpinner(sectionElement);
@@ -697,7 +702,8 @@ define(
          */
         var editSection = function(sectionElement, sectionid, target, courseformat) {
             var action = target.attr('data-action'),
-                sectionreturn = target.attr('data-sectionreturn') ? target.attr('data-sectionreturn') : null;
+                sectionreturn = target.attr('data-sectionreturn') ?? null,
+                pagesectionid = target.attr('data-pagesectionid') ?? null;
 
             // Filter direct component handled actions.
             if (courseeditor.supportComponents && componentActions.includes(action)) {
@@ -707,7 +713,7 @@ define(
             var spinner = addSectionSpinner(sectionElement);
             var promises = ajax.call([{
                 methodname: 'core_course_edit_section',
-                args: {id: sectionid, action: action, sectionreturn: sectionreturn}
+                args: {id: sectionid, action: action, sectionreturn: sectionreturn, pagesectionid}
             }], true);
 
             var lightbox = addSectionLightbox(sectionElement);
@@ -776,7 +782,8 @@ define(
                     var cmid = getModuleId(mainelement);
                     if (cmid) {
                         var sectionreturn = mainelement.find('.' + CSS.EDITINGMOVE).attr('data-sectionreturn');
-                        refreshModule(mainelement, cmid, sectionreturn);
+                        var pagesectionid = mainelement.find('.' + CSS.EDITINGMOVE).attr('data-pagesectionid');
+                        refreshModule(mainelement, cmid, sectionreturn, pagesectionid);
                     }
                 },
                 /**

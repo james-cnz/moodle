@@ -1329,10 +1329,11 @@ function moveto_module($mod, $section, $beforemod=NULL) {
  *
  * @param cm_info $mod The module to produce editing buttons for
  * @param int $indent The current indenting (default -1 means no move left-right actions)
- * @param int $sr The section to link back to (used for creating the links)
+ * @param int|null $sr The section number of the current page  Deprecated since Moodle 5.0, see MDL-83857.
+ * @param int|null $pagesectionid The section ID of the current page (used for creating the links)
  * @return array array of action_link or pix_icon objects
  */
-function course_get_cm_edit_actions(cm_info $mod, $indent = -1, $sr = null) {
+function course_get_cm_edit_actions(cm_info $mod, $indent = -1, $sr = null, $pagesectionid = null) {
     global $COURSE, $SITE, $CFG;
 
     static $str;
@@ -1429,6 +1430,7 @@ function course_get_cm_edit_actions(cm_info $mod, $indent = -1, $sr = null) {
                 'data-action' => ($usecomponents) ? 'cmMoveRight' : 'moveright',
                 'data-keepopen' => true,
                 'data-sectionreturn' => $sr,
+                'data-pagesectionid' => $pagesectionid,
                 'data-id' => $mod->id,
             ]
         );
@@ -1447,6 +1449,7 @@ function course_get_cm_edit_actions(cm_info $mod, $indent = -1, $sr = null) {
                 'data-action' => ($usecomponents) ? 'cmMoveLeft' : 'moveleft',
                 'data-keepopen' => true,
                 'data-sectionreturn' => $sr,
+                'data-pagesectionid' => $pagesectionid,
                 'data-id' => $mod->id,
             ]
         );
@@ -1476,6 +1479,7 @@ function course_get_cm_edit_actions(cm_info $mod, $indent = -1, $sr = null) {
                 'class' => 'editing_duplicate',
                 'data-action' => ($courseformat->supports_components()) ? 'cmDuplicate' : 'duplicate',
                 'data-sectionreturn' => $sr,
+                'data-pagesectionid' => $pagesectionid,
                 'data-id' => $mod->id,
             ]
         );
@@ -1487,7 +1491,8 @@ function course_get_cm_edit_actions(cm_info $mod, $indent = -1, $sr = null) {
             new moodle_url('/admin/roles/assign.php', array('contextid' => $modcontext->id)),
             new pix_icon('t/assignroles', '', 'moodle', array('class' => 'iconsmall')),
             $str->assign,
-            array('class' => 'editing_assign', 'data-action' => 'assignroles', 'data-sectionreturn' => $sr)
+            ['class' => 'editing_assign', 'data-action' => 'assignroles',
+            'data-sectionreturn' => $sr, 'data-pagesectionid' => $pagesectionid, ]
         );
     }
 
@@ -1514,6 +1519,7 @@ function course_get_cm_edit_actions(cm_info $mod, $indent = -1, $sr = null) {
                 'class' => 'editing_delete text-danger',
                 'data-action' => ($usecomponents) ? 'cmDelete' : 'delete',
                 'data-sectionreturn' => $sr,
+                'data-pagesectionid' => $pagesectionid,
                 'data-id' => $mod->id,
             ]
         );
@@ -1526,10 +1532,11 @@ function course_get_cm_edit_actions(cm_info $mod, $indent = -1, $sr = null) {
  * Returns the move action.
  *
  * @param cm_info $mod The module to produce a move button for
- * @param int $sr The section to link back to (used for creating the links)
+ * @param int|null $sr The section number of the current page  Deprecated since Moodle 5.0, see MDL-83857.
+ * @param int|null $pagesectionid The section ID of the current page (used for creating the links)
  * @return string The markup for the move action, or an empty string if not available.
  */
-function course_get_cm_move(cm_info $mod, $sr = null) {
+function course_get_cm_move(cm_info $mod, $sr = null, $pagesectionid = null) {
     global $OUTPUT;
 
     static $str;
@@ -1562,6 +1569,7 @@ function course_get_cm_move(cm_info $mod, $sr = null) {
             'class' => 'editing_move',
             'data-action' => 'move',
             'data-sectionreturn' => $sr,
+            'data-pagesectionid' => $pagesectionid,
             'title' => $str->move,
             'aria-label' => $str->move,
         ];

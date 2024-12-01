@@ -75,6 +75,7 @@ class delegatedcontrolmenu extends basecontrolmenu {
         $cm = $this->mod;
         $course = $format->get_course();
         $sectionreturn = !is_null($format->get_sectionid()) ? $format->get_sectionnum() : null;
+        $pagesectionid = $format->get_sectionid();
         $user = $USER;
 
         $usecomponents = $format->supports_components();
@@ -142,6 +143,7 @@ class delegatedcontrolmenu extends basecontrolmenu {
                     'attr' => [
                         'class' => 'editing_showhide',
                         'data-sectionreturn' => $sectionreturn,
+                        'data-pagesectionid' => $pagesectionid,
                         'data-action' => ($usecomponents) ? 'sectionHide' : 'hide',
                         'data-id' => $section->id,
                         'data-swapname' => $strshowfromothers,
@@ -158,6 +160,7 @@ class delegatedcontrolmenu extends basecontrolmenu {
                     'attr' => [
                         'class' => 'editing_showhide',
                         'data-sectionreturn' => $sectionreturn,
+                        'data-pagesectionid' => $pagesectionid,
                         'data-action' => ($usecomponents) ? 'sectionShow' : 'show',
                         'data-id' => $section->id,
                         'data-swapname' => $strhidefromothers,
@@ -198,6 +201,7 @@ class delegatedcontrolmenu extends basecontrolmenu {
                     'class' => 'editing_delete text-danger',
                     'data-action' => ($usecomponents) ? 'cmDelete' : 'delete',
                     'data-sectionreturn' => $sectionreturn,
+                    'data-pagesectionid' => $pagesectionid,
                     'data-id' => $cm->id,
                 ],
             ];
