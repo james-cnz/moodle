@@ -477,7 +477,7 @@ export default class Component extends BaseComponent {
      */
     _refreshCourseSectionlist({state}) {
         // If we have a section return means we only show a single section so no need to fix order.
-        if (this.reactive.sectionReturn !== null) {
+        if ((this.reactive?.sectionReturn ?? this.reactive?.pageSectionId) !== null) {
             return;
         }
         const sectionlist = this.reactive.getExporter().listedSectionIds(state);
@@ -585,7 +585,8 @@ export default class Component extends BaseComponent {
                 {
                     id: cmId,
                     courseid: Config.courseId,
-                    sr: this.reactive.sectionReturn ?? null,
+                    sr: this.reactive?.sectionReturn ?? null,
+                    pagesectionid: this.reactive?.pageSectionId ?? null,
                 }
             );
             promise.then((html, js) => {
@@ -652,7 +653,8 @@ export default class Component extends BaseComponent {
                 {
                     id: element.id,
                     courseid: Config.courseId,
-                    sr: this.reactive.sectionReturn ?? null,
+                    sr: this.reactive?.sectionReturn ?? null,
+                    pagesectionid: this.reactive?.pageSectionId ?? null,
                 }
             );
             promise.then((html, js) => {
