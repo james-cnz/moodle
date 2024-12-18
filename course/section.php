@@ -30,7 +30,8 @@ redirect_if_major_upgrade_required();
 
 $sectionid = required_param('id', PARAM_INT);
 // This parameter is used by the classic theme to force editing on.
-$edit = optional_param('edit', -1, PARAM_BOOL);
+$edit = optional_param('edit', -1, PARAM_BOOL); // Deprecated since Moodle 5.0.
+$action = optional_param('action', null, PARAM_ALPHA); // Can be 'enableediting' or 'disableediting'.
 
 if (!$section = $DB->get_record('course_sections', ['id' => $sectionid], '*')) {
     $url = new moodle_url('/');
@@ -121,11 +122,21 @@ if (!isset($USER->editing)) {
     $USER->editing = 0;
 }
 if ($PAGE->user_allowed_editing()) {
-    if (($edit == 1) && confirm_sesskey()) {
+
+    // Backwards compatibility.  Deprecated since Moodle 5.0.
+    if ($action == null) {
+        if ($edit == 1) {
+            $action = 'enableediting';
+        } else if ($edit == 0) {
+            $action = 'disableediting';
+        }
+    }
+
+    if (($action == 'enableediting') && confirm_sesskey()) {
         $USER->editing = 1;
         $url = new moodle_url($PAGE->url, ['notifyeditingon' => 1]);
         redirect($url);
-    } else if (($edit == 0) && confirm_sesskey()) {
+    } else if (($action == 'disableediting') && confirm_sesskey()) {
         $USER->editing = 0;
         if (!empty($USER->activitycopy) && $USER->activitycopycourse == $course->id) {
             $USER->activitycopy = false;

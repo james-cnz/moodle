@@ -82,6 +82,7 @@ class delegatedcontrolmenu extends basecontrolmenu {
 
         $baseurl = course_get_url($course, $sectionreturn);
         $baseurl->param('sesskey', sesskey());
+        $baseurl->param('actionsectionid', $section->id);
 
         $cmbaseurl = new moodle_url('/course/mod.php');
         $cmbaseurl->param('sesskey', sesskey());
@@ -133,7 +134,7 @@ class delegatedcontrolmenu extends basecontrolmenu {
             $strhidefromothers = get_string('hidefromothers', 'format_' . $course->format);
             $strshowfromothers = get_string('showfromothers', 'format_' . $course->format);
             if ($section->visible) { // Show the hide/show eye.
-                $url->param('hide', $section->section);
+                $url->param('action', 'hidesection');
                 $controls['visiblity'] = [
                     'url' => $url,
                     'icon' => 'i/show',
@@ -149,7 +150,7 @@ class delegatedcontrolmenu extends basecontrolmenu {
                     ],
                 ];
             } else {
-                $url->param('show', $section->section);
+                $url->param('action', 'showsection');
                 $controls['visiblity'] = [
                     'url' => $url,
                     'icon' => 'i/hide',

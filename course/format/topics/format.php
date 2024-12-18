@@ -42,9 +42,26 @@ $format = course_get_format($course);
 $course = $format->get_course();
 $context = context_course::instance($course->id);
 
-if (($marker >= 0) && has_capability('moodle/course:setcurrentsection', $context) && confirm_sesskey()) {
-    $course->marker = $marker;
-    course_set_marker($course->id, $marker);
+if ($PAGE->user_allowed_editing()) {
+
+    $modinfo = $modinfo ?? get_fast_modinfo($course);
+
+    if (!is_null($action)) {
+        $actionsection = $actionsectionid ? $modinfo->get_section_info_by_id($actionsectionid) : null;
+    } else {
+        // Backwards compatibility.  Deprecated since Moodle 5.0.
+        if ($marker >= 0) {
+            $action = 'marksection';
+            $actionsection = $marker ? $modinfo->get_section_info($marker) : null;
+        }
+    }
+
+    if (($action == 'marksection') && has_capability('moodle/course:setcurrentsection', $context) && confirm_sesskey()
+    ) {
+        $course->marker = $actionsection?->section ?? 0;
+        course_set_marker($course->id, $actionsection?->section ?? 0);
+    }
+
 }
 
 // Make sure section 0 is created.

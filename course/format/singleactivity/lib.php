@@ -446,8 +446,9 @@ class format_singleactivity extends core_courseformat\base {
         $page->add_body_class('format-'. $this->get_format());
         if ($PAGE == $page && $page->has_set_url() &&
                 $page->url->compare(new moodle_url('/course/view.php'), URL_MATCH_BASE)) {
-            $edit = optional_param('edit', -1, PARAM_BOOL);
-            if (($edit == 0 || $edit == 1) && confirm_sesskey()) {
+            $edit = optional_param('edit', -1, PARAM_BOOL);  // Deprecated since Moodle 5.0.
+            $action = optional_param('action', null, PARAM_ALPHA);
+            if (($edit == 0 || $edit == 1 || $action == 'enableediting' || $action == 'disableediting') && confirm_sesskey()) {
                 // This is a request to turn editing mode on or off, do not redirect here, /course/view.php will do redirection.
                 return;
             }

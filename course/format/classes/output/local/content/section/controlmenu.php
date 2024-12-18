@@ -102,6 +102,7 @@ class controlmenu extends basecontrolmenu {
 
         $baseurl = course_get_url($course, $sectionreturn);
         $baseurl->param('sesskey', sesskey());
+        $baseurl->param('actionsectionid', $section->id);
 
         $controls = [];
 
@@ -135,8 +136,7 @@ class controlmenu extends basecontrolmenu {
 
             if ($section->section) {
                 $duplicatesectionurl = clone($baseurl);
-                $duplicatesectionurl->param('sectionid', $section->id);
-                $duplicatesectionurl->param('duplicatesection', 1);
+                $duplicatesectionurl->param('action', 'duplicatesection');
                 if (!is_null($sectionreturn)) {
                     $duplicatesectionurl->param('sr', $sectionreturn);
                 }
@@ -160,7 +160,7 @@ class controlmenu extends basecontrolmenu {
                     $strhidefromothers = get_string('hidefromothers', 'format_' . $course->format);
                     $strshowfromothers = get_string('showfromothers', 'format_' . $course->format);
                     if ($section->visible) { // Show the hide/show eye.
-                        $url->param('hide', $section->section);
+                        $url->param('action', 'hidesection');
                         $controls['visibility'] = [
                             'url' => $url,
                             'icon' => 'i/show',
@@ -177,7 +177,7 @@ class controlmenu extends basecontrolmenu {
                             ],
                         ];
                     } else {
-                        $url->param('show',  $section->section);
+                        $url->param('action', 'showsection');
                         $controls['visibility'] = [
                             'url' => $url,
                             'icon' => 'i/hide',
@@ -201,7 +201,7 @@ class controlmenu extends basecontrolmenu {
                         // This tool will appear only when the state is ready.
                         $url = clone ($baseurl);
                         $url->param('movesection', $section->section);
-                        $url->param('section', $section->section);
+                        $url->param('action', 'movesection');
                         $controls['movesection'] = [
                             'url' => $url,
                             'icon' => 'i/dragdrop',
@@ -217,8 +217,8 @@ class controlmenu extends basecontrolmenu {
                     // Legacy move up and down links for non component-based formats.
                     $url = clone($baseurl);
                     if ($section->section > 1) { // Add a arrow to move section up.
-                        $url->param('section', $section->section);
-                        $url->param('move', -1);
+                        $url->param('action', 'movesection');
+                        $url->param('actionmovesectionby', -1);
                         $strmoveup = get_string('moveup');
                         $controls['moveup'] = [
                             'url' => $url,
@@ -231,8 +231,8 @@ class controlmenu extends basecontrolmenu {
 
                     $url = clone($baseurl);
                     if ($section->section < $numsections) { // Add a arrow to move section down.
-                        $url->param('section', $section->section);
-                        $url->param('move', 1);
+                        $url->param('action', 'movesection');
+                        $url->param('actionmovesectionby', 1);
                         $strmovedown = get_string('movedown');
                         $controls['movedown'] = [
                             'url' => $url,

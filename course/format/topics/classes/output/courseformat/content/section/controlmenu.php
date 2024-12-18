@@ -102,6 +102,7 @@ class controlmenu extends controlmenu_base {
             $url = course_get_url($course);
         }
         $url->param('sesskey', sesskey());
+        $url->param('actionsectionid', $section->id);
         return $url;
     }
 
@@ -127,7 +128,7 @@ class controlmenu extends controlmenu_base {
         $highlightonicon = 'i/marker';
 
         if ($course->marker == $section->section) {  // Show the "light globe" on/off.
-            $url->param('marker', 0);
+            $url->param('action', 'unmarksection');
             $result = [
                 'url' => $url,
                 'icon' => $highlightofficon,
@@ -144,7 +145,7 @@ class controlmenu extends controlmenu_base {
                 ],
             ];
         } else {
-            $url->param('marker', $section->section);
+            $url->param('action', 'marksection');
             $result = [
                 'url' => $url,
                 'icon' => $highlightonicon,

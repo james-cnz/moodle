@@ -30,16 +30,21 @@ redirect_if_major_upgrade_required();
 
 $id = optional_param('id', 0, PARAM_INT);
 $name = optional_param('name', '', PARAM_TEXT);
-$edit = optional_param('edit', -1, PARAM_BOOL);
-$hide = optional_param('hide', 0, PARAM_INT);
-$show = optional_param('show', 0, PARAM_INT);
-$duplicatesection = optional_param('duplicatesection', 0, PARAM_INT);
+$edit = optional_param('edit', -1, PARAM_BOOL); // Deprecated since Moodle 5.0.
+$hide = optional_param('hide', 0, PARAM_INT); // Deprecated since Moodle 5.0.
+$show = optional_param('show', 0, PARAM_INT); // Deprecated since Moodle 5.0.
+$duplicatesection = optional_param('duplicatesection', 0, PARAM_INT); // Deprecated since Moodle 5.0.
 $idnumber = optional_param('idnumber', '', PARAM_RAW);
 $sectionid = optional_param('sectionid', 0, PARAM_INT);
 $section = optional_param('section', null, PARAM_INT);
 $expandsection = optional_param('expandsection', -1, PARAM_INT);
-$move = optional_param('move', 0, PARAM_INT);
-$marker = optional_param('marker', -1 , PARAM_INT);
+$move = optional_param('move', 0, PARAM_INT); // Deprecated since Moodle 5.0.
+$marker = optional_param('marker', -1 , PARAM_INT); // Deprecated since Moodle 5.0.
+// Action can be 'enableediting', 'disableediting',
+// 'hidesection', 'showsection', 'unmarksection', 'marksection', 'duplicatesection', or 'movesection'.
+$action = optional_param('action', null, PARAM_ALPHA);
+$actionsectionid = optional_param('actionsectionid', null, PARAM_INT);
+$actionmovesectionby = optional_param('actionmovesectionby', null, PARAM_INT);
 $switchrole = optional_param('switchrole', -1, PARAM_INT); // Deprecated, use course/switchrole.php instead.
 $return = optional_param('return', 0, PARAM_LOCALURL);
 
@@ -166,7 +171,40 @@ if (!isset($USER->editing)) {
     $USER->editing = 0;
 }
 if ($PAGE->user_allowed_editing()) {
-    if (($edit == 1) && confirm_sesskey()) {
+
+    $modinfo = $modinfo ?? get_fast_modinfo($course);
+    $sectionreturn = $coursesections ?? (!is_null($section) ? $modinfo->get_section_info($section, MUST_EXIST) : null);
+
+    if (!is_null($action)) {
+        $actionsection = $actionsectionid ? $modinfo->get_section_info_by_id($actionsectionid) : null;
+    } else {
+        // Backwards compatibility.  Deprecated since Moodle 5.0.
+        if ($edit == 1) {
+            $action = 'enableediting';
+        } else if ($edit == 0) {
+            $action = 'disableediting';
+        } else if ($hide) {
+            $action = 'hidesection';
+            $actionsection = $modinfo->get_section_info($hide);
+        } else if ($show) {
+            $action = 'showsection';
+            $actionsection = $modinfo->get_section_info($show);
+        } else if ($marker >= 0) {
+            $action = $marker ? 'marksection' : 'unmarksection';
+            $actionsection = $marker ? $modinfo->get_section_info($marker) : null;
+        } else if (!empty($duplicatesection)) {
+            $action = 'duplicatesection';
+            $actionsection = $coursesections;
+            $sectionreturn = null;
+        } else if (!empty($move)) {
+            $action = 'movesection';
+            $actionsection = $coursesections;
+            $actionmovesectionby = $move;
+            $sectionreturn = null;
+        }
+    }
+
+    if (($action == 'enableediting') && confirm_sesskey()) {
         $USER->editing = 1;
         // Redirect to site root if Editing is toggled on frontpage.
         if ($course->id == SITEID) {
@@ -177,7 +215,7 @@ if ($PAGE->user_allowed_editing()) {
             $url = new moodle_url($PAGE->url, ['notifyeditingon' => 1]);
             redirect($url);
         }
-    } else if (($edit == 0) && confirm_sesskey()) {
+    } else if (($action == 'disableediting') && confirm_sesskey()) {
         $USER->editing = 0;
         if (!empty($USER->activitycopy) && $USER->activitycopycourse == $course->id) {
             $USER->activitycopy = false;
@@ -193,47 +231,41 @@ if ($PAGE->user_allowed_editing()) {
         }
     }
 
-    if (has_capability('moodle/course:sectionvisibility', $context)) {
-        if ($hide && confirm_sesskey()) {
-            set_section_visible($course->id, $hide, '0');
-            if ($sectionid) {
-                redirect(course_get_url($course, $section, ['navigation' => true]));
-            } else {
-                redirect($PAGE->url);
-            }
-        }
-
-        if ($show && confirm_sesskey()) {
-            set_section_visible($course->id, $show, '1');
-            if ($sectionid) {
-                redirect(course_get_url($course, $section, ['navigation' => true]));
-            } else {
-                redirect($PAGE->url);
-            }
+    if (
+        ($action == 'hidesection' || $action == 'showsection') && $actionsection
+        && has_capability('moodle/course:sectionvisibility', $context) && confirm_sesskey()
+    ) {
+        set_section_visible($course->id, $actionsection->section, ($action == 'showsection') ? '1' : '0');
+        if ($sectionreturn) {
+            redirect(course_get_url($course, $sectionreturn, ['navigation' => true]));
+        } else {
+            redirect(course_get_url($course));
         }
     }
 
-    if ($marker >= 0 && confirm_sesskey()) {
-        course_set_marker($course->id, $marker);
-        if ($sectionid) {
-            redirect(course_get_url($course, $section, ['navigation' => true]));
+    if (($action == 'marksection' || $action == 'unmarksection') && confirm_sesskey()) {
+        course_set_marker($course->id, ($action == 'marksection') ? $actionsection->section : 0);
+        if ($sectionreturn) {
+            redirect(course_get_url($course, $sectionreturn, ['navigation' => true]));
         } else {
-            redirect($PAGE->url);
+            redirect(course_get_url($course));
         }
     }
 
     if (
-        !empty($section) && !empty($coursesections) && !empty($duplicatesection)
+        ($action == 'duplicatesection') && $actionsection
         && has_capability('moodle/course:update', $context) && confirm_sesskey()
     ) {
-        $newsection = $format->duplicate_section($coursesections);
-        redirect(course_get_url($course, $newsection->section));
+        $newsection = $format->duplicate_section($actionsection);
+        redirect(course_get_url($course, $newsection));
     }
 
-    if (!empty($section) && !empty($move) &&
-            has_capability('moodle/course:movesections', $context) && confirm_sesskey()) {
-        $destsection = $section + $move;
-        if (move_section_to($course, $section, $destsection)) {
+    if (
+        ($action == 'movesection') && $actionsection && $actionmovesectionby
+        && has_capability('moodle/course:movesections', $context) && confirm_sesskey()
+    ) {
+        $destsection = $actionsection->section + $actionmovesectionby;
+        if (move_section_to($course, $actionsection->section, $destsection)) {
             if ($course->id == SITEID) {
                 redirect($CFG->wwwroot . '/?redirect=0');
             } else {
