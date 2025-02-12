@@ -93,7 +93,7 @@ export default class extends DndSection {
         }
         await this.reactive.dispatch('sectionContentCollapsed', [this.id], false);
         const pendingOpen = new Pending(`courseformat/section:openSectionIfNecessary`);
-        this.element.scrollIntoView({block: "center"});
+        document.querySelector("#module-" + pageCmInfo.id).scrollIntoView();
         setTimeout(() => {
             this.reactive.dispatch('setPageItem', 'cm', pageCmInfo.id);
             pendingOpen.resolve();
