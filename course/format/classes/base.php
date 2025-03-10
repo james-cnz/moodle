@@ -663,7 +663,7 @@ abstract class base {
         mdl: 'MDL-80248',
         final: true,
     )]
-    public function set_section_number(): void {
+    public function set_section_number(int $singlesection): void {
         \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
     }
 
@@ -711,7 +711,7 @@ abstract class base {
         mdl: 'MDL-80248',
         final: true,
     )]
-    public function get_section_number(): void {
+    public function get_section_number(): int {
         \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
     }
 
