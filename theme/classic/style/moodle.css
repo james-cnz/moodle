@@ -37329,7 +37329,7 @@ body.tox-fullscreen .tox.tox-tinymce-aux {
   background-color: #fff;
   padding: 1.5rem 0.5rem;
   margin-top: 0.5rem;
-  margin-bottom: 3rem;
+  margin-bottom: 1.5rem;
   flex: 1 0 auto;
 }
 #page.drawers .activity-header {
@@ -37516,7 +37516,13 @@ body.tox-fullscreen .tox.tox-tinymce-aux {
 }
 @media (min-width: 992px) {
   #page.drawers.hasstickyfooter {
-    margin-bottom: max(80px, 0.9375rem * 3);
+    padding-bottom: max(80px, 0.9375rem * 3);
+  }
+  #page.drawers.hasstickyfooter .dropdown-menu.show::after {
+    position: absolute;
+    content: " ";
+    width: 1px;
+    height: calc(max(80px, 0.9375rem * 3) + 0.5rem);
   }
 }
 .drawercontrolbuttons {

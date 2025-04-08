@@ -44,7 +44,7 @@
         background-color: $white;
         padding: 1.5rem 0.5rem;
         margin-top: 0.5rem;
-        margin-bottom: 3rem;
+        margin-bottom: 1.5rem;
         flex: 1 0 auto;
     }
     .activity-header {
@@ -248,7 +248,13 @@
             margin-right: $drawer-right-width;
         }
         &.hasstickyfooter {
-            margin-bottom: $stickyfooter-height;
+            padding-bottom: $stickyfooter-height;
+            .dropdown-menu.show::after {
+                position: absolute;
+                content: " ";
+                width: 1px;
+                height: calc(#{$stickyfooter-height} + #{$dropdown-padding-y});
+            }
         }
     }
 }
