@@ -1,0 +1,28 @@
+issueNumber: MDL-85379
+notes:
+  core_courseformat:
+    - message: >-
+        The core_courseformat/local/content/section _openSectionIfNecessary() JS
+        method is deprecated.  It is replaced by the new
+        core_courseformat/local/content _onHashChange() JS method.
+      type: deprecated
+    - message: >-
+        The core_courseformat/local/courseindex/section _refreshPageItem() JS
+        method is deprecated.  It is replaced by the updated
+        core_courseformat/local/courseindex/courseindex _refreshPageItem()
+        method.
+      type: deprecated
+    - message: >-
+        The core_courseformat/local/courseindex/section
+        _isPageItemInThisSection() JS method is deprecated.
+      type: deprecated
+    - message: >-
+        The core_courseformat/local/courseindex/section
+        _isParentSectionIndexCollapsed() JS method is deprecated.
+      type: deprecated
+    - message: >-
+        The core_courseformat/local/courseindex/cm _refreshPageItem() JS
+        method is deprecated.  It is replaced by the updated
+        core_courseformat/local/courseindex/courseindex _refreshPageItem()
+        method.
+      type: deprecated

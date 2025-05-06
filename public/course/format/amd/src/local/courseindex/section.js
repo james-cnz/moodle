@@ -93,13 +93,6 @@ export default class Component extends DndSection {
             const titleitem = this._newSectionTitle(sectionItem);
             this.configDragDrop(titleitem);
         }
-        // Check if the current url is the section url.
-        const section = state.section.get(this.id);
-        // Sections urls may be null.
-        if (window.location.href == section.sectionurl?.replace(/&amp;/g, "&")) {
-            this.reactive.dispatch('setPageItem', 'section', this.id);
-            sectionItem.scrollIntoView();
-        }
     }
 
     /**
@@ -125,7 +118,6 @@ export default class Component extends DndSection {
         return [
             {watch: `section[${this.id}]:deleted`, handler: this.remove},
             {watch: `section[${this.id}]:updated`, handler: this._refreshSection},
-            {watch: `course.pageItem:updated`, handler: this._refreshPageItem},
         ];
     }
 
@@ -160,11 +152,14 @@ export default class Component extends DndSection {
     /**
      * Handle a page item update.
      *
+     * @deprecated since Moodle 5.2, see MDL-85379.
+     * @todo MDL-85381 This will be deleted in Moodle 6.0.
      * @param {Object} details the update details
      * @param {Object} details.state the state data.
      * @param {Object} details.element the course state data.
      */
     _refreshPageItem({element, state}) {
+        log.debug("courseindex section _refreshPageItem() is deprecated.  Use courseindex _refreshPageItem() instead.");
         if (!element.pageItem) {
             return;
         }
@@ -193,12 +188,15 @@ export default class Component extends DndSection {
     /**
      * Check if the page item is inside this section.
      *
+     * @deprecated since Moodle 5.2, see MDL-85379.
+     * @todo MDL-85381 This will be deleted in Moodle 6.0.
      * @private
      * @param {Object} pageItem
      * @param {Object} pageItem.sectionId the current page item section id.
      * @returns {boolean}
      */
     _isPageItemInThisSection(pageItem) {
+        log.debug("courseindex section _isPageItemInThisSection() is deprecated.");
         if (pageItem.sectionId == this.id) {
             return true;
         }
@@ -213,11 +211,14 @@ export default class Component extends DndSection {
     /**
      * Check if the parent section index is collapsed.
      *
+     * @deprecated since Moodle 5.2, see MDL-85379.
+     * @todo MDL-85381 This will be deleted in Moodle 6.0.
      * @private
      * @param {Object} state the current state
      * @returns {boolean|null} null if no parent section is found.
      */
     _isParentSectionIndexCollapsed(state) {
+        log.debug("courseindex section _isParentSectionIndexCollapsed() is deprecated.");
         const parentElement = this.element.parentElement.closest(this.selectors.SECTION);
         if (!parentElement || !parentElement.dataset.id) {
             return null;
