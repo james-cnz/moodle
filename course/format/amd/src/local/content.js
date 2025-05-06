@@ -153,6 +153,17 @@ export default class Component extends BaseComponent {
             "scroll",
             this._scrollHandler
         );
+
+        // Capture hash changes.
+        this.addEventListener(
+            window,
+            "hashchange",
+            this._onHashChange
+        );
+
+        // Call the hash change and scroll handlers, to set up initial state.
+        this._onHashChange();
+        this._scrollHandler();
     }
 
     /**
@@ -374,6 +385,43 @@ export default class Component extends BaseComponent {
             return;
         }
         this.reactive.dispatch('cmCompletion', [detail.cmid], detail.completed);
+    }
+
+    /**
+     * Handle hash changes.
+     *
+     * Expand sections containing the anchor, and scroll to it.
+     *
+     * @protected
+     */
+    async _onHashChange() {
+        // Find the target element.
+        const targetAnchor = window.location.hash;
+        const targetDom = targetAnchor ? document.querySelector(targetAnchor) : null;
+        if (!targetDom || !this.element.contains(targetDom)) {
+            return;
+        }
+
+        // Find sections that contain the target.
+        let containerDom = targetDom;
+        let sectionDom = null;
+        let containingSectionIds = [];
+        while ((sectionDom = containerDom?.closest(this.selectors.SECTION))) {
+            containingSectionIds.push(sectionDom.dataset.id);
+            containerDom = sectionDom.parentNode;
+        }
+
+        // Open sections containing the target, and scroll to it.
+        if (containingSectionIds.length) {
+            await this.reactive.dispatch('sectionContentCollapsed', containingSectionIds, false);
+            if (targetDom != sectionDom) {
+                const pendingOpen = new Pending(`courseformat/content:onHashChange`);
+                setTimeout(() => {
+                    targetDom.scrollIntoView();
+                    pendingOpen.resolve();
+                }, 250);
+            }
+        }
     }
 
     /**

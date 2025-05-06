@@ -26,6 +26,7 @@ import Header from 'core_courseformat/local/content/section/header';
 import DndSection from 'core_courseformat/local/courseeditor/dndsection';
 import Templates from 'core/templates';
 import Pending from "core/pending";
+import log from 'core/log';
 
 export default class extends DndSection {
 
@@ -81,13 +82,16 @@ export default class extends DndSection {
                 this.configDragDrop(headerComponent);
             }
         }
-        this._openSectionIfNecessary();
     }
 
     /**
      * Open the section if the anchored activity is inside.
+     *
+     * @deprecated since Moodle 4.5.6 and 5.0.2, see MDL-85379.
+     * @todo MDL-85381 This will be deleted in Moodle 6.0.
      */
     async _openSectionIfNecessary() {
+        log.debug("section _openSectionIfNecessary() is deprecated.  Use content _onHashChange() instead.");
         const pageCmInfo = this.reactive.getPageAnchorCmInfo();
         if (!pageCmInfo || pageCmInfo.sectionid !== this.id) {
             return;

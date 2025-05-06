@@ -26,6 +26,7 @@ import {BaseComponent} from 'core/reactive';
 import {getCurrentCourseEditor} from 'core_courseformat/courseeditor';
 import jQuery from 'jquery';
 import ContentTree from 'core_courseformat/local/courseeditor/contenttree';
+import Pending from 'core/pending';
 
 export default class Component extends BaseComponent {
 
@@ -38,6 +39,7 @@ export default class Component extends BaseComponent {
         // Default query selectors.
         this.selectors = {
             SECTION: `[data-for='section']`,
+            SECTION_ITEM: `[data-for='section_item']`,
             SECTION_CMLIST: `[data-for='cmlist']`,
             CM: `[data-for='cm']`,
             TOGGLER: `[data-action="togglecourseindexsection"]`,
@@ -51,6 +53,7 @@ export default class Component extends BaseComponent {
             SECTIONCURRENT: 'current',
             COLLAPSED: `collapsed`,
             SHOW: `show`,
+            PAGEITEM: 'pageitem',
         };
         // Arrays to keep cms and sections elements.
         this.sections = {};
@@ -81,6 +84,8 @@ export default class Component extends BaseComponent {
         // Activate section togglers.
         this.addEventListener(this.element, 'click', this._sectionTogglers);
 
+        this.addEventListener(this.element, 'click', this._triggerHashChange);
+
         // Get cms and sections elements.
         const sections = this.getElements(this.selectors.SECTION);
         sections.forEach((section) => {
@@ -92,7 +97,7 @@ export default class Component extends BaseComponent {
         });
 
         this._expandPageCmSectionIfNecessary(state);
-        this._refreshPageItem({element: state.course, state});
+        this._refreshPageItemGivenItem(state, state.course.pageItem);
 
         // Configure Aria Tree.
         this.contentTree = new ContentTree(this.element, this.selectors, this.reactive.isEditing);
@@ -198,24 +203,90 @@ export default class Component extends BaseComponent {
     }
 
     /**
+     * Ensure a hash change is triggered.
+     *
+     * @param {Event} event
+     */
+    _triggerHashChange(event) {
+        const targetUrl = event.target.closest("a")?.href;
+        if ((targetUrl == location.href) || (targetUrl == location.hash)) {
+            window.dispatchEvent(new HashChangeEvent("hashchange", {oldURL: location.href, newURL: location.href}));
+        }
+    }
+
+    /**
      * Handle a page item update.
+     *
+     * Expand sections containing the page item if necessary, scroll to it, and highlight it.
      *
      * @param {Object} details the update details
      * @param {Object} details.state the state data.
      * @param {Object} details.element the course state data.
      */
-    _refreshPageItem({element, state}) {
-        if (!element?.pageItem?.isStatic || element.pageItem.type != 'cm') {
+    async _refreshPageItem({element, state}) {
+        this._refreshPageItemGivenItem(state, element.pageItem);
+    }
+
+    /**
+     * Handle a page item update.
+     *
+     * Expand sections containing the page item if necessary, scroll to it, and highlight it.
+     *
+     * @param {Object} state
+     * @param {Object|null} pageItem
+     * @param {bool} expand
+     * @param {bool} highlight
+     */
+    async _refreshPageItemGivenItem(state, pageItem, expand = pageItem?.isStatic, highlight = true) {
+        if (highlight) {
+            // Unhighlight the old page item.
+            this.element.querySelector("." + this.classes.PAGEITEM)?.classList.toggle(this.classes.PAGEITEM, false);
+        }
+
+        if (!pageItem) {
             return;
         }
-        // Check if we need to uncollapse the section and scroll to the element.
-        const section = state.section.get(element.pageItem.sectionId);
-        if (section.indexcollapsed) {
-            this._expandSectionNode(section, true);
-            setTimeout(
-                () => this.cms[element.pageItem.id]?.scrollIntoView({block: "nearest"}),
-                250
-            );
+
+        // Find the element for the new page item.
+        let targetDom = this.getElement("[data-for=" + pageItem.type + "]", pageItem.id);
+        if (!targetDom) {
+            return;
+        }
+
+        // Either expand the sections containing the page item,
+        // or change the page item to something not collapsed.
+        let containerDom = targetDom;
+        let sectionDom = null;
+        let haveCollapsedSections = false;
+        while ((sectionDom = containerDom.closest(this.selectors.SECTION))) {
+            if (sectionDom.querySelector(this.selectors.COLLAPSE).classList.contains(this.classes.COLLAPSED)) {
+                haveCollapsedSections = true;
+                if (expand) {
+                    const section = state.section.get(sectionDom.dataset.id);
+                    this._expandSectionNode(section, true);
+                } else {
+                    targetDom = sectionDom;
+                }
+            }
+            containerDom = sectionDom.parentNode;
+        }
+
+        if (highlight) {
+            // Highlight the new page item.
+            (targetDom.querySelector(this.selectors.SECTION_ITEM) ?? targetDom).classList.toggle(this.classes.PAGEITEM, true);
+        }
+
+        // Wait for collapsed sections to open, and scroll to the page item.
+        if (expand && haveCollapsedSections) {
+            const pendingOpen = new Pending(`courseformat/courseindex:refreshPageItem`);
+            setTimeout(() => {
+                targetDom.scrollIntoView({block: (pageItem.type == "section") ? "start" : "center"});
+                pendingOpen.resolve();
+            }, 250);
+        } else if (expand) {
+            targetDom.scrollIntoView({block: (pageItem.type == "section") ? "start" : "center"});
+        } else if (!this.reactive.isEditing) {
+            targetDom.scrollIntoView({block: "nearest"});
         }
     }
 
@@ -226,11 +297,20 @@ export default class Component extends BaseComponent {
      * @param {Object} state the course state.
      */
     _expandPageCmSectionIfNecessary(state) {
+        let pageItem = null;
         const pageCmInfo = this.reactive.getPageAnchorCmInfo();
-        if (!pageCmInfo) {
-            return;
+        const sectionId = window.location.hash.match(/^#sectionid-(\d+)-title$/)?.[1]
+                        ?? window.location.href.match(/\/section.php\?id=(\d+)\b/)?.[1]
+                        ?? window.location.search.match(/\bsectionid=(\d+)\b/)?.[1];
+        if (pageCmInfo) {
+            pageItem = {type: "cm", id: pageCmInfo.id, isStatic: false};
+        } else if (sectionId) {
+            pageItem = {type: "section", id: sectionId, isStatic: false};
         }
-        this._expandSectionNode(state.section.get(pageCmInfo.sectionid), true);
+
+        if (pageItem) {
+            this._refreshPageItemGivenItem(state, pageItem, true, false);
+        }
     }
 
     /**
