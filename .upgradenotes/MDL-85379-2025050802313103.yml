@@ -1,0 +1,8 @@
+issueNumber: MDL-85379
+notes:
+  core_courseformat:
+    - message: >-
+        The core_courseformat/local/content/section _openSectionIfNecessary() JS
+        method is deprecated.  It is replaced by the new
+        core_courseformat/local/content _expandSectionsIfNecessary() JS method.
+      type: deprecated
