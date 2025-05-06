@@ -159,6 +159,50 @@ export default class Component extends BaseComponent {
             "scroll",
             throttle(this._scrollHandler.bind(this), 50)
         );
+
+        // Expand sections if necessary, on ready and hash changes.
+        this._expandSectionsIfNecessary();
+        this.addEventListener(
+            window,
+            "hashchange",
+            this._expandSectionsIfNecessary
+        );
+    }
+
+    /**
+     * Expand sections containing the anchor.
+     *
+     * @protected
+     */
+    async _expandSectionsIfNecessary() {
+        const targetAnchor = new URL(window.location.href).hash;
+        const targetDom = targetAnchor ? document.querySelector(targetAnchor) : null;
+        if (!targetDom) {
+            return;
+        }
+        let containerDom = targetDom;
+        let sectionDom = null;
+        let containingSectionIds = [];
+        while ((sectionDom = containerDom.closest(this.selectors.SECTION))) {
+            containingSectionIds.push(sectionDom.dataset.id);
+            containerDom = sectionDom.parentNode;
+        }
+        if (containingSectionIds.length) {
+            await this.reactive.dispatch('sectionContentCollapsed', containingSectionIds, false);
+            const pendingOpen = new Pending(`courseformat/content:openSectionsIfNecessary`);
+            setTimeout(() => {
+                if (targetDom != sectionDom) {
+                    targetDom.scrollIntoView();
+                }
+                const cmDom = targetDom.closest(this.selectors.CM);
+                if (cmDom && !cmDom.classList.contains('modtype_subsection')) {
+                    this.reactive.dispatch('setPageItem', 'cm', cmDom.dataset.id);
+                } else {
+                    this.reactive.dispatch('setPageItem', 'section', containingSectionIds[0]);
+                }
+                pendingOpen.resolve();
+            }, 250);
+        }
     }
 
     /**
