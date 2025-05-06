@@ -28,7 +28,7 @@ import DndCmItem from 'core_courseformat/local/courseeditor/dndcmitem';
 import Templates from 'core/templates';
 import Prefetch from 'core/prefetch';
 import Config from 'core/config';
-import Pending from "core/pending";
+import log from "core/log";
 
 // Prefetch the completion icons template.
 const completionTemplate = 'core_courseformat/local/courseindex/cmcompletion';
@@ -84,24 +84,14 @@ export default class Component extends DndCmItem {
             this.configDragDrop(this.id);
         }
         const cm = state.cm.get(this.id);
-        const course = state.course;
         // Refresh completion icon.
         this._refreshCompletion({
             state,
             element: cm,
         });
-        const url = new URL(window.location.href);
-        const anchor = url.hash.replace('#', '');
-        // Check if the current url is the cm url.
-        if (window.location.href == cm.url
-            || (window.location.href.includes(course.baseurl) && anchor == cm.anchor)
-        ) {
-            this.element.scrollIntoView({block: "center"});
-        }
         // Check if this we are displaying this activity page.
         if (Config.contextid != Config.courseContextId && Config.contextInstanceId == this.id) {
             this.reactive.dispatch('setPageItem', 'cm', this.id, true);
-            this.element.scrollIntoView({block: "center"});
         }
         // Add anchor logic if the element is not user visible or the element hasn't URL.
         if (!cm.uservisible || !cm.url) {
@@ -128,7 +118,6 @@ export default class Component extends DndCmItem {
             {watch: `cm[${this.id}]:deleted`, handler: this.remove},
             {watch: `cm[${this.id}]:updated`, handler: this._refreshCm},
             {watch: `cm[${this.id}].completionstate:updated`, handler: this._refreshCompletion},
-            {watch: `course.pageItem:updated`, handler: this._refreshPageItem},
         ];
     }
 
@@ -152,10 +141,13 @@ export default class Component extends DndCmItem {
     /**
      * Handle a page item update.
      *
+     * @deprecated since Moodle 4.5.6 and 5.0.2, see MDL-85379.
+     * @todo MDL-85381 This will be deleted in Moodle 6.0.
      * @param {Object} details the update details
      * @param {Object} details.element the course state data.
      */
     _refreshPageItem({element}) {
+        log.debug("courseindex cm _refreshPageItem() is deprecated.  Use courseindex _refreshPageItem() instead.");
         if (!element.pageItem) {
             return;
         }
@@ -203,14 +195,6 @@ export default class Component extends DndCmItem {
         // the new url should be an anchor link.
         const element = document.getElementById(cm.anchor);
         if (element) {
-            // Make sure the section is expanded.
-            this.reactive.dispatch('sectionContentCollapsed', [cm.sectionid], false);
-            // Marc the element as page item once the event is handled.
-            const pendingAnchor = new Pending(`courseformat/activity:openAnchor`);
-            setTimeout(() => {
-                this.reactive.dispatch('setPageItem', 'cm', cm.id);
-                pendingAnchor.resolve();
-            }, 50);
             return;
         }
         // If the element is not present in the page we need to go to the specific section.
