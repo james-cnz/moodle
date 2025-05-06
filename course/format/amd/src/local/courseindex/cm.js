@@ -28,7 +28,6 @@ import DndCmItem from 'core_courseformat/local/courseeditor/dndcmitem';
 import Templates from 'core/templates';
 import Prefetch from 'core/prefetch';
 import Config from 'core/config';
-import Pending from "core/pending";
 
 // Prefetch the completion icons template.
 const completionTemplate = 'core_courseformat/local/courseindex/cmcompletion';
@@ -200,14 +199,10 @@ export default class Component extends DndCmItem {
         // the new url should be an anchor link.
         const element = document.getElementById(cm.anchor);
         if (element) {
-            // Make sure the section is expanded.
-            this.reactive.dispatch('sectionContentCollapsed', [cm.sectionid], false);
-            // Marc the element as page item once the event is handled.
-            const pendingAnchor = new Pending(`courseformat/activity:openAnchor`);
-            setTimeout(() => {
-                this.reactive.dispatch('setPageItem', 'cm', cm.id);
-                pendingAnchor.resolve();
-            }, 50);
+            if (window.location.hash == '#' + cm.anchor) {
+                // A hash change event won't be automatically generated.
+                window.dispatchEvent(new HashChangeEvent('hashchange', {oldURL: location.href, newURL: location.href}));
+            }
             return;
         }
         // If the element is not present in the page we need to go to the specific section.
