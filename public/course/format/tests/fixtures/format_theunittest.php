@@ -71,6 +71,7 @@ class format_theunittest extends core_courseformat\base {
      * @param section_info $section
      * @param bool $available
      * @param string $availableinfo
+     * @return void
      */
     public function section_get_available_hook(section_info $section, &$available, &$availableinfo) {
         if (($section->section % 2) && ($hideoddsections = $this->get_course()->hideoddsections)) {
@@ -85,6 +86,8 @@ class format_theunittest extends core_courseformat\base {
 
     /**
      * Returns true if this course format uses sections
+     *
+     * @return bool
      */
     public function uses_sections() {
         return true;

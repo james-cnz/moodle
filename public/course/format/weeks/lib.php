@@ -167,6 +167,7 @@ class format_weeks extends core_courseformat\base {
      *
      * @param global_navigation $navigation
      * @param navigation_node $node The course node within the navigation
+     * @return void
      */
     public function extend_course_navigation($navigation, navigation_node $node) {
         global $PAGE;
@@ -542,6 +543,7 @@ class format_weeks extends core_courseformat\base {
      * events are triggered before the caches are reset.
      *
      * @param int $courseid
+     * @return void
      */
     public static function update_end_date($courseid) {
         global $DB, $COURSE;

@@ -137,6 +137,7 @@ class sectionselector implements named_templatable, renderable {
      * @param stdClass $course
      * @param section_info $section
      * @param bool $indent
+     * @return void
      */
     private function add_section_menu(
         course_format $format,

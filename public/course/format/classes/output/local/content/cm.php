@@ -376,6 +376,7 @@ class cm implements named_templatable, renderable {
     /**
      * Returns the CSS classes for the activity name/content
      *
+     * @return void
      */
     protected function load_classes() {
         $mod = $this->mod;

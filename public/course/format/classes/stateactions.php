@@ -405,6 +405,7 @@ class stateactions {
      * @param stdClass $course the course object
      * @param int[] $ids section ids
      * @param int $visible the new visible value
+     * @return void
      */
     protected function set_section_visibility(
         stateupdates $updates,

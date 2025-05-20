@@ -52,6 +52,7 @@ class format_singleactivity extends core_courseformat\base implements core_cours
      *
      * @param global_navigation $navigation
      * @param navigation_node $node The course node within the navigation
+     * @return void
      */
     public function extend_course_navigation($navigation, navigation_node $node) {
         // SingleActivity course format does not extend navigation, it uses site_main_menu block instead.
@@ -308,6 +309,7 @@ class format_singleactivity extends core_courseformat\base implements core_cours
      * form.
      *
      * @param moodle_page $page instance of page calling set_course
+     * @return void
      */
     public function page_set_course(moodle_page $page) {
         global $PAGE;
@@ -375,6 +377,7 @@ class format_singleactivity extends core_courseformat\base implements core_cours
      * from navigation: substitute course node with activity node, move all children
      *
      * @param moodle_page $page instance of page calling set_cm
+     * @return void
      */
     public function page_set_cm(moodle_page $page) {
         global $PAGE;

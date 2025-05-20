@@ -213,7 +213,7 @@ abstract class base {
      *
      * @param int $courseid
      */
-    final public static function reset_course_cache($courseid = 0) {
+    final public static function reset_course_cache($courseid = 0): void {
         if ($courseid) {
             if (isset(self::$instances[$courseid])) {
                 foreach (self::$instances[$courseid] as $format => $object) {
@@ -328,7 +328,7 @@ abstract class base {
      * Returns a record from course database table plus additional fields
      * that course format defines
      *
-     * @return ?stdClass
+     * @return stdClass|null
      */
     public function get_course() {
         global $DB;
@@ -479,7 +479,7 @@ abstract class base {
      * Initially this was created to know if forms should add a button to return to the course page.
      * So if 'Return to course' does not make sense in your format your should probably return false.
      *
-     * @return boolean
+     * @return bool
      * @since Moodle 2.6
      */
     public function has_view_page() {
@@ -557,7 +557,7 @@ abstract class base {
      *
      * @param int|stdClass $section either section number (field course_section.section) or row from course_section table
      * @param int $strictness
-     * @return ?section_info
+     * @return section_info|null
      */
     final public function get_section($section, $strictness = IGNORE_MISSING) {
         if (is_object($section)) {
@@ -803,7 +803,7 @@ abstract class base {
      *
      * @param string $preferencename preference name
      * @param int[] $sectionids affected section ids
-     *
+     * @return void
      */
     public function set_sections_preference(string $preferencename, array $sectionids) {
         $sectionpreferences = $this->get_sections_preferences_by_preference();
@@ -906,7 +906,7 @@ abstract class base {
      *
      * Used in course/rest.php
      *
-     * @return ?array This will be passed in ajax respose
+     * @return array|null This will be passed in ajax respose
      */
     public function ajax_section_move() {
         return null;
@@ -1549,6 +1549,7 @@ abstract class base {
      * Allows course format to execute code on moodle_page::set_course()
      *
      * @param moodle_page $page instance of page calling set_course
+     * @return void
      */
     public function page_set_course(moodle_page $page) {
     }
@@ -1559,6 +1560,7 @@ abstract class base {
      * Current module can be accessed as $page->cm (returns instance of cm_info)
      *
      * @param moodle_page $page instance of page calling set_cm
+     * @return void
      */
     public function page_set_cm(moodle_page $page) {
     }
@@ -1771,6 +1773,7 @@ abstract class base {
      *     Can be changed by the method but 'false' can not be overridden by 'true'.
      * @param string $availableinfo the 'availableinfo' propery of the section_info as it was evaluated by conditional availability.
      *     Can be changed by the method
+     * @return void
      */
     public function section_get_available_hook(section_info $section, &$available, &$availableinfo) {
     }
@@ -1873,6 +1876,7 @@ abstract class base {
      *
      * @param cm_info $cm the course module information
      * @param bool $async whether or not to try to delete the module using an adhoc task. Async also depends on a plugin hook.
+     * @return void
      * @throws moodle_exception
      */
     public function delete_module(cm_info $cm, bool $async = false) {
@@ -1884,7 +1888,7 @@ abstract class base {
      *
      * @param section_info $section the section to move
      * @param section_info $destination the section that should be below the moved section
-     * @return boolean if the section can be moved or not
+     * @return bool if the section can be moved or not
      */
     public function move_section_after(section_info $section, section_info $destination): bool {
         if ($section->section == $destination->section || $section->section == $destination->section + 1) {
@@ -1958,7 +1962,7 @@ abstract class base {
      * @param stdClass $section
      * @param string $itemtype
      * @param mixed $newvalue
-     * @return ?\core\output\inplace_editable
+     * @return \core\output\inplace_editable|null
      */
     public function inplace_editable_update_section_name($section, $itemtype, $newvalue) {
         if ($itemtype === 'sectionname' || $itemtype === 'sectionnamenl') {
@@ -2145,6 +2149,7 @@ abstract class base {
      *
      * Format plugins can override this method to clean any format specific data and dependencies.
      *
+     * @return void
      */
     public function delete_format_data() {
         global $DB;
