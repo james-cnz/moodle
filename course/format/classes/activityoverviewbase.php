@@ -37,7 +37,7 @@ use grade_grade;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 abstract class activityoverviewbase {
-    /** @var cm_info The course module. */
+    /** @var module_context The course module's context */
     protected module_context $context;
 
     /** @var \stdClass $course */
@@ -247,7 +247,7 @@ abstract class activityoverviewbase {
      * and provide names for each grade item that want to be displayed.
      *
      * @param grade_item[] $items
-     * @return array<integer, string> the grade item names indexed by item id.
+     * @return array<int, string> the grade item names indexed by item id.
      */
     protected function get_grade_item_names(array $items): array {
         if (count($items) == 1) {

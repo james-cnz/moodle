@@ -54,6 +54,7 @@ class format_social extends core_courseformat\base {
      *
      * @param global_navigation $navigation
      * @param navigation_node $node The course node within the navigation
+     * @return void
      */
     public function extend_course_navigation($navigation, navigation_node $node) {
         // Social course format does not extend navigation, it uses social_activities block instead
