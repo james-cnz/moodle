@@ -38,6 +38,7 @@ final class overviewfactory_test extends \advanced_testcase {
      *
      * @dataProvider create_resource_provider
      * @param string $resourcetype
+     * @param string|null $expected
      */
     public function test_create_resource(
         string $resourcetype,

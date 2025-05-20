@@ -56,6 +56,7 @@ class restore_format_weeks_plugin extends restore_format_plugin {
      * Handles setting the automatic end date for a restored course.
      *
      * @param int $enddate The end date in the backup file.
+     * @return void
      */
     protected function update_automatic_end_date($enddate) {
         global $DB;
@@ -92,6 +93,7 @@ class restore_format_weeks_plugin extends restore_format_plugin {
      * Handles updating the visibility of sections in the restored course.
      *
      * @param int $numsections The number of sections in the restored course.
+     * @return void
      */
     protected function update_course_sections_visibility($numsections) {
         global $DB;
@@ -138,6 +140,8 @@ class restore_format_weeks_plugin extends restore_format_plugin {
 
     /**
      * Dummy process method
+     *
+     * @return void
      */
     public function process_dummy_course() {
 
@@ -147,6 +151,8 @@ class restore_format_weeks_plugin extends restore_format_plugin {
      * Executed after course restore is complete
      *
      * This method is only executed if course configuration was overridden
+     *
+     * @return void
      */
     public function after_restore_course() {
         if (!$this->is_pre_33_backup()) {
