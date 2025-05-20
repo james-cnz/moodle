@@ -31,7 +31,7 @@ class provider implements
     // This system has some sitewide user preferences to export.
     \core_privacy\local\request\user_preference_provider {
 
-    /** The user preference for the navigation drawer. */
+    /** @var string The user preference for the navigation drawer. */
     public const SECTION_PREFERENCES_PREFIX = 'coursesectionspreferences';
 
     /**
@@ -54,6 +54,7 @@ class provider implements
      * Store all user preferences for this system.
      *
      * @param int $userid The userid of the user whose data is to be exported.
+     * @return void
      */
     public static function export_user_preferences(int $userid) {
 
