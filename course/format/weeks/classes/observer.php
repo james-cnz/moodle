@@ -37,6 +37,7 @@ class format_weeks_observer {
      * Triggered via \core\event\course_updated event.
      *
      * @param \core\event\course_updated $event
+     * @return void
      */
     public static function course_updated(\core\event\course_updated $event) {
         if (class_exists('format_weeks', false)) {
@@ -50,6 +51,7 @@ class format_weeks_observer {
      * Triggered via \core\event\course_section_created event.
      *
      * @param \core\event\course_section_created $event
+     * @return void
      */
     public static function course_section_created(\core\event\course_section_created $event) {
         if (class_exists('format_weeks', false)) {
@@ -63,6 +65,7 @@ class format_weeks_observer {
      * Triggered via \core\event\course_section_deleted event.
      *
      * @param \core\event\course_section_deleted $event
+     * @return void
      */
     public static function course_section_deleted(\core\event\course_section_deleted $event) {
         if (class_exists('format_weeks', false)) {
