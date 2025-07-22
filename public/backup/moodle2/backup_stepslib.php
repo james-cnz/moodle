@@ -2725,6 +2725,13 @@ class backup_questions_structure_step extends backup_structure_step {
                  JOIN {question_category_complete_temp} qcc ON qcc.itemid = qbe.questioncategoryid
                 WHERE qcc.itemid = ?
                       AND qcc.backupid = ?
+                      AND (
+                       SELECT MAX(qv.version)
+                         FROM {question} q
+                         JOIN {question_versions} qv ON qv.questionid = q.id
+                        WHERE qv.questionbankentryid = qbe.id
+                          AND q.parent = 0
+                          ) IS NOT NULL
                 UNION
                 SELECT qbe.*
                  FROM {question_bank_entries} qbe
@@ -2734,6 +2741,13 @@ class backup_questions_structure_step extends backup_structure_step {
                       AND qcp.backupid = ?
                       AND biq.backupid = ?
                       AND biq.itemname = 'question_bank_entry'
+                      AND (
+                       SELECT MAX(qv.version)
+                         FROM {question} q
+                         JOIN {question_versions} qv ON qv.questionid = q.id
+                        WHERE qv.questionbankentryid = qbe.id
+                          AND q.parent = 0
+                          ) IS NOT NULL
             ",
             [
                 backup::VAR_PARENTID,
