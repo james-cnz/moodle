@@ -2646,7 +2646,27 @@ class backup_questions_structure_step extends backup_structure_step {
              WHERE bi.backupid = ?
                AND bi.itemname = 'question_categoryfinal'", [backup::VAR_BACKUPID]);
 
-        $questionbankentry->set_source_table('question_bank_entries', ['questioncategoryid' => backup::VAR_PARENTID]);
+        $questionbankentry->set_source_sql(
+            "SELECT *
+               FROM {question_bank_entries} qbe
+              WHERE questioncategoryid = ?
+                AND (
+                  EXISTS (
+                    SELECT *
+                      FROM {question_versions} qv
+                      JOIN {question} q on q.id = qv.questionid
+                     WHERE qv.questionbankentryid = qbe.id
+                       AND (q.parent = 0 OR q.qtype <> 'random')
+                  )
+                  OR
+                  EXISTS (
+                    SELECT *
+                      FROM {question_references} qr
+                     WHERE qr.questionbankentryid = qbe.id
+                  )
+                )",
+            [backup::VAR_PARENTID]
+        );
 
         $questionverion->set_source_table('question_versions', ['questionbankentryid' => backup::VAR_PARENTID]);
 
