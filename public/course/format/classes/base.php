@@ -834,7 +834,7 @@ abstract class base {
      */
     public function set_sections_preference(string $preferencename, array $sectionids) {
         $sectionpreferences = $this->get_sections_preferences_by_preference();
-        $sectionpreferences[$preferencename] = $sectionids;
+        $sectionpreferences[$preferencename] = array_values($sectionids);
         $this->persist_to_user_preference($sectionpreferences);
     }
 
@@ -851,6 +851,8 @@ abstract class base {
         $sectionpreferences = $this->get_sections_preferences_by_preference();
         if (!isset($sectionpreferences[$preferencename])) {
             $sectionpreferences[$preferencename] = [];
+        } else {
+            $sectionpreferences[$preferencename] = array_values($sectionpreferences[$preferencename]);
         }
         foreach ($sectionids as $sectionid) {
             if (!in_array($sectionid, $sectionpreferences[$preferencename])) {
@@ -879,6 +881,7 @@ abstract class base {
                 unset($sectionpreferences[$preferencename][$key]);
             }
         }
+        $sectionpreferences[$preferencename] = array_values($sectionpreferences[$preferencename]);
         $this->persist_to_user_preference($sectionpreferences);
     }
 
