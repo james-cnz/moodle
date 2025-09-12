@@ -399,14 +399,14 @@ final class base_test extends advanced_testcase {
         // Login as the user.
         $this->setUser($user);
         // Set initial preferences.
-        $format->set_sections_preference('pref1', [1, 2, 3]);
+        $format->set_sections_preference('pref1', [1, 2, 3, 4]);
         $format->set_sections_preference('pref2', [1]);
 
         // Remove section with id = 3 out of the pref1.
         $format->remove_section_preference_ids('pref1', [3]);
         // Get section preferences.
         $sectionpreferences = $format->get_sections_preferences_by_preference();
-        $this->assertCount(2, $sectionpreferences['pref1']);
+        $this->assertCount(3, $sectionpreferences['pref1']);
         $this->assertCount(1, $sectionpreferences['pref2']);
 
         // Remove section with id = 2 out of the pref1.
@@ -415,7 +415,8 @@ final class base_test extends advanced_testcase {
         $format->remove_section_preference_ids('pref2', [1]);
         // Get section preferences.
         $sectionpreferences = $format->get_sections_preferences_by_preference();
-        $this->assertCount(1, $sectionpreferences['pref1']);
+        $this->assertCount(2, $sectionpreferences['pref1']);
+        $this->assertEquals([1, 4], $sectionpreferences['pref1']);
         $this->assertEmpty($sectionpreferences['pref2']);
     }
 
