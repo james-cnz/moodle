@@ -1007,8 +1007,9 @@ function move_section_to($course, $section, $destination, $ignorenumsections = f
  * @return bool whether section was deleted
  */
 function course_delete_section($course, $sectionornum, $forcedeleteifnotempty = true, $async = false) {
-    $sectionnum = (is_object($sectionornum)) ? $sectionornum->section : (int)$sectionornum;
-    $sectioninfo = get_fast_modinfo($course)->get_section_info($sectionnum);
+    $sectioninfo = (is_object($sectionornum)) ?
+        get_fast_modinfo($course)->get_section_info_by_id($sectionornum->id)
+        : get_fast_modinfo($course)->get_section_info((int)$sectionornum);
     if (!$sectioninfo) {
         return false;
     }
@@ -1066,10 +1067,11 @@ function course_update_section($courseorid, $section, $data) {
  * @return bool
  */
 function course_can_delete_section($course, $section) {
-    if (is_object($section)) {
-        $section = $section->section;
+    $modinfo = get_fast_modinfo($course);
+    if (!is_object($section)) {
+        $section = $modinfo->get_section_info($section);
     }
-    if (!$section) {
+    if (!$section->section) {
         // Not possible to delete 0-section.
         return false;
     }
@@ -1083,9 +1085,8 @@ function course_can_delete_section($course, $section) {
         return false;
     }
     // Make sure user has capability to delete each activity in this section.
-    $modinfo = get_fast_modinfo($course);
-    if (!empty($modinfo->sections[$section])) {
-        foreach ($modinfo->sections[$section] as $cmid) {
+    if (!empty($modinfo->sections[$section->section])) {
+        foreach ($modinfo->sections[$section->section] as $cmid) {
             if (!has_capability('moodle/course:manageactivities', context_module::instance($cmid))) {
                 return false;
             }
@@ -2539,7 +2540,7 @@ function mod_duplicate_activity($course, $cm, $sr = null) {
         $format = course_get_format($course);
         $renderer = $format->get_renderer($PAGE);
         $modinfo = $format->get_modinfo();
-        $section = $modinfo->get_section_info($newcm->sectionnum);
+        $section = $modinfo->get_section_info_by_id($newcm->sectionid);
 
         // Get the new element html content.
         $resp->fullcontent = $renderer->course_section_updated_cm_item($format, $section, $newcm);
@@ -3084,7 +3085,7 @@ function course_get_tagged_course_modules($tag, $exclusivemode = false, $fromcon
             $course = $builder->get_course($item->courseid);
             $modinfo = get_fast_modinfo($course);
             $cm = $modinfo->get_cm($item->cmid);
-            $courseurl = course_get_url($item->courseid, $cm->sectionnum);
+            $courseurl = course_get_url($item->courseid, $cm->get_section_info());
             $cmname = $cm->get_formatted_name();
             if (!$exclusivemode) {
                 $cmname = shorten_text($cmname, 100);
