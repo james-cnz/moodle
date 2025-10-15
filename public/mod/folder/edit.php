@@ -57,7 +57,7 @@ file_prepare_standard_filemanager($data, 'files', $options, $context, 'mod_folde
 
 $mform = new mod_folder_edit_form(null, array('data'=>$data, 'options'=>$options));
 if ($folder->display == FOLDER_DISPLAY_INLINE) {
-    $redirecturl = course_get_url($cm->course, $cm->sectionnum);
+    $redirecturl = course_get_url($cm->course, $cm->sectionnum, ['navigation' => null]);
 } else {
     $redirecturl = new moodle_url('/mod/folder/view.php', array('id' => $cm->id));
 }

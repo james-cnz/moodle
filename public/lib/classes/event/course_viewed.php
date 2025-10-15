@@ -98,7 +98,7 @@ class course_viewed extends base {
         }
         require_once($CFG->dirroot . '/course/lib.php');
         try {
-            return course_get_url($this->courseid, $sectionnumber);
+            return course_get_url($this->courseid, $sectionnumber, ['navigation' => null]);
         } catch (\Exception $e) {
             return null;
         }

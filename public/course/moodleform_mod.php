@@ -935,11 +935,23 @@ abstract class moodleform_mod extends moodleform {
         $mform->addElement('hidden', 'sr', -1);
         $mform->setType('sr', PARAM_INT);
 
+        // The page level to return to: -1 means not specified (0 can't be used because it means the course main page,
+        // and null can't be used because it's converted to 0).
+        $mform->addElement('hidden', 'returnpagelevel', -1);
+        $mform->setType('returnpagelevel', PARAM_INT);
+
+        // The page to return to: -1 means no section (0 can't be used because it means the course main page,
+        // and null can't be used because it's converted to 0).
+        $mform->addElement('hidden', 'returnpagesectionid', -1);
+        $mform->setType('returnpagesectionid', PARAM_INT);
+
         $mform->addElement('hidden', 'beforemod', 0);
         $mform->setType('beforemod', PARAM_INT);
 
         $mform->addElement('hidden', 'showonly', '');
         $mform->setType('showonly', PARAM_ALPHANUMEXT);
+
+        // Elements beginning with "return" are reserved for return options.
     }
 
     public function standard_grading_coursemodule_elements() {

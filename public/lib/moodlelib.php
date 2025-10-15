@@ -582,6 +582,27 @@ define('COURSE_DISPLAY_SINGLEPAGE', 0);
 define('COURSE_DISPLAY_MULTIPAGE', 1);
 
 /**
+ * Page level: course page.
+ */
+define('PAGE_LEVEL_COURSE', 0);
+/**
+ * Page level: containing section page (for nested course formats, non-nested formats should treat as course page).
+ */
+define('PAGE_LEVEL_CONTAINING_SECTION', 1);
+/**
+ * Page level: regular section page.
+ */
+define('PAGE_LEVEL_SECTION', 2);
+/**
+ * Page level: delegated section page (e.g. subsection).
+ */
+define('PAGE_LEVEL_DELEGATED', 3);
+/**
+ * Page level: the page of the specified section.
+ */
+define('PAGE_LEVEL_SPECIFIED', 4);
+
+/**
  * Authentication constant: String used in password field when password is not stored.
  */
 define('AUTH_PASSWORD_NOT_CACHED', 'not cached');

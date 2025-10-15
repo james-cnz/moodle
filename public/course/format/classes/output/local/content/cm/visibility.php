@@ -264,10 +264,14 @@ class visibility implements named_templatable, renderable {
      */
     private function get_option_data(string $name, string $mutation, string $stateaction): array {
         $format = $this->format;
+
+        $returnoptions = $format->get_return_options($this->section);
+
         $nonajaxurl = $format->get_update_url(
             action: $stateaction,
             ids: [$this->mod->id],
-            returnurl: $format->get_view_url($format->get_sectionnum(), ['navigation' => true]),
+            returnsection: $this->section,
+            returnoptions: $returnoptions,
         );
 
         return [

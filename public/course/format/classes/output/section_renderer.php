@@ -97,7 +97,7 @@ abstract class section_renderer extends core_course_renderer {
      */
     public function section_title($section, $course) {
         $title = get_section_name($course, $section);
-        $url = course_get_url($course, $section->section, array('navigation' => true));
+        $url = course_get_url($course, $section, ['navigation' => true, 'pagelevel' => PAGE_LEVEL_SPECIFIED]);
         if ($url) {
             $title = html_writer::link($url, $title);
         }
@@ -260,7 +260,7 @@ abstract class section_renderer extends core_course_renderer {
         $activitychooserbutton = new $classname(
             section: $section,
             mod: $mod,
-            sectionreturn: $format->get_return_section(),
+            sectionreturn: $format->get_page_section(),
         );
 
         return $this->render_from_template(

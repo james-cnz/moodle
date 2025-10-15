@@ -206,7 +206,7 @@ if ($PAGE->user_allowed_editing()) {
             }
 
             if ($sectionid) {
-                redirect(course_get_url($course, $section, ['navigation' => true]));
+                redirect(course_get_url($course, $section, ['navigation' => true, 'pagelevel' => PAGE_LEVEL_SPECIFIED]));
             } else {
                 redirect($PAGE->url);
             }
@@ -222,7 +222,7 @@ if ($PAGE->user_allowed_editing()) {
                 \core_courseformat\formatactions::section($courseid)->set_visibility($sectioninfo, true);
             }
             if ($sectionid) {
-                redirect(course_get_url($course, $section, ['navigation' => true]));
+                redirect(course_get_url($course, $section, ['navigation' => true, 'pagelevel' => PAGE_LEVEL_SPECIFIED]));
             } else {
                 redirect($PAGE->url);
             }
@@ -243,7 +243,7 @@ if ($PAGE->user_allowed_editing()) {
         }
 
         if ($sectionid) {
-            redirect(course_get_url($course, $section, ['navigation' => true]));
+            redirect(course_get_url($course, $section, ['navigation' => true, 'pagelevel' => PAGE_LEVEL_SPECIFIED]));
         } else {
             redirect($PAGE->url);
         }

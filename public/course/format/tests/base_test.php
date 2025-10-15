@@ -222,8 +222,14 @@ final class base_test extends advanced_testcase {
         // Navigation.
         $this->assertStringContainsString('course/view.php', $format->get_view_url(0));
         $this->assertStringContainsString('course/view.php', $format->get_view_url(1));
-        $this->assertStringContainsString('course/section.php', $format->get_view_url(0, ['navigation' => 1]));
-        $this->assertStringContainsString('course/section.php', $format->get_view_url(1, ['navigation' => 1]));
+        $this->assertStringContainsString(
+            'course/section.php',
+            $format->get_view_url(0, ['navigation' => 1, 'pagelevel' => PAGE_LEVEL_SPECIFIED])
+        );
+        $this->assertStringContainsString(
+            'course/section.php',
+            $format->get_view_url(1, ['navigation' => 1, 'pagelevel' => PAGE_LEVEL_SPECIFIED])
+        );
         // When sr parameter is defined, the section.php page should be returned.
         $this->assertStringContainsString('course/section.php', $format->get_view_url(0, ['sr' => 1]));
         $this->assertStringContainsString('course/section.php', $format->get_view_url(1, ['sr' => 1]));

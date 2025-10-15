@@ -158,6 +158,6 @@ class sectionselector implements named_templatable, renderable {
      * @return string|null
      */
     private function get_section_url(stdClass $course, section_info $section): ?string {
-        return course_get_url($course, (object) $section, ['navigation' => true])?->out(false);
+        return course_get_url($course, (object) $section, ['navigation' => true, 'pagelevel' => PAGE_LEVEL_SPECIFIED])?->out(false);
     }
 }
