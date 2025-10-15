@@ -64,7 +64,7 @@ class section_viewed extends base {
         require_once($CFG->dirroot . '/course/lib.php');
         try {
             $section = $DB->get_record($this->objecttable, ['id' => $this->objectid], '*', MUST_EXIST);
-            return course_get_url($this->courseid, $section, ['navigation' => true]);
+            return course_get_url($this->courseid, $section, ['navigation' => null]);
         } catch (\Exception $e) {
             return null;
         }

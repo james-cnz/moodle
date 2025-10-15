@@ -57,7 +57,7 @@ if ($id) {
 
 require_login($course, true, $cm);
 
-$url = course_get_url($course, $cm->sectionnum, []);
+$url = course_get_url($course, $cm->sectionnum, ['navigation' => null]);
 $url->set_anchor('module-' . $id);
 redirect($url);
 

@@ -125,7 +125,10 @@ class boostnavbar implements \renderable {
                 // If the course sections are removed, we need to add the anchor of current section to the Course.
                 $coursenode = $this->get_item($this->page->course->id);
                 if (!is_null($coursenode) && $this->page->cm->sectionnum !== null) {
-                    $coursenode->action = course_get_format($this->page->course)->get_view_url($this->page->cm->sectionnum);
+                    $coursenode->action = course_get_format($this->page->course)->get_view_url(
+                        $this->page->cm->sectionnum,
+                        ['navigation' => null]
+                    );
                 }
             }
         }
@@ -145,14 +148,25 @@ class boostnavbar implements \renderable {
 
         $this->remove_no_link_items($removesections);
 
-        // Don't display the navbar if there is only one item. Apparently this is bad UX design.
-        if ($this->item_count() <= 1) {
+        // Don't display the navbar if it only contains the current page, or an item with no link.
+        if (
+            $this->item_count() == 1
+            && (
+                !($itemurl = $this->items[0]?->action?->out())
+                || $itemurl == $PAGE->url->out()
+            )
+        ) {
             $this->clear_items();
             return;
         }
 
-        // Make sure that the last item is not a link. Not sure if this is always a good idea.
-        $this->remove_last_item_action();
+        // If the last item is the current page, remove the link.
+        if (
+            $this->item_count() > 1
+            && end($this->items)?->action?->out() == $PAGE->url->out()
+        ) {
+            $this->remove_last_item_action();
+        }
     }
 
     /**

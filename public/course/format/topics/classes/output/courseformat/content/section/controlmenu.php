@@ -141,7 +141,8 @@ class controlmenu extends controlmenu_base {
         $url = $this->format->get_update_url(
             action: $action,
             ids: [$section->id],
-            returnurl: $this->baseurl,
+            returnsection: $this->section,
+            returnoptions: $this->returnoptions,
         );
 
         return new action_menu_link_secondary(

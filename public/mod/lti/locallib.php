@@ -2349,10 +2349,13 @@ function lti_get_types_for_add_instance() {
  * Returns a list of configured types in the given course
  *
  * @param int $courseid The id of the course to retieve types for
- * @param int $sectionreturn section to return to for forming the URLs
+ * @param int|array|null $returnoptions options for generating the return URL.  At the moment:
+ *      'pagesectionid' (int) the section ID of the page to return to (0 for course main page)
+ *      'sr' (int) the section number of the page to return to.  Deprecated since Moodle 5.2 (MDL-86284)
+ *      alternatively just the section number of the page to return to or null (deprecated since Moodle 5.2)
  * @return array Array of lti types. Each element is object with properties: name, title, icon, help, helplink, link
  */
-function lti_get_configured_types($courseid, $sectionreturn = 0) {
+function lti_get_configured_types($courseid, $returnoptions = []) {
     global $OUTPUT, $USER;
     $types = [];
     $preconfiguredtypes = \mod_lti\local\types_helper::get_lti_types_by_course($courseid, $USER->id,
@@ -2386,8 +2389,13 @@ function lti_get_configured_types($courseid, $sectionreturn = 0) {
             'course' => $courseid,
             'typeid' => $ltitype->id,
         ];
-        if (!is_null($sectionreturn)) {
-            $params['sr'] = $sectionreturn;
+        if (is_numeric($returnoptions)) {
+            $returnoptions = ['sr' => $returnoptions];
+        } else if (is_null($returnoptions)) {
+            $returnoptions = [];
+        }
+        foreach ($returnoptions as $key => $value) {
+            $params[($key == 'sr' ? '' : 'return') . $key] = $value;
         }
         $type->link = new moodle_url('/course/modedit.php', $params);
         $types[] = $type;

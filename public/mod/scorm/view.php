@@ -100,7 +100,7 @@ if (!empty($scorm->popup)) {
     if ($courseformat->format == 'singleactivity') {
         $courseurl = $url->out(false, array('preventskip' => '1'));
     } else {
-        $courseurl = course_get_url($course, $cm->sectionnum)->out(false);
+        $courseurl = course_get_url($course, $cm->sectionnum, ['navigation' => null])->out(false);
     }
     $PAGE->requires->data_for_js('scormplayerdata', Array('launch' => $launch,
                                                            'currentorg' => $orgidentifier,

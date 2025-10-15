@@ -169,7 +169,7 @@ if (empty($scorm->popup) || $displaymode == 'popup') {
         $exiturl = $CFG->wwwroot;
     } else {
         // Redirect back to the correct section if one section per page is being used.
-        $exiturl = course_get_url($course, $cm->sectionnum)->out();
+        $exiturl = course_get_url($course, $cm->sectionnum, ['navigation' => null])->out();
     }
 }
 

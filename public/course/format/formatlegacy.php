@@ -77,11 +77,18 @@ class format_legacy extends core_courseformat\base {
      * @param int|stdClass $section Section object from database or just field course_sections.section
      *     if omitted the course view page is returned
      * @param array $options options for view URL. At the moment core uses:
-     *     'navigation' (bool) if true and section has no separate page, the function returns null
-     *     'sr' (int) used by multipage formats to specify to which section to return
+     *     'pagesectionid' (int) the section ID of the page to display (null or 0 for course main page)
+     *     'sr' (int) the section number of the page to display (deprecated since Moodle 5.2)
+     *     'navigation' (bool) if true and section not empty, the function returns section page; if false, course page;
+     *          if null, the format's preferred layout will be used.
+     *     'permalink' (bool) if true, the section ID will be used in the link
+     *     'expanded' (bool) if true the section will be shown expanded, true by default
+     *     Note: For now, for backwards compatibility, the default is to display sections on the course main page.
+     *     To display sections in the format's preferred layout, pass a navigation value of null.
+     *     In future, this will be the default.
      * @return null|moodle_url
      */
-    public function get_view_url($section, $options = array()) {
+    public function get_view_url($section, $options = []) {
         // Use course formatter callback if it exists
         $featurefunction = 'callback_'.$this->format.'_get_section_url';
         if (function_exists($featurefunction) && ($course = $this->get_course())) {

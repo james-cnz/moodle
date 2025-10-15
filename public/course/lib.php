@@ -1405,10 +1405,11 @@ function course_get_cm_edit_actions(cm_info $mod, $indent = -1, $sr = null) {
  * Returns the move action.
  *
  * @param cm_info $mod The module to produce a move button for
- * @param int $sr The section to link back to (used for creating the links)
+ * @param array|int|null $returnoptions Options for generating the return URL.
+ *      Alternatively the section page to link back to. Deprecated since Moodle 5.2 (MDL-86284).
  * @return string The markup for the move action, or an empty string if not available.
  */
-function course_get_cm_move(cm_info $mod, $sr = null) {
+function course_get_cm_move(cm_info $mod, $returnoptions = []) {
     global $OUTPUT;
 
     static $str;
@@ -1421,12 +1422,19 @@ function course_get_cm_move(cm_info $mod, $sr = null) {
         $str = get_strings(array('move'));
     }
 
-    if (!isset($baseurl)) {
-        $baseurl = new moodle_url('/course/mod.php', array('sesskey' => sesskey()));
+    if (is_numeric($returnoptions)) {
+        $returnoptions = ['sr' => $returnoptions];
+    } else if (is_null($returnoptions)) {
+        $returnoptions = [];
+    }
 
-        if ($sr !== null) {
-            $baseurl->param('sr', $sr);
+    if (!isset($baseurl)) {
+        $returnparams = [];
+        foreach ($returnoptions as $key => $value) {
+            $returnparams[($key == 'sr' ? '' : 'return') . $key] = $value;
         }
+
+        $baseurl = new moodle_url('/course/mod.php', array_merge(['sesskey' => sesskey()], $returnparams));
     }
 
     if ($hasmanageactivities) {
@@ -1440,7 +1448,7 @@ function course_get_cm_move(cm_info $mod, $sr = null) {
         $attributes = [
             'class' => 'editing_move',
             'data-action' => 'move',
-            'data-sectionreturn' => $sr,
+            'data-sectionreturn' => $returnoptions['sr'],
             'title' => $str->move,
             'aria-label' => $str->move,
         ];
@@ -2409,11 +2417,18 @@ function get_sorted_course_formats($enabledonly = false) {
  * @param int|stdClass $section Section object from database or just field course_sections.section
  *     if omitted the course view page is returned
  * @param array $options options for view URL. At the moment core uses:
- *     'navigation' (bool) if true and section has no separate page, the function returns null
- *     'sr' (int) used by multipage formats to specify to which section to return
+ *     'pagesectionid' (int) the section ID of the page to display (null or 0 for course main page)
+ *     'sr' (int) the section number of the page to display (deprecated since Moodle 5.2)
+ *     'navigation' (bool) if true and section not empty, the function returns section page; if false, course page;
+ *          if null, the format's preferred layout will be used.
+ *     'permalink' (bool) if true, the section ID will be used in the link
+ *     'expanded' (bool) if true the section will be shown expanded, true by default
+ *     Note: For now, for backwards compatibility, the default is to display sections on the course main page.
+ *     To display sections in the format's preferred layout, pass a navigation value of null.
+ *     In future, this will be the default.
  * @return moodle_url|null The url of course
  */
-function course_get_url($courseorid, $section = null, $options = array()) {
+function course_get_url($courseorid, $section = null, $options = []) {
     return course_get_format($courseorid)->get_view_url($section, $options);
 }
 
@@ -3062,7 +3077,7 @@ function course_get_tagged_course_modules($tag, $exclusivemode = false, $fromcon
             $course = $builder->get_course($item->courseid);
             $modinfo = get_fast_modinfo($course);
             $cm = $modinfo->get_cm($item->cmid);
-            $courseurl = course_get_url($item->courseid, $cm->sectionnum);
+            $courseurl = course_get_url($item->courseid, $cm->sectionnum, ['navigation' => null]);
             $cmname = $cm->get_formatted_name();
             if (!$exclusivemode) {
                 $cmname = shorten_text($cmname, 100);

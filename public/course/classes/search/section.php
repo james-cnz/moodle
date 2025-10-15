@@ -156,7 +156,7 @@ class section extends \core_search\base {
         global $DB;
         $section = $DB->get_field('course_sections', 'section', ['id' => $doc->get('itemid')], MUST_EXIST);
         $format = course_get_format($doc->get('courseid'));
-        return $format->get_view_url($section);
+        return $format->get_view_url($section, ['navigation' => null]);
     }
 
     /**

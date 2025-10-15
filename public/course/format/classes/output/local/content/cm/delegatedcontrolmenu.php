@@ -123,10 +123,7 @@ class delegatedcontrolmenu extends basecontrolmenu {
 
         $url = new url(
             '/course/editsection.php',
-            [
-                'id' => $this->section->id,
-                'sr' => $this->section->sectionnum,
-            ]
+            array_merge(['id' => $this->section->id], $this->returnparams)
         );
 
         return new link_secondary(
@@ -154,12 +151,7 @@ class delegatedcontrolmenu extends basecontrolmenu {
         }
 
         // The move action uses visual elements on the course page.
-        $url = new url('/course/mod.php', ['sesskey' => sesskey()]);
-
-        $sectionnumreturn = $this->format->get_sectionnum();
-        if ($sectionnumreturn !== null) {
-            $url->param('sr', $sectionnumreturn);
-        }
+        $url = new url('/course/mod.php', array_merge(['sesskey' => sesskey()], $this->returnparams));
 
         return new link_secondary(
             url: $url,
@@ -258,7 +250,8 @@ class delegatedcontrolmenu extends basecontrolmenu {
         $url = $this->format->get_update_url(
             action: $action,
             ids: [$this->section->id],
-            returnurl: $this->baseurl,
+            returnsection: $this->section,
+            returnoptions: $this->returnoptions,
         );
 
         return new link_secondary(
@@ -287,9 +280,9 @@ class delegatedcontrolmenu extends basecontrolmenu {
             return null;
         }
 
-        $url = new url(
-            '/course/section.php',
-            ['id' => $this->section->id]
+        $url = $this->format->get_view_url(
+            $this->section,
+            ['navigation' => null, 'permalink' => true]
         );
         return new link_secondary(
             url: $url,
@@ -315,7 +308,8 @@ class delegatedcontrolmenu extends basecontrolmenu {
         $url = $this->format->get_update_url(
             action: 'cm_delete',
             ids: [$this->mod->id],
-            returnurl: $this->baseurl,
+            returnsection: $this->section,
+            returnoptions: $this->returnoptions,
         );
 
         return new link_secondary(

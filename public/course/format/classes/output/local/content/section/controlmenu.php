@@ -138,10 +138,7 @@ class controlmenu extends basecontrolmenu {
 
         $url = new url(
             '/course/editsection.php',
-            [
-                'id' => $this->section->id,
-                'sr' => $this->section->sectionnum,
-            ]
+            array_merge(['id' => $this->section->id], $this->returnparams)
         );
 
         return new link_secondary(
@@ -168,7 +165,8 @@ class controlmenu extends basecontrolmenu {
         $url = $this->format->get_update_url(
             action: 'section_duplicate',
             ids: [$this->section->id],
-            returnurl: $this->baseurl,
+            returnsection: $this->section,
+            returnoptions: $this->returnoptions,
         );
 
         return new link_secondary(
@@ -227,7 +225,8 @@ class controlmenu extends basecontrolmenu {
         $url = $this->format->get_update_url(
             action: $stateaction,
             ids: [$this->section->id],
-            returnurl: $this->baseurl,
+            returnsection: $this->section,
+            returnoptions: $this->returnoptions,
         );
 
         return new link_secondary(
@@ -394,9 +393,9 @@ class controlmenu extends basecontrolmenu {
             return null;
         }
 
-        $url = new url(
-            '/course/section.php',
-            ['id' => $this->section->id]
+        $url = $this->format->get_view_url(
+            $this->section,
+            ['navigation' => null, 'permalink' => true]
         );
         return new link_secondary(
             url: $url,
@@ -422,7 +421,8 @@ class controlmenu extends basecontrolmenu {
         $url = $this->format->get_update_url(
             action: 'section_delete',
             ids: [$this->section->id],
-            returnurl: $this->baseurl,
+            returnsection: $this->section,
+            returnoptions: $this->returnoptions,
         );
         return new link_secondary(
             url: $url,

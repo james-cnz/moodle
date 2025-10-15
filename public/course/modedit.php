@@ -35,18 +35,29 @@ $add    = optional_param('add', '', PARAM_ALPHANUM);     // Module name.
 $update = optional_param('update', 0, PARAM_INT);
 $return = optional_param('return', 0, PARAM_BOOL);    //return to course/view.php if false or mod/modname/view.php if true
 $type   = optional_param('type', '', PARAM_ALPHANUM); //TODO: hopefully will be removed in 2.0
-$sectionreturn = optional_param('sr', null, PARAM_INT);
+$sectionreturn = optional_param('sr', null, PARAM_INT); // Deprecated since Moodle 5.2 (MDL-86284).
+$returnpagesectionid = optional_param('returnpagesectionid', null, PARAM_INT);
 $beforemod = optional_param('beforemod', 0, PARAM_INT);
 $showonly = optional_param('showonly', '', PARAM_TAGLIST); // Settings group to show expanded and hide the rest.
+// Parameters beginning with "return" are reserved for return options.
 
 // Force it to be null if it's not a valid section number.
 if ($sectionreturn < 0) {
     $sectionreturn = null;
 }
+if ($returnpagesectionid < 0) {
+    $returnpagesectionid = null;
+}
 
 $url = new moodle_url('/course/modedit.php');
+$returnoptions = [];
 if (!is_null($sectionreturn)) {
     $url->param('sr', $sectionreturn);
+    $returnoptions['sr'] = $sectionreturn;
+}
+if (!is_null($returnpagesectionid)) {
+    $url->param('returnpagesectionid', $returnpagesectionid);
+    $returnoptions['pagesectionid'] = $returnpagesectionid;
 }
 if (!empty($return)) {
     $url->param('return', $return);
@@ -76,12 +87,13 @@ if (!empty($add)) {
     // There is no page for this in the navigation. The closest we'll have is the course section.
     // If the course section isn't displayed on the navigation this will fall back to the course which
     // will be the closest match we have.
-    navigation_node::override_active_url(course_get_url($course, $sectionnum));
+    navigation_node::override_active_url(course_get_url($course, $sectionnum, ['navigation' => null]));
 
     [$module, $context, $cw, $cm, $data] = prepare_new_moduleinfo_data($course, $add, $sectionnum);
     $data->return = 0;
-    if (!is_null($sectionreturn)) {
-        $data->sr = $sectionreturn;
+    foreach ($returnoptions as $key => $value) {
+        $datakey = ($key == 'sr' ? '' : 'return') . $key;
+        $data->$datakey = $value;
     }
     $data->add = $add;
     $data->beforemod = $beforemod;
@@ -113,8 +125,9 @@ if (!empty($add)) {
 
     list($cm, $context, $module, $data, $cw) = get_moduleinfo_data($cm, $course);
     $data->return = $return;
-    if (!is_null($sectionreturn)) {
-        $data->sr = $sectionreturn;
+    foreach ($returnoptions as $key => $value) {
+        $datakey = ($key == 'sr' ? '' : 'return') . $key;
+        $data->$datakey = $value;
     }
     $data->update = $update;
     if (!empty($showonly)) {
@@ -168,11 +181,7 @@ if ($mform->is_cancelled()) {
     } else if (plugin_supports('mod', $module->name, FEATURE_PUBLISHES_QUESTIONS)) {
         redirect(\core_question\local\bank\question_bank_helper::get_url_for_qbank_list($course->id));
     } else {
-        $options = [];
-        if (!is_null($sectionreturn)) {
-            $options['sr'] = $sectionreturn;
-        }
-        $url = course_get_url($course, $cw->section, $options);
+        $url = course_get_url($course, $cw->section, $returnoptions);
         if (!empty($cm->id)) {
             $url->set_anchor('module-' . $cm->id);
         } else if (!empty($data->beforemod)) {
@@ -202,11 +211,7 @@ if ($mform->is_cancelled()) {
     } else if (plugin_supports('mod', $fromform->modulename, FEATURE_PUBLISHES_QUESTIONS)) {
         $url = \core_question\local\bank\question_bank_helper::get_url_for_qbank_list($course->id);
     } else {
-        $options = [];
-        if (!is_null($sectionreturn)) {
-            $options['sr'] = $sectionreturn;
-        }
-        $url = course_get_url($course, $cw->section, $options);
+        $url = course_get_url($course, $cw->section, $returnoptions);
         if (!empty($fromform->coursemodule)) {
             $url->set_anchor('module-' . $fromform->coursemodule);
         }
