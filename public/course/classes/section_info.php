@@ -558,6 +558,8 @@ class section_info implements IteratorAggregate {
 
     /**
      * Get the delegate component instance.
+     *
+     * @return sectiondelegate|null
      */
     public function get_component_instance(): ?sectiondelegate {
         if (!$this->is_delegated()) {
@@ -611,6 +613,7 @@ class section_info implements IteratorAggregate {
      *
      * Called by build_section_cache in course_modinfo only; do not use otherwise.
      * @param object $section Raw section data object
+     * @return void
      */
     public static function convert_for_section_cache($section) {
         global $CFG;

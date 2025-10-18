@@ -34,7 +34,7 @@ abstract class moodleform_mod extends moodleform {
 
     use \core_completion\form\form_trait;
 
-    /** Current data */
+    /** @var stdClass Current data */
     protected $current;
     /**
      * Instance of the module that is being updated. This is the id of the {prefix}{modulename}
@@ -67,7 +67,7 @@ abstract class moodleform_mod extends moodleform {
     protected $_course;
 
     /**
-     * List of modform features
+     * @var stdClass List of modform features
      */
     protected $_features;
     /**
@@ -78,10 +78,10 @@ abstract class moodleform_mod extends moodleform {
      * @var string name of module.
      */
     protected $_modname;
-    /** current context, course or module depends if already exists*/
+    /** @var context current context, course or module depends if already exists*/
     protected $context;
 
-    /** a flag indicating whether outcomes are being used*/
+    /** @var bool a flag indicating whether outcomes are being used*/
     protected $_outcomesused;
 
     /**
@@ -219,6 +219,7 @@ abstract class moodleform_mod extends moodleform {
      * Only available on moodleform_mod.
      *
      * @param array $default_values passed by reference
+     * @return void
      */
     function data_preprocessing(&$default_values){
         if (empty($default_values['scale'])) {
@@ -241,6 +242,8 @@ abstract class moodleform_mod extends moodleform {
 
     /**
      * Each module which defines definition_after_data() must call this method using parent::definition_after_data();
+     *
+     * @return void
      */
     function definition_after_data() {
         global $CFG, $COURSE;
@@ -496,6 +499,7 @@ abstract class moodleform_mod extends moodleform {
      * already exist and data is being edited (edit entry form).
      *
      * @param mixed $default_values object or array of default values
+     * @return void
      */
     function set_data($default_values) {
         if (is_object($default_values)) {
@@ -508,6 +512,8 @@ abstract class moodleform_mod extends moodleform {
 
     /**
      * Adds all the standard elements to a form to edit the settings for an activity module.
+     *
+     * @return bool|null
      */
     protected function standard_coursemodule_elements() {
         global $COURSE, $CFG, $DB, $OUTPUT;
@@ -744,6 +750,7 @@ abstract class moodleform_mod extends moodleform {
      *
      * @param moodleform_mod $mform
      * @param int $itemnumber
+     * @return void
      */
     protected function add_rating_settings($mform, int $itemnumber) {
         global $CFG, $COURSE;
@@ -843,6 +850,8 @@ abstract class moodleform_mod extends moodleform {
 
     /**
      * Plugins can extend the coursemodule settings form.
+     *
+     * @return void
      */
     protected function plugin_extend_coursemodule_standard_elements() {
         $callbacks = get_plugins_with_function('coursemodule_standard_elements', 'lib.php');
@@ -857,6 +866,8 @@ abstract class moodleform_mod extends moodleform {
 
     /**
      * Plugins can extend the coursemodule settings form after the data is set.
+     *
+     * @return void
      */
     protected function plugin_extend_coursemodule_definition_after_data() {
         $callbacks = get_plugins_with_function('coursemodule_definition_after_data', 'lib.php');
@@ -1039,6 +1050,7 @@ abstract class moodleform_mod extends moodleform {
      * @deprecated since MDL-49101 - use moodleform_mod::standard_intro_elements() instead.
      * @param null $required Override system default for requiremodintro
      * @param null $customlabel Override default label for editor
+     * @return void
      * @throws coding_exception
      */
     protected function add_intro_editor($required=null, $customlabel=null) {
@@ -1053,6 +1065,7 @@ abstract class moodleform_mod extends moodleform {
      * Add an editor for an activity's introduction field.
      *
      * @param null $customlabel Override default label for editor
+     * @return void
      * @throws coding_exception
      */
     protected function standard_intro_elements($customlabel=null) {
@@ -1170,7 +1183,7 @@ abstract class moodleform_mod extends moodleform {
     /**
      * Get the list of admin settings for this module and apply any defaults/advanced/locked/required settings.
      *
-     * @param $datetimeoffsets array - If passed, this is an array of fieldnames => times that the
+     * @param array $datetimeoffsets If passed, this is an array of fieldnames => times that the
      *                         default date/time value should be relative to. If not passed, all
      *                         date/time fields are set relative to the users current midnight.
      * @return void
@@ -1225,6 +1238,7 @@ abstract class moodleform_mod extends moodleform {
      * Only available on moodleform_mod.
      *
      * @param stdClass $data passed by reference
+     * @return void
      */
     public function data_postprocessing($data) {
     }

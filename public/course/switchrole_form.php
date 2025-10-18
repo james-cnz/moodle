@@ -60,6 +60,8 @@ class switchrole_form extends moodleform {
 
     /**
      * Defines the form fields.
+     *
+     * @return void
      */
     public function definition() {
         global $USER, $CFG, $DB;

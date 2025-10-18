@@ -273,6 +273,8 @@ abstract class course_enrolments extends \core_analytics\local\target\binary {
 
     /**
      * Adds the JS required to run the bulk actions.
+     *
+     * @return void
      */
     public function add_bulk_actions_js() {
         global $PAGE;

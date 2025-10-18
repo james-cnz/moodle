@@ -37,6 +37,8 @@ class core_course_editcategory_form extends moodleform {
 
     /**
      * The form definition.
+     *
+     * @return void
      */
     public function definition() {
         global $CFG, $DB;

@@ -84,6 +84,7 @@ abstract class helper_for_get_mods_by_courses {
      *
      * @param \stdClass $modinstance one of the objects returned from a call to {@see get_all_instances_in_courses()}.
      * @param string $component the plugin name, e.g. 'mod_book'.
+     * @return void
      */
     public static function format_name_and_intro(\stdClass $modinstance, string $component) {
         $context = context_module::instance($modinstance->coursemodule);

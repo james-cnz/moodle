@@ -980,6 +980,7 @@ class helper {
      *
      * @param \core_course_category $coursecat The category we're working with.
      * @param bool $expanded True if the category is expanded now.
+     * @return void
      */
     public static function record_expanded_category(\core_course_category $coursecat, $expanded = true) {
         // If this ever changes we are going to reset it and reload the categories as required.

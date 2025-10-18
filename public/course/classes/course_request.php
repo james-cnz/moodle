@@ -388,6 +388,7 @@ class course_request {
      * provided notice and then removing the request from the database
      *
      * @param string $notice The message to display to the user
+     * @return void
      */
     public function reject($notice) {
         global $USER, $DB;
@@ -404,6 +405,8 @@ class course_request {
 
     /**
      * Deletes the course request and any associated files
+     *
+     * @return void
      */
     public function delete() {
         global $DB;
@@ -419,6 +422,7 @@ class course_request {
      * @param string $subject
      * @param string $message
      * @param int|null $courseid
+     * @return void
      */
     protected function notify($touser, $fromuser, $name, $subject, $message, $courseid = null) {
         $eventdata = new \core\message\message();

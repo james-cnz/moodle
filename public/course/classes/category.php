@@ -121,6 +121,7 @@ class core_course_category implements renderable, cacheable_object, IteratorAggr
      *
      * @param string $name
      * @param mixed $value
+     * @return void
      */
     public function __set($name, $value) {
         debugging('Can not change core_course_category instance properties!', DEBUG_DEVELOPER);
@@ -167,6 +168,7 @@ class core_course_category implements renderable, cacheable_object, IteratorAggr
      * All properties are read only, sorry.
      *
      * @param string $name
+     * @return void
      */
     public function __unset($name) {
         debugging('Can not unset core_course_category instance properties!', DEBUG_DEVELOPER);
@@ -176,7 +178,7 @@ class core_course_category implements renderable, cacheable_object, IteratorAggr
      * Get list of plugin callback functions.
      *
      * @param string $name Callback function name.
-     * @return [callable] $pluginfunctions
+     * @return callable[] $pluginfunctions
      */
     public function get_plugins_callback_function(string $name): array {
         $pluginfunctions = [];
@@ -424,6 +426,8 @@ class core_course_category implements renderable, cacheable_object, IteratorAggr
     /**
      * Restores the object after it has been externally modified in DB for example
      * during {@link fix_course_sortorder()}
+     *
+     * @return void
      */
     protected function restore() {
         if (!$this->id) {
@@ -562,6 +566,7 @@ class core_course_category implements renderable, cacheable_object, IteratorAggr
      * @param array $editoroptions if specified, the data is considered to be
      *    form data and file_postupdate_standard_editor() is being called to
      *    process images in description.
+     * @return void
      * @throws moodle_exception
      */
     public function update($data, $editoroptions = null) {
@@ -699,6 +704,7 @@ class core_course_category implements renderable, cacheable_object, IteratorAggr
      *
      * @param stdClass $course course object (must have 'id', 'visible' and 'category' fields)
      * @param null|stdClass $user The user id or object. By default (null) checks access for the current user.
+     * @return bool
      */
     public static function can_view_course_info($course, $user = null) {
         if ($course->id == SITEID) {
@@ -900,6 +906,7 @@ class core_course_category implements renderable, cacheable_object, IteratorAggr
      *
      * @param int $roleid role id that was given or taken away
      * @param context $context context where role assignment has been changed
+     * @return void
      */
     public static function role_assignment_changed($roleid, $context) {
         global $CFG, $DB;
@@ -943,6 +950,7 @@ class core_course_category implements renderable, cacheable_object, IteratorAggr
      * @param int $status new enrolment status (0 - active, 1 - suspended)
      * @param int $timestart new enrolment time start
      * @param int $timeend new enrolment time end
+     * @return void
      */
     public static function user_enrolment_changed($courseid, $userid,
             $status, $timestart = null, $timeend = null) {
@@ -1004,6 +1012,7 @@ class core_course_category implements renderable, cacheable_object, IteratorAggr
      * @todo MDL-38596 minimize number of queries to preload contacts for the list of courses
      *
      * @param array $courses
+     * @return void
      */
     public static function preload_course_contacts(&$courses) {
         global $CFG, $DB;
@@ -1095,6 +1104,7 @@ class core_course_category implements renderable, cacheable_object, IteratorAggr
      * Preloads the custom fields values in bulk
      *
      * @param array $records
+     * @return void
      */
     public static function preload_custom_fields(array &$records) {
         $customfields = \core_course\customfield\course_handler::create()->get_instances_data(array_keys($records));
@@ -1531,7 +1541,7 @@ class core_course_category implements renderable, cacheable_object, IteratorAggr
     /**
      * Returns true if the category has ANY children, including those not visible to the user
      *
-     * @return boolean
+     * @return bool
      */
     public function has_children() {
         $allchildren = self::get_tree($this->id);
@@ -1936,7 +1946,7 @@ class core_course_category implements renderable, cacheable_object, IteratorAggr
      * {@link core_course_category::can_delete_full()} or {@link core_course_category::can_move_content_to()}
      * depending upon what the user wished to do.
      *
-     * @return boolean
+     * @return bool
      */
     public function can_delete() {
         if (!$this->has_manage_capability()) {
@@ -2015,7 +2025,7 @@ class core_course_category implements renderable, cacheable_object, IteratorAggr
      * to calling this function because there is no capability check
      * inside this function
      *
-     * @param boolean $showfeedback display some notices
+     * @param bool $showfeedback display some notices
      * @return array return deleted courses
      * @throws moodle_exception
      */
@@ -2319,6 +2329,7 @@ class core_course_category implements renderable, cacheable_object, IteratorAggr
      * @see core_course_category::update()
      *
      * @param core_course_category $newparentcat
+     * @return void
      * @throws moodle_exception
      */
     protected function change_parent_raw(core_course_category $newparentcat) {
@@ -2378,6 +2389,7 @@ class core_course_category implements renderable, cacheable_object, IteratorAggr
      * $coursecat->update(array('parent' => $newparentcat));
      *
      * @param int|stdClass|core_course_category $newparentcat
+     * @return void
      */
     public function change_parent($newparentcat) {
         // Make sure parent category exists but do not check capabilities here that it is visible to current user.
@@ -2458,6 +2470,8 @@ class core_course_category implements renderable, cacheable_object, IteratorAggr
      * This function does not update field course_categories.timemodified
      * If you want to update timemodified, use
      * $coursecat->update(array('visible' => 0));
+     *
+     * @return void
      */
     public function hide() {
         if ($this->hide_raw(0)) {
@@ -2516,6 +2530,8 @@ class core_course_category implements renderable, cacheable_object, IteratorAggr
      * This function does not update field course_categories.timemodified
      * If you want to update timemodified, use
      * $coursecat->update(array('visible' => 1));
+     *
+     * @return void
      */
     public function show() {
         if ($this->show_raw()) {
@@ -2620,10 +2636,10 @@ class core_course_category implements renderable, cacheable_object, IteratorAggr
      * moving categories, where you do not want to allow people to move a category
      * to be the child of itself.
      *
-     * @param string/array $requiredcapability if given, only categories where the current
+     * @param string|array $requiredcapability if given, only categories where the current
      *      user has this capability will be returned. Can also be an array of capabilities,
      *      in which case they are all required.
-     * @param integer $excludeid Exclude this category and its children from the lists built.
+     * @param int $excludeid Exclude this category and its children from the lists built.
      * @param string $separator string to use as a separator between parent and child category. Default ' / '
      * @return array of strings
      */
@@ -2980,6 +2996,7 @@ class core_course_category implements renderable, cacheable_object, IteratorAggr
     /**
      * Cleans things up after categories have been resorted.
      * @param bool $includecourses If set to true we know courses have been resorted as well.
+     * @return void
      */
     public static function resort_categories_cleanup($includecourses = false) {
         // This should not be needed but we do it just to be safe.

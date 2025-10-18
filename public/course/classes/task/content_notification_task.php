@@ -32,6 +32,8 @@ class content_notification_task extends adhoc_task {
 
     /**
      * Run the main task.
+     *
+     * @return void
      */
     public function execute() {
         global $CFG, $OUTPUT;

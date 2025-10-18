@@ -34,7 +34,7 @@ use stdClass;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class dndupload_ajax_processor {
-    /** Returned when no error has occurred */
+    /** @var int Returned when no error has occurred */
     public const ERROR_OK = 0;
 
     /** @var object The course that we are uploading to */
@@ -108,6 +108,7 @@ class dndupload_ajax_processor {
      *
      * @param string $displayname optional the name (from the browser) to give the course module instance
      * @param string $content optional the content of the upload (for non-file uploads)
+     * @return void
      */
     public function process($displayname = null, $content = null) {
         require_capability('moodle/course:manageactivities', $this->context);
@@ -137,6 +138,8 @@ class dndupload_ajax_processor {
     /**
      * Handle uploads containing files - create the course module, ask the upload repository
      * to process the file, ask the mod to set itself up, then return the result to the browser
+     *
+     * @return void
      */
     protected function handle_file_upload() {
         global $CFG;
@@ -182,6 +185,7 @@ class dndupload_ajax_processor {
      * set itself up, then return the result to the browser
      *
      * @param string $content the content uploaded to the browser
+     * @return void
      */
     protected function handle_other_upload($content) {
         // Check this plugin is registered to handle this type of upload.
@@ -225,6 +229,8 @@ class dndupload_ajax_processor {
 
     /**
      * Create the coursemodule to hold the file/content that has been uploaded
+     *
+     * @return void
      */
     protected function create_course_module() {
         global $CFG;
@@ -267,6 +273,7 @@ class dndupload_ajax_processor {
      * (set instance id, add to correct section, set visibility, etc.) and send the response
      *
      * @param int $instanceid id returned by the mod when it was created
+     * @return void
      */
     protected function finish_setup_course_module($instanceid) {
         global $DB, $USER;
@@ -313,6 +320,7 @@ class dndupload_ajax_processor {
      * Send the details of the newly created activity back to the client browser
      *
      * @param cm_info $mod details of the mod just created
+     * @return void
      */
     protected function send_response($mod) {
         global $OUTPUT, $PAGE;

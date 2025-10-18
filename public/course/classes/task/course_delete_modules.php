@@ -44,6 +44,7 @@ class course_delete_modules extends \core\task\adhoc_task {
     /**
      * Run the deletion task.
      *
+     * @return void
      * @throws \coding_exception if the module could not be removed.
      */
     public function execute() {
@@ -92,7 +93,7 @@ class course_delete_modules extends \core\task\adhoc_task {
     /**
      * Sets attemptsavailable to false.
      *
-     * @return boolean
+     * @return bool
      */
     public function retry_until_success(): bool {
         return false;

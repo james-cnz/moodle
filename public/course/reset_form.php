@@ -30,6 +30,8 @@ class course_reset_form extends moodleform {
 
     /**
      * Form definition.
+     *
+     * @return void
      */
     public function definition() {
         global $CFG, $COURSE, $DB;
@@ -159,6 +161,8 @@ class course_reset_form extends moodleform {
 
     /**
      * Method to load default values for the reset course form.
+     *
+     * @return void
      */
     public function load_defaults() {
         global $CFG, $COURSE, $DB;

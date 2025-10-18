@@ -87,6 +87,7 @@ class provider implements
      * Get the list of users who have data within a context.
      *
      * @param   userlist    $userlist   The userlist containing the list of users who have data in this context/plugin combination.
+     * @return  void
      */
     public static function get_users_in_context(userlist $userlist) {
         $context = $userlist->get_context();
@@ -103,6 +104,7 @@ class provider implements
      * Export all user data for the specified user, in the specified contexts.
      *
      * @param approved_contextlist $contextlist The approved contexts to export information for.
+     * @return void
      */
     public static function export_user_data(approved_contextlist $contextlist) {
         global $DB;
@@ -148,6 +150,7 @@ class provider implements
      * decision, based on the existence of any decendant module contexts in the collection.
      *
      * @param \core_privacy\local\request\contextlist_collection $contextlistcollection
+     * @return void
      */
     public static function export_context_data(\core_privacy\local\request\contextlist_collection $contextlistcollection) {
         global $DB;
@@ -218,6 +221,7 @@ class provider implements
      * Export all user preferences for the plugin.
      *
      * @param int $userid The userid of the user whose data is to be exported.
+     * @return void
      */
     public static function export_user_preferences(int $userid) {
         $perpage = get_user_preferences('coursecat_management_perpage', null, $userid);
@@ -234,6 +238,7 @@ class provider implements
      * Delete all data for all users in the specified context.
      *
      * @param \context $context The specific context to delete data for.
+     * @return void
      */
     public static function delete_data_for_all_users_in_context(\context $context) {
         // Check what context we've been delivered.
@@ -251,6 +256,7 @@ class provider implements
      * Delete all user data for the specified user, in the specified contexts.
      *
      * @param approved_contextlist $contextlist The approved contexts and user information to delete information for.
+     * @return void
      */
     public static function delete_data_for_user(approved_contextlist $contextlist) {
         foreach ($contextlist as $context) {
@@ -269,6 +275,7 @@ class provider implements
      * Delete multiple users within a single context.
      *
      * @param   approved_userlist       $userlist The approved context and user information to delete information for.
+     * @return  void
      */
     public static function delete_data_for_users(approved_userlist $userlist) {
         $context = $userlist->get_context();

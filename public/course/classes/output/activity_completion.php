@@ -39,7 +39,8 @@ class activity_completion implements renderable, templatable {
      * Constructor.
      *
      * @param cm_info $cminfo The course module information.
-     * @param cm_completion_details $cmcompletion The course module information.
+     * @param cm_completion_details $cmcompletion the activity completion details.
+     * @param bool $smallbutton if the button is rendered small (like in course page).
      */
     public function __construct(
         /** @var cm_info $cminfo the activity cm_info. */

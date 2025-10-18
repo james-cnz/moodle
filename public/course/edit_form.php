@@ -18,6 +18,8 @@ class course_edit_form extends moodleform {
 
     /**
      * Form definition.
+     *
+     * @return void
      */
     function definition() {
         global $CFG, $PAGE;
@@ -470,6 +472,8 @@ class course_edit_form extends moodleform {
 
     /**
      * Fill in the current page data for this course.
+     *
+     * @return void
      */
     function definition_after_data() {
         global $DB;

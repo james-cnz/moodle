@@ -313,6 +313,7 @@ class core_course_list_element implements IteratorAggregate {
      * All properties are read only, sorry.
      *
      * @param string $name
+     * @return void
      */
     public function __unset($name) {
         debugging('Can not unset '.get_class($this).' instance properties!');
@@ -323,6 +324,7 @@ class core_course_list_element implements IteratorAggregate {
      *
      * @param string $name
      * @param mixed $value
+     * @return void
      */
     public function __set($name, $value) {
         debugging('Can not change '.get_class($this).' instance properties!');

@@ -135,6 +135,7 @@ class course_handler extends \core_customfield\handler {
      * This may be needed when course is being created, there is no course context but we need to check capabilities
      *
      * @param \context $context
+     * @return void
      */
     public function set_parent_context(\context $context) {
         $this->parentcontext = $context;
@@ -191,6 +192,7 @@ class course_handler extends \core_customfield\handler {
      * Allows to add custom controls to the field configuration form that will be saved in configdata
      *
      * @param \MoodleQuickForm $mform
+     * @return void
      */
     public function config_form_definition(\MoodleQuickForm $mform) {
         $mform->addElement('header', 'course_handler_header', get_string('customfieldsettings', 'core_course'));

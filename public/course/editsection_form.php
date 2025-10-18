@@ -105,6 +105,7 @@ class editsection_form extends moodleform {
      * Load in existing data as form defaults
      *
      * @param stdClass|array $default_values object or array of default values
+     * @return void
      */
     function set_data($default_values) {
         if (!is_object($default_values)) {

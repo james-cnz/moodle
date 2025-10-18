@@ -40,6 +40,8 @@ class core_course_management_renderer extends plugin_renderer_base {
      *
      * Thunderbirds are go, this function kicks into gear the JS that makes the
      * course management pages that much cooler.
+     *
+     * @return void
      */
     public function enhance_management_interface() {
         $this->page->requires->yui_module('moodle-course-management', 'M.course.management.init');
@@ -863,6 +865,7 @@ class core_course_management_renderer extends plugin_renderer_base {
      * @param string $text The text for the button.
      * @param string $id An id to give the button.
      * @param string $class A class to give the button.
+     * @param string|null $title Title attribute
      * @param array $attributes Any additional attributes
      * @return string
      */

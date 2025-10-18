@@ -194,6 +194,7 @@ class modinfo {
      *
      * @param string $name
      * @param mixed $value
+     * @return void
      */
     public function __set($name, $value) {
         debugging("It is not allowed to set the property modinfo::\${$name}", DEBUG_DEVELOPER);
@@ -394,7 +395,7 @@ class modinfo {
      * Gets data about specific numbered section.
      * @param int $sectionnumber Number (not id) of section
      * @param int $strictness Use MUST_EXIST to throw exception if it doesn't
-     * @return ?section_info Information for numbered section or null if not found
+     * @return section_info|null Information for numbered section or null if not found
      */
     public function get_section_info($sectionnumber, $strictness = IGNORE_MISSING) {
         if (!array_key_exists($sectionnumber, $this->sectioninfobynum)) {
@@ -518,6 +519,7 @@ class modinfo {
      *
      * @param null|int|stdClass $courseorid if specified removes only cached value for this course
      * @param int $newcacherev If specified, the known cache rev for this course id will be updated
+     * @return void
      */
     public static function clear_instance_cache($courseorid = null, int $newcacherev = 0) {
         if (empty($courseorid)) {
@@ -751,7 +753,7 @@ class modinfo {
      * in some other way.)
      *
      * @param stdClass $course Course object (must contain fields id and cacherev)
-     * @param boolean $usecache use cached section info if exists, use true for partial course rebuild
+     * @param bool $usecache use cached section info if exists, use true for partial course rebuild
      * @return array Information about sections, indexed by section id (not number)
      */
     protected static function build_course_section_cache(stdClass $course, bool $usecache = false): array {
@@ -805,7 +807,7 @@ class modinfo {
      *
      * @param stdClass $course object from DB table course. Must have property 'id'
      *     but preferably should have all cached fields.
-     * @param boolean $partialrebuild Indicate if it's partial course cache rebuild or not
+     * @param bool $partialrebuild Indicate if it's partial course cache rebuild or not
      * @return stdClass object with all cached keys of the course plus fields modinfo and sectioncache.
      *     The same object is stored in MUC
      * @throws moodle_exception if course is not found (if $course object misses some of the

@@ -43,6 +43,8 @@ class core_course_deletecategory_form extends moodleform {
 
     /**
      * Defines the form.
+     *
+     * @return void
      */
     public function definition() {
         $mform = $this->_form;
