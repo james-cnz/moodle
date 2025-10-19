@@ -95,13 +95,15 @@ class sectionnavigation implements named_templatable, renderable {
 
         $back = $this->sectionno - 1;
         while ($back >= 0 && empty($data->previousurl)) {
-            if ($canviewhidden || $sections[$back]->uservisible) {
+            $previousurl = course_get_url($course, $back, ['navigation' => true, 'urloptional' => true]);
+            if (($canviewhidden || $sections[$back]->uservisible) && $previousurl) {
                 if (!$sections[$back]->visible) {
                     $data->previoushidden = true;
                 }
                 $data->previousname = get_section_name($course, $sections[$back]);
-                $data->previousurl = course_get_url($course, $back, ['navigation' => true]);
+                $data->previousurl = $previousurl;
                 $data->hasprevious = true;
+                break;
             }
             $back--;
         }
@@ -109,13 +111,15 @@ class sectionnavigation implements named_templatable, renderable {
         $forward = $this->sectionno + 1;
         $numsections = course_get_format($course)->get_last_section_number();
         while ($forward <= $numsections and empty($data->nexturl)) {
-            if ($canviewhidden || $sections[$forward]->uservisible) {
+            $nexturl = course_get_url($course, $forward, ['navigation' => true, 'urloptional' => true]);
+            if (($canviewhidden || $sections[$forward]->uservisible) && $nexturl) {
                 if (!$sections[$forward]->visible) {
                     $data->nexthidden = true;
                 }
                 $data->nextname = get_section_name($course, $sections[$forward]);
-                $data->nexturl = course_get_url($course, $forward, ['navigation' => true]);
+                $data->nexturl = $nexturl;
                 $data->hasnext = true;
+                break;
             }
             $forward++;
         }

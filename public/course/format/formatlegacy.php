@@ -77,9 +77,11 @@ class format_legacy extends core_courseformat\base {
      * @param int|stdClass $section Section object from database or just field course_sections.section
      *     if omitted the course view page is returned
      * @param array $options options for view URL. At the moment core uses:
-     *     'navigation' (bool) if true and section has no separate page, the function returns null
-     *     'sr' (int) used by multipage formats to specify to which section to return
-     * @return null|moodle_url
+     *     'navigation' (bool) if true and section not empty, the function returns section page; otherwise, it returns course page.
+     *     'sr' (int) used by course formats to specify to which section to return
+     *     'urloptional' (int) if true, null may be returned
+     *     'expanded' (bool) if true the section will be shown expanded, true by default
+     * @return moodle_url|null
      */
     public function get_view_url($section, $options = array()) {
         // Use course formatter callback if it exists

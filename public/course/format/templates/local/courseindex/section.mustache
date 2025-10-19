@@ -91,6 +91,7 @@
                 <span class="visually-hidden">{{#str}} collapse, core {{/str}}</span>
             </span>
         </a>
+        {{#sectionurl}}
         <a href="{{{sectionurl}}}"
             class="courseindex-link text-truncate"
             data-action="togglecourseindexsection"
@@ -99,6 +100,10 @@
         >
             {{{title}}}
         </a>
+        {{/sectionurl}}
+        {{^sectionurl}}
+        {{{title}}}
+        {{/sectionurl}}
         <span class="current-badge badge bg-primary text-white ms-2 px-2 rounded-pill">
             {{highlighted}}
         </span>

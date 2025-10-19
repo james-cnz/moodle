@@ -99,7 +99,7 @@ export default class Component extends DndSection {
         }
         // Check if the current url is the section url.
         const section = state.section.get(this.id);
-        if (window.location.href == section.sectionurl.replace(/&amp;/g, "&")) {
+        if (window.location.href == section.sectionurl) {
             this.reactive.dispatch('setPageItem', 'section', this.id);
             sectionItem.scrollIntoView();
         }

@@ -107,8 +107,8 @@ class sectionselector implements named_templatable, renderable {
         }
 
         foreach ($allsections as $section) {
-            $this->add_section_menu($format, $course, $section);
-            if (isset($sectionwithchildren[$section->sectionnum])) {
+            $added = $this->add_section_menu($format, $course, $section);
+            if ($added & isset($sectionwithchildren[$section->sectionnum])) {
                 foreach ($sectionwithchildren[$section->sectionnum] as $subsection) {
                     $this->add_section_menu($format, $course, $subsection, true);
                 }
@@ -120,7 +120,9 @@ class sectionselector implements named_templatable, renderable {
             nothing: ['' => get_string('jumpto')],
         );
         // Disable the current section.
-        $select->set_option_disabled($disabledlink);
+        if (!is_null($disabledlink)) {
+            $select->set_option_disabled($disabledlink);
+        }
         $select->class = 'jumpmenu';
         $select->formid = 'sectionmenu';
 
@@ -135,6 +137,7 @@ class sectionselector implements named_templatable, renderable {
      * @param stdClass $course
      * @param section_info $section
      * @param bool $indent
+     * @return bool
      */
     private function add_section_menu(
         course_format $format,
@@ -143,17 +146,21 @@ class sectionselector implements named_templatable, renderable {
         bool $indent = false
     ) {
         $url = $this->get_section_url($course, $section);
+        if (is_null($url)) {
+            return false;
+        }
         $indentation = $indent ? self::INDENTER : '';
         $this->sectionmenu[$url] = $indentation . $format->get_section_name($section);
+        return true;
     }
 
     /**
      * Get the section url.
      * @param stdClass $course
      * @param section_info $section
-     * @return string
+     * @return string|null
      */
-    private function get_section_url(stdClass $course, section_info $section): string {
-        return course_get_url($course, (object) $section, ['navigation' => true])->out(false);
+    private function get_section_url(stdClass $course, section_info $section): ?string {
+        return course_get_url($course, (object) $section, ['navigation' => true, 'urloptional' => true])?->out(false);
     }
 }

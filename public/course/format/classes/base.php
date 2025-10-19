@@ -925,8 +925,9 @@ abstract class base {
      * @param array $options options for view URL. At the moment core uses:
      *     'navigation' (bool) if true and section not empty, the function returns section page; otherwise, it returns course page.
      *     'sr' (int) used by course formats to specify to which section to return
+     *     'urloptional' (int) if true, null may be returned
      *     'expanded' (bool) if true the section will be shown expanded, true by default
-     * @return null|moodle_url
+     * @return moodle_url|null
      */
     public function get_view_url($section, $options = array()) {
         $course = $this->get_course();
