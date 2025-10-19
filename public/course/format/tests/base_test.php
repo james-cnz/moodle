@@ -1004,6 +1004,70 @@ final class base_test extends advanced_testcase {
     }
 
     /**
+     * Test URLs for sections that are hidden but with their name shown
+     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('get_view_url_section_hidden_name_shown_provider')]
+    public function test_get_view_url_section_hidden_name_shown(string $formatname, bool $hassubsectionpages): void {
+        $this->resetAfterTest();
+
+        // Set up course.
+        $generator = $this->getDataGenerator();
+        $course = $generator->create_course(['format' => $formatname, 'hiddensections' => 0, 'numsections' => 1]);
+        $subsectionmod = $this->getDataGenerator()->create_module('subsection', (object)['course' => $course->id, 'section' => 0]);
+        $format = course_get_format($course);
+        $sections = $format->get_sections();
+        $restrictedvisible = '{"op":"&","c":[{"type":"date","d":"<","t":946638000}],"showc":[true]}';
+        \core_courseformat\formatactions::section($course)->update($sections[1], ['visible' => false]);
+        \core_courseformat\formatactions::section($course)->update($sections[2], ['availability' => $restrictedvisible]);
+
+        // Switch to student.
+        $student = $this->getDataGenerator()->create_and_enrol($course, 'student');
+        $this->setUser($student);
+        $modinfostudent = get_fast_modinfo($course, $student->id);
+        $sections = $modinfostudent->get_section_info_all();
+
+        // Check URLs.
+        $this->assertNotEquals(
+            null,
+            $format->get_view_url($sections[1], ['navigation' => false, 'urlcondition' => URL_CONDITION_NAVIGATION])
+        );
+        $this->assertEquals(
+            null,
+            $format->get_view_url($sections[1], ['navigation' => true, 'urlcondition' => URL_CONDITION_NAVIGATION])
+        );
+        $this->assertNotEquals(
+            null,
+            $format->get_view_url($sections[2], ['navigation' => false, 'urlcondition' => URL_CONDITION_NAVIGATION])
+        );
+        if (!$hassubsectionpages) {
+            $this->assertNotEquals(
+                null,
+                $format->get_view_url($sections[2], ['navigation' => true, 'urlcondition' => URL_CONDITION_NAVIGATION])
+            );
+        }
+    }
+
+    /**
+     * Data provider for test_get_view_url_section_hidden_name_shown
+     *
+     * @return \Generator The testing scenarios
+     */
+    public static function get_view_url_section_hidden_name_shown_provider(): \Generator {
+        yield 'Test a test course format with sections' => [
+            'formatname' => 'testformatsections',
+            'hassubsectionpages' => true,
+        ];
+        yield 'Test Custom sections' => [
+            'formatname' => 'topics',
+            'hassubsectionpages' => false,
+        ];
+        yield 'Test Weekly sections' => [
+            'formatname' => 'weeks',
+            'hassubsectionpages' => false,
+        ];
+    }
+
+    /**
      * Test for the get_generic_section_name method.
      */
     public function test_get_generic_section_name(): void {
