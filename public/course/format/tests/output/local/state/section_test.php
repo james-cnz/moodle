@@ -147,7 +147,7 @@ final class section_test extends \advanced_testcase {
         $state = $sectionstate->export_for_template($renderer);
 
         if (!$expectedhasurl) {
-            $this->assertObjectNotHasProperty('sectionurl', $state);
+            $this->assertNull($state->sectionurl);
             return;
         }
 
