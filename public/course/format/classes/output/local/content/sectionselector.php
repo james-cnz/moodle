@@ -83,7 +83,10 @@ class sectionselector implements named_templatable, renderable {
 
         $data = $this->navigation->export_for_template($output);
 
-        $this->sectionmenu[course_get_url($course)->out(false)] = get_string('maincoursepage');
+        $courseurl = course_get_url($course, null, ['urloptional' => true])?->out(false);
+        if ($courseurl) {
+            $this->sectionmenu[$courseurl] = get_string('maincoursepage');
+        }
 
         // Add the section selector.
         $allsections = $modinfo->get_section_info_all();
@@ -107,8 +110,8 @@ class sectionselector implements named_templatable, renderable {
         }
 
         foreach ($allsections as $section) {
-            $this->add_section_menu($format, $course, $section);
-            if (isset($sectionwithchildren[$section->sectionnum])) {
+            $added = $this->add_section_menu($format, $course, $section);
+            if ($added & isset($sectionwithchildren[$section->sectionnum])) {
                 foreach ($sectionwithchildren[$section->sectionnum] as $subsection) {
                     $this->add_section_menu($format, $course, $subsection, true);
                 }
@@ -137,6 +140,7 @@ class sectionselector implements named_templatable, renderable {
      * @param stdClass $course
      * @param section_info $section
      * @param bool $indent
+     * @return bool
      */
     private function add_section_menu(
         course_format $format,
@@ -145,10 +149,12 @@ class sectionselector implements named_templatable, renderable {
         bool $indent = false
     ) {
         $url = $this->get_section_url($course, $section);
-        if (!is_null($url)) {
-            $indentation = $indent ? self::INDENTER : '';
-            $this->sectionmenu[$url] = $indentation . $format->get_section_name($section);
+        if (is_null($url)) {
+            return false;
         }
+        $indentation = $indent ? self::INDENTER : '';
+        $this->sectionmenu[$url] = $indentation . $format->get_section_name($section);
+        return true;
     }
 
     /**
@@ -158,6 +164,6 @@ class sectionselector implements named_templatable, renderable {
      * @return string|null
      */
     private function get_section_url(stdClass $course, section_info $section): ?string {
-        return course_get_url($course, (object) $section, ['navigation' => true])?->out(false);
+        return course_get_url($course, (object) $section, ['navigation' => true, 'urloptional' => true])?->out(false);
     }
 }
