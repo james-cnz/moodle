@@ -1056,8 +1056,8 @@ class global_navigation extends navigation_node {
                 $activity->delegatedsection = $cm->get_delegated_section_info();
                 if (empty($cm->url) && $activity->delegatedsection) {
                     $url = $format->get_view_url(
-                        $activity->delegatedsection->sectionnum,
-                        ['navigation' => true]
+                        $activity->delegatedsection,
+                        ['navigation' => true, 'urloptional' => 1]
                     );
                 }
 
@@ -1160,7 +1160,7 @@ class global_navigation extends navigation_node {
             }
 
             if ($checkchildrenurls) {
-                $childurl = $format->get_view_url($delegatedsection, ['navigation' => true]);
+                $childurl = $format->get_view_url($delegatedsection, ['navigation' => true, 'urloptional' => 1]);
                 if ($childurl && $this->page->url->compare($childurl, URL_MATCH_EXACT)) {
                     return true;
                 }
@@ -1181,7 +1181,7 @@ class global_navigation extends navigation_node {
     public function load_section_navigation($parentnode, $section, $activitiesdata): navigation_node {
         $format = course_get_format($section->course);
         $sectionname = $format->get_section_name($section);
-        $url = $format->get_view_url($section, ['navigation' => true]);
+        $url = $format->get_view_url($section, ['navigation' => true, 'urloptional' => 1]);
 
         $sectionnode = $parentnode->add(
             text: $sectionname,
