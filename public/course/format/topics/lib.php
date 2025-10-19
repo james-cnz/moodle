@@ -107,13 +107,16 @@ class format_topics extends core_courseformat\base {
      * @param array $options options for view URL. At the moment core uses:
      *     'navigation' (bool) if true and section not empty, the function returns section page; otherwise, it returns course page.
      *     'sr' (int) used by course formats to specify to which section to return
-     * @return moodle_url
+     *     'urlcondition' (int) function returns null if bitwise conditions aren't met
+     *                      see URL_CONDITION_* constants
+     * @return moodle_url|null
      */
     public function get_view_url($section, $options = []) {
         $course = $this->get_course();
         $section = (is_null($section) || $section instanceof section_info) ?
                     $section
                     : $this->get_section($section, IGNORE_MISSING);
+        $urlcondition = $options['urlcondition'] ?? 0;
 
         // Determine page.
         if (array_key_exists('sr', $options)) {
@@ -124,6 +127,14 @@ class format_topics extends core_courseformat\base {
                             : $section;
         } else {
             $pagesection = null;
+        }
+
+        if (
+            ($urlcondition & URL_CONDITION_NAVIGATION) && $pagesection && !$pagesection->uservisible
+                && !($pagesection->visible && $pagesection->availableinfo)
+            || ($urlcondition & URL_CONDITION_PAGE) && $pagesection?->id != $section?->id
+        ) {
+            return null;
         }
 
         // Base URL.
