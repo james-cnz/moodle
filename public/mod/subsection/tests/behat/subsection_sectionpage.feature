@@ -25,7 +25,6 @@ Feature: Teachers create and destroy subsections on section page
       | ID number       | Test assignment name        |
       | Description     | Test assignment description |
     And I am on "Course 1" course homepage
-    And I click on "Subsection1" "link" in the "region-main" "region"
     Then I should see "Test assignment name" in the "region-main" "region"
 
   @javascript

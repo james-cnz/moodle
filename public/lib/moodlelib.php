@@ -577,6 +577,19 @@ define('COURSE_DISPLAY_SINGLEPAGE', 0);
 define('COURSE_DISPLAY_MULTIPAGE', 1);
 
 /**
+ * URL condition: Return URL only if appropriate in a navigation context.
+ */
+define('URL_CONDITION_NAVIGATION', 0b1);
+/**
+ * URL condition: Return URL only if section is on own page.
+ */
+define('URL_CONDITION_PAGE', 0b10);
+/**
+ * URL condition: Return URL only if appropriate in a navigation context and section is on own page.
+ */
+define('URL_CONDITION_NAVIGATION_PAGE', 0b11);
+
+/**
  * Authentication constant: String used in password field when password is not stored.
  */
 define('AUTH_PASSWORD_NOT_CACHED', 'not cached');
