@@ -149,7 +149,7 @@ class section implements named_templatable, renderable {
         $data = (object)[
             'num' => $section->section ?? '0',
             'id' => $section->id,
-            'sectionreturnnum' => $format->get_sectionnum(),
+            'sectionreturnnum' => $format->get_sectionnum(), // Deprecated since Moodle 5.2 (MDL-86284).
             'insertafter' => false,
             'summary' => $summary->export_for_template($output),
             'highlightedlabel' => $format->get_section_highlighted_name(),
@@ -160,6 +160,11 @@ class section implements named_templatable, renderable {
             'sectionname' => $format->get_section_name($section),
             'isdelegated' => $section->is_delegated(),
         ];
+        $returnoptions = $format->get_return_options($section);
+        foreach ($returnoptions as $key => $value) {
+            $datakey = 'return' . $key;
+            $data->$datakey = $value;
+        }
 
         $haspartials = [];
         $haspartials['availability'] = $this->add_availability_data($data, $output);
