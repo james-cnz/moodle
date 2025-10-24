@@ -46,17 +46,10 @@ class block_navigation_edit_form extends block_edit_form {
             $mform->setDefault('config_'.$modname, $default);
         }
 
-        $options = array(
-            block_navigation::TRIM_RIGHT => get_string('trimmoderight', $this->block->blockname),
-            block_navigation::TRIM_LEFT => get_string('trimmodeleft', $this->block->blockname),
-            block_navigation::TRIM_CENTER => get_string('trimmodecenter', $this->block->blockname)
-        );
-        $mform->addElement('select', 'config_trimmode', get_string('trimmode', $this->block->blockname), $options);
-        $mform->setType('config_trimmode', PARAM_INT);
-
-        $mform->addElement('text', 'config_trimlength', get_string('trimlength', $this->block->blockname));
-        $mform->setDefault('config_trimlength', 50);
-        $mform->setType('config_trimlength', PARAM_INT);
+        $options = [ 1 => 1, 2 => 2, 3 => 3, 4 => 4, 5 => 5];
+        $mform->addElement('select', 'config_trimlines', get_string('trimlines', $this->block->blockname), $options);
+        $mform->setDefault('config_trimlines', 3);
+        $mform->setType('config_trimlines', PARAM_INT);
 
         $options = array(
             0 => get_string('everything', $this->block->blockname),

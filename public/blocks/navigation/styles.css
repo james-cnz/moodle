@@ -39,6 +39,34 @@
 
 .block_navigation .block_tree .tree_item.branch {
     padding-left: 21px;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.block_navigation.block_navigation_trimlines-1 .block_tree .tree_item.branch {
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
+}
+
+.block_navigation.block_navigation_trimlines-2 .block_tree .tree_item.branch {
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+}
+
+.block_navigation.block_navigation_trimlines-3 .block_tree .tree_item.branch {
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+}
+
+.block_navigation.block_navigation_trimlines-4 .block_tree .tree_item.branch {
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
+}
+
+.block_navigation.block_navigation_trimlines-5 .block_tree .tree_item.branch {
+    -webkit-line-clamp: 5;
+    line-clamp: 5;
 }
 
 .block_navigation .block_tree .active_tree_node {
