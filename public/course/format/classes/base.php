@@ -560,19 +560,20 @@ abstract class base {
      * @return ?section_info
      */
     final public function get_section($section, $strictness = IGNORE_MISSING) {
-        if (is_object($section)) {
-            $sectionnum = $section->section;
+        if ($course = $this->get_course()) {
+            $modinfo = get_fast_modinfo($course);
+            if (is_object($section)) {
+                return $modinfo->get_section_info_by_id($section->id, $strictness);
+            } else {
+                return $modinfo->get_section_info($section, $strictness);
+            }
         } else {
-            $sectionnum = $section;
+            if ($strictness == MUST_EXIST) {
+                throw new moodle_exception('sectionnotexist');
+            } else {
+                return null;
+            }
         }
-        $sections = $this->get_sections();
-        if (array_key_exists($sectionnum, $sections)) {
-            return $sections[$sectionnum];
-        }
-        if ($strictness == MUST_EXIST) {
-            throw new moodle_exception('sectionnotexist');
-        }
-        return null;
     }
 
     /**
@@ -1927,7 +1928,7 @@ abstract class base {
         $displayvalue = $title = get_section_name($section->course, $section);
         if ($linkifneeded) {
             // Display link under the section name if the course format setting is to display one section per page.
-            $url = course_get_url($section->course, $section->section, array('navigation' => true));
+            $url = course_get_url($section->course, $section, ['navigation' => true]);
             if ($url) {
                 $displayvalue = html_writer::link($url, $title);
             }
@@ -2073,7 +2074,7 @@ abstract class base {
         $renderer = $this->get_renderer($PAGE);
 
         if (!($section instanceof section_info)) {
-            $section = $modinfo->get_section_info($section->section);
+            $section = $modinfo->get_section_info_by_id($section->id);
         }
 
         if (!is_null($sr)) {

@@ -156,7 +156,7 @@ class content implements named_templatable, renderable {
         // Generate section list.
         $sections = [];
         $stealthsections = [];
-        foreach ($this->get_sections_to_display($modinfo) as $sectionnum => $thissection) {
+        foreach ($this->get_sections_to_display($modinfo) as $thissection) {
             // The course/view.php check the section existence but the output can be called
             // from other parts so we need to check it.
             if (!$thissection) {
@@ -168,6 +168,7 @@ class content implements named_templatable, renderable {
                 continue;
             }
 
+            $sectionnum = $thissection->section;
             /** @var \core_courseformat\output\local\content\section $section */
             $section = new $this->sectionclass($format, $thissection);
 
