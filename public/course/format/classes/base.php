@@ -916,7 +916,8 @@ abstract class base {
      * @param int|stdClass|section_info|null $section Section object from database or just field course_sections.section
      *     if null the course view page is returned
      * @param array $options options for view URL. At the moment core uses:
-     *     'navigation' (bool) if true and section not empty, the function returns section page; otherwise, it returns course page.
+     *     'navigation' (bool) if true and section not empty, the function returns section page; if false, course page;
+     *          if null, the format's preferred layout will be used.
      *     'sr' (int) used by course formats to specify to which section to return
      *     'expanded' (bool) if true the section will be shown expanded, true by default
      * @return null|moodle_url
@@ -924,11 +925,13 @@ abstract class base {
     public function get_view_url($section, $options = []) {
         $course = $this->get_course();
         $section = (is_object($section) || is_null($section)) ? $section : $this->get_section($section, IGNORE_MISSING);
+        $navigation = array_key_exists('navigation', $options) ? $options['navigation'] : false;
+        $navigation = $navigation ?? $this->get_course_display();
 
         // Determine page.
         if (array_key_exists('sr', $options)) {
             $pagesection = !is_null($options['sr']) ? $this->get_section($options['sr'], IGNORE_MISSING) : null;
-        } else if ($options['navigation'] ?? false) {
+        } else if ($navigation) {
             $pagesection = $section;
         } else {
             $pagesection = null;
