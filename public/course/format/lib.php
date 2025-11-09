@@ -74,8 +74,8 @@ class format_site extends course_format {
      * @param array $options
      * @return null|moodle_url
      */
-    public function get_view_url($section, $options = array()) {
-        return new moodle_url('/', array('redirect' => 0));
+    public function get_view_url($section, $options = []) {
+        return new moodle_url('/', ['redirect' => 0]);
     }
 
     /**
