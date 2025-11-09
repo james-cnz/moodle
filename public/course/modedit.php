@@ -76,7 +76,7 @@ if (!empty($add)) {
     // There is no page for this in the navigation. The closest we'll have is the course section.
     // If the course section isn't displayed on the navigation this will fall back to the course which
     // will be the closest match we have.
-    navigation_node::override_active_url(course_get_url($course, $sectionnum));
+    navigation_node::override_active_url(course_get_url($course, $sectionnum, ['navigation' => null]));
 
     [$module, $context, $cw, $cm, $data] = prepare_new_moduleinfo_data($course, $add, $sectionnum);
     $data->return = 0;

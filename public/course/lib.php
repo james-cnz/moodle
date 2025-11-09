@@ -3086,7 +3086,7 @@ function course_get_tagged_course_modules($tag, $exclusivemode = false, $fromcon
             $course = $builder->get_course($item->courseid);
             $modinfo = get_fast_modinfo($course);
             $cm = $modinfo->get_cm($item->cmid);
-            $courseurl = course_get_url($item->courseid, $cm->sectionnum);
+            $courseurl = course_get_url($item->courseid, $cm->sectionnum, ['navigation' => null]);
             $cmname = $cm->get_formatted_name();
             if (!$exclusivemode) {
                 $cmname = shorten_text($cmname, 100);

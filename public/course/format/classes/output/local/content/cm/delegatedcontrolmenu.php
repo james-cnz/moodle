@@ -287,9 +287,9 @@ class delegatedcontrolmenu extends basecontrolmenu {
             return null;
         }
 
-        $url = new url(
-            '/course/section.php',
-            ['id' => $this->section->id]
+        $url = $this->format->get_view_url(
+            $this->section,
+            ['navigation' => null, 'permalink' => true]
         );
         return new link_secondary(
             url: $url,

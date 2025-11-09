@@ -75,7 +75,7 @@ if ($mform->is_cancelled()) {
     $chapters = book_preload_chapters($book);
     if (!$chapters) {
         $section = $DB->get_record('course_sections', ['id' => $cm->section]);
-        redirect(course_get_url($course, $section)); // Back to course view.
+        redirect(course_get_url($course, $section, ['navigation' => null])); // Back to course view.
     }
 
     if (empty($chapter->id)) {

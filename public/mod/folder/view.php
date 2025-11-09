@@ -46,7 +46,7 @@ require_course_login($course, true, $cm);
 $context = context_module::instance($cm->id);
 require_capability('mod/folder:view', $context);
 if ($folder->display == FOLDER_DISPLAY_INLINE) {
-    redirect(course_get_url($folder->course, $cm->sectionnum));
+    redirect(course_get_url($folder->course, $cm->sectionnum, ['navigation' => null]));
 }
 
 $params = array(

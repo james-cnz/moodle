@@ -1934,7 +1934,7 @@ abstract class base {
         $displayvalue = $title = get_section_name($section->course, $section);
         if ($linkifneeded) {
             // Display link under the section name if the course format setting is to display one section per page.
-            $url = course_get_url($section->course, $section->section, array('navigation' => true));
+            $url = course_get_url($section->course, $section, ['navigation' => true]);
             if ($url) {
                 $displayvalue = html_writer::link($url, $title);
             }
