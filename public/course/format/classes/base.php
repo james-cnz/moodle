@@ -952,13 +952,16 @@ abstract class base {
      * @param array $options options for view URL. At the moment core uses:
      *     'pagesectionid' (int) the section ID of the page to display (null or 0 for course main page)
      *     'sr' (int) the section number of the page to display (deprecated since Moodle 5.3)
-     *     'navigation' (bool) if true and section not empty, the function returns section page; otherwise, it returns course page.
+     *     'navigation' (bool) if true and section not empty, the function returns section page; if false, course page;
+     *          if null, the format's preferred layout will be used.
      *     'expanded' (bool) if true the section will be shown expanded, true by default
      * @return null|moodle_url
      */
     public function get_view_url($section, $options = []) {
         $course = $this->get_course();
         $section = (is_object($section) || is_null($section)) ? $section : $this->get_section($section, IGNORE_MISSING);
+        $navigation = array_key_exists('navigation', $options) ? $options['navigation'] : false;
+        $navigation = $navigation ?? $this->get_course_display();
 
         // Determine page.
         if (array_key_exists('pagesectionid', $options)) {
@@ -968,7 +971,7 @@ abstract class base {
         } else if (array_key_exists('sr', $options)) {
             // TODO: Remove this in Moodle 7.0 (MDL-88498).
             $pagesection = !is_null($options['sr']) ? $this->get_section($options['sr'], IGNORE_MISSING) : null;
-        } else if ($options['navigation'] ?? false) {
+        } else if ($navigation) {
             $pagesection = $section;
         } else {
             $pagesection = null;
