@@ -65,6 +65,12 @@ abstract class basecontrolmenu implements named_templatable, renderable {
     /** @var url The base URL for the course or the section */
     protected url $baseurl;
 
+    /** @var array $returnoptions the options for generating the return url */
+    protected array $returnoptions;
+
+    /** @var array $returnparams return parameters (return options with keys prefixed with "return") */
+    protected array $returnparams;
+
     /**
      * Constructor.
      *
@@ -81,6 +87,13 @@ abstract class basecontrolmenu implements named_templatable, renderable {
         $this->course = $format->get_course();
         $this->coursecontext = $format->get_context();
         $this->baseurl = $format->get_view_url($format->get_sectionnum(), ['navigation' => true]);
+
+        $this->returnoptions = $format->get_return_options($section);
+        $returnparams = [];
+        foreach ($this->returnoptions as $key => $value) {
+            $returnparams[($key == 'sr' ? '' : 'return') . $key] = $value;
+        }
+        $this->returnparams = $returnparams;
     }
 
     /**
