@@ -1427,10 +1427,11 @@ function course_get_cm_edit_actions(cm_info $mod, $indent = -1, $sr = null) {
  * Returns the move action.
  *
  * @param cm_info $mod The module to produce a move button for
- * @param int $sr The section to link back to (used for creating the links)
+ * @param array|int|null $returnoptions Options for generating the return URL.
+ *      Alternatively the section page to link back to. Deprecated since Moodle 5.2 (MDL-86284).
  * @return string The markup for the move action, or an empty string if not available.
  */
-function course_get_cm_move(cm_info $mod, $sr = null) {
+function course_get_cm_move(cm_info $mod, $returnoptions = []) {
     global $OUTPUT;
 
     static $str;
@@ -1443,12 +1444,19 @@ function course_get_cm_move(cm_info $mod, $sr = null) {
         $str = get_strings(array('move'));
     }
 
-    if (!isset($baseurl)) {
-        $baseurl = new moodle_url('/course/mod.php', array('sesskey' => sesskey()));
+    if (is_numeric($returnoptions)) {
+        $returnoptions = ['sr' => $returnoptions];
+    } else if (is_null($returnoptions)) {
+        $returnoptions = [];
+    }
 
-        if ($sr !== null) {
-            $baseurl->param('sr', $sr);
+    if (!isset($baseurl)) {
+        $returnparams = [];
+        foreach ($returnoptions as $key => $value) {
+            $returnparams[($key == 'sr' ? '' : 'return') . $key] = $value;
         }
+
+        $baseurl = new moodle_url('/course/mod.php', array_merge(['sesskey' => sesskey()], $returnparams));
     }
 
     if ($hasmanageactivities) {
@@ -1462,7 +1470,7 @@ function course_get_cm_move(cm_info $mod, $sr = null) {
         $attributes = [
             'class' => 'editing_move',
             'data-action' => 'move',
-            'data-sectionreturn' => $sr,
+            'data-sectionreturn' => $returnoptions['sr'] ?? null,
             'title' => $str->move,
             'aria-label' => $str->move,
         ];

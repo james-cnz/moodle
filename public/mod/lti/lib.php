@@ -241,7 +241,7 @@ function lti_get_course_content_items(\core_course\local\entity\content_item $de
     if (!has_capability('mod/lti:addpreconfiguredinstance', \core\context\course::instance($course->id), $user)) {
         return $types;
     }
-    $preconfiguredtools = lti_get_configured_types($course->id, $defaultmodulecontentitem->get_link()->param('sr'));
+    $preconfiguredtools = lti_get_configured_types($course->id);
 
     foreach ($preconfiguredtools as $preconfiguredtool) {
 
