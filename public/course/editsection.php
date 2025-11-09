@@ -28,16 +28,22 @@ require_once("lib.php");
 require_once($CFG->libdir . '/formslib.php');
 
 $id = required_param('id', PARAM_INT);    // course_sections.id
-$sectionreturn = optional_param('sr', null, PARAM_INT);
+$sectionreturn = optional_param('sr', null, PARAM_INT); // Deprecated since Moodle 5.2 (MDL-86284).
+$returnpagesectionid = optional_param('returnpagesectionid', null, PARAM_INT);
 $deletesection = optional_param('delete', 0, PARAM_BOOL);
 $showonly = optional_param('showonly', 0, PARAM_TAGLIST);
 $returnurl = optional_param('returnurl', null, PARAM_LOCALURL);
+// Parameters beginning with "return" are reserved for return options.
 
-$returnparams = [];
+$returnoptions = [];
 $params = ['id' => $id];
 if (!is_null($sectionreturn)) {
     $params['sr'] = $sectionreturn;
-    $returnparams['sr'] = $sectionreturn;
+    $returnoptions['sr'] = $sectionreturn;
+}
+if (!is_null($returnpagesectionid)) {
+    $params['returnpagesectionid'] = $returnpagesectionid;
+    $returnoptions['pagesectionid'] = $returnpagesectionid;
 }
 if (!empty($showonly)) {
     $params['showonly'] = $showonly;
@@ -57,7 +63,7 @@ $sectioninfo = get_fast_modinfo($course)->get_section_info($sectionnum);
 
 // Deleting the section.
 if ($deletesection) {
-    $cancelurl = course_get_url($course, $sectioninfo, $returnparams);
+    $cancelurl = course_get_url($course, $sectioninfo, $returnoptions);
     if (course_can_delete_section($course, $sectioninfo)) {
         $confirm = optional_param('confirm', false, PARAM_BOOL) && confirm_sesskey();
         if (!$confirm && optional_param('sesskey', null, PARAM_RAW) !== null &&
@@ -67,8 +73,8 @@ if ($deletesection) {
         }
         if ($confirm) {
             course_delete_section($course, $sectioninfo, true, true);
-            $courseurl = course_get_url($course, $sectioninfo->section - 1, $returnparams);
-            redirect($returnurl ?? $courseurl);
+            $courseurl = course_get_url($course, $sectioninfo->section - 1, $returnoptions);
+            redirect($returnoptions ? $courseurl : $returnurl);
         } else {
             if (get_string_manager()->string_exists('deletesection', 'format_' . $course->format)) {
                 $strdelete = get_string('deletesection', 'format_' . $course->format);
@@ -135,7 +141,7 @@ if (!empty($showonly)) {
 
 if ($mform->is_cancelled()){
     // Form cancelled, return to course.
-    redirect($returnurl ?? course_get_url($course, $section, $returnparams));
+    redirect($returnoptions ? course_get_url($course, $section, $returnoptions) : $returnurl);
 } else if ($data = $mform->get_data()) {
     // Data submitted and validated, update and return to course.
 
@@ -151,7 +157,7 @@ if ($mform->is_cancelled()){
     course_update_section($course, $section, $data);
 
     $PAGE->navigation->clear_cache();
-    redirect($returnurl ?? course_get_url($course, $section, $returnparams));
+    redirect($returnoptions ? course_get_url($course, $section, $returnoptions) : $returnurl);
 }
 
 // The edit form is displayed for the first time or if there was validation error on the previous step.
