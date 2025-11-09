@@ -923,37 +923,44 @@ abstract class base {
      * @param int|stdClass|section_info|null $section Section object from database or just field course_sections.section
      *     if null the course view page is returned
      * @param array $options options for view URL. At the moment core uses:
-     *     'navigation' (bool) if true and section not empty, the function returns section page; otherwise, it returns course page.
+     *     'navigation' (bool) if true and section not empty, the function returns section page; if false, course page;
+     *          if null, the format's preferred layout will be used.
      *     'sr' (int) used by course formats to specify to which section to return
+     *     'permalink' (bool) if true, the section ID will be used in the link
      *     'expanded' (bool) if true the section will be shown expanded, true by default
      * @return null|moodle_url
      */
-    public function get_view_url($section, $options = array()) {
+    public function get_view_url($section, $options = []) {
         $course = $this->get_course();
-        $url = new moodle_url('/course/view.php', ['id' => $course->id]);
+        $section = (is_object($section) || is_null($section)) ? $section : $this->get_section($section, IGNORE_MISSING);
+        $navigation = array_key_exists('navigation', $options) ? $options['navigation'] : false;
 
+        // Determine page.
         if (array_key_exists('sr', $options)) {
-            $sectionno = $options['sr'];
-        } else if (is_object($section)) {
-            $sectionno = $section->section;
+            $pagesection = !is_null($options['sr']) ? $this->get_section($options['sr'], IGNORE_MISSING) : null;
+        } else if (!is_null($navigation)) {
+            $pagesection = $navigation ? $section : null;
         } else {
-            $sectionno = $section;
+            $pagesection = $this->get_course_display() ? $section : null;
         }
-        if ((!empty($options['navigation']) || array_key_exists('sr', $options)) && $sectionno !== null) {
-            // Display section on separate page.
-            $sectioninfo = $this->get_section($sectionno);
-            return new moodle_url('/course/section.php', ['id' => $sectioninfo->id]);
+
+        // Base URL.
+        if (is_null($pagesection)) {
+            $url = new moodle_url('/course/view.php', ['id' => $course->id]);
+        } else {
+            $url = new moodle_url('/course/section.php', ['id' => $pagesection->id]);
         }
-        if ($this->uses_sections() && $sectionno !== null) {
-            // The url includes the parameter to expand the section by default.
-            if (!array_key_exists('expanded', $options)) {
-                $options['expanded'] = true;
+
+        // Add details.
+        if ($this->uses_sections() && $section && ($section->id != $pagesection?->id)) {
+            if ($options['permalink'] ?? false) {
+                $url->set_anchor("sectionid-{$section->id}-title");
+            } else {
+                if ($options['expanded'] ?? true) {
+                    $url->param('expandsection', $section->section);
+                }
+                $url->set_anchor('section-' . $section->section);
             }
-            if ($options['expanded']) {
-                // This parameter is being set by default.
-                $url->param('expandsection', $sectionno);
-            }
-            $url->set_anchor('section-'.$sectionno);
         }
 
         return $url;

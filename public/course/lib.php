@@ -2431,8 +2431,10 @@ function get_sorted_course_formats($enabledonly = false) {
  * @param int|stdClass $section Section object from database or just field course_sections.section
  *     if omitted the course view page is returned
  * @param array $options options for view URL. At the moment core uses:
- *     'navigation' (bool) if true and section has no separate page, the function returns null
+ *     'navigation' (bool) if true and section not empty, the function returns section page; if false, course page;
+ *          if null, the format's preferred layout will be used.
  *     'sr' (int) used by multipage formats to specify to which section to return
+ *     'permalink' (bool) if true, the section ID will be used in the link
  * @return moodle_url|null The url of course
  */
 function course_get_url($courseorid, $section = null, $options = array()) {
