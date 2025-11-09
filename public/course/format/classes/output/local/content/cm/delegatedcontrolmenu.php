@@ -123,10 +123,7 @@ class delegatedcontrolmenu extends basecontrolmenu {
 
         $url = new url(
             '/course/editsection.php',
-            [
-                'id' => $this->section->id,
-                'sr' => $this->section->sectionnum,
-            ]
+            array_merge(['id' => $this->section->id], $this->returnparams, ['returnurl' => $this->baseurl])
         );
 
         return new link_secondary(
