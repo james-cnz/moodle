@@ -65,7 +65,7 @@ $PAGE->set_activity_record($imscp);
 
 // Verify imsmanifest was parsed properly.
 if (!$imscp->structure) {
-    redirect(course_get_url($course->id, $cm->section), get_string('deploymenterror', 'imscp'));
+    redirect(course_get_url($course->id, $cm->section, ['navigation' => null]), get_string('deploymenterror', 'imscp'));
 }
 
 echo $OUTPUT->header();

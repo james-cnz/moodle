@@ -935,7 +935,7 @@ function mod_data_get_tagged_records($tag, $exclusivemode = false, $fromctx = 0,
 
             $pagename = data_get_tag_title_for_entry($titlefields[$item->dataid], $item);
             $pagename = html_writer::link($pageurl, $pagename);
-            $courseurl = course_get_url($item->courseid, $cm->sectionnum);
+            $courseurl = course_get_url($item->courseid, $cm->sectionnum, ['navigation' => null]);
             $cmname = html_writer::link($cm->url, $cm->get_formatted_name());
             $coursename = format_string($item->fullname, true, array('context' => context_course::instance($item->courseid)));
             $coursename = html_writer::link($courseurl, $coursename);

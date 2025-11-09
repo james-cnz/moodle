@@ -744,7 +744,7 @@ function mod_glossary_get_tagged_entries($tag, $exclusivemode = false, $fromctx 
             $pageurl = new moodle_url('/mod/glossary/showentry.php', array('eid' => $item->id, 'displayformat' => 'dictionary'));
             $pagename = format_string($item->concept, true, array('context' => context_module::instance($item->cmid)));
             $pagename = html_writer::link($pageurl, $pagename);
-            $courseurl = course_get_url($item->courseid, $cm->sectionnum);
+            $courseurl = course_get_url($item->courseid, $cm->sectionnum, ['navigation' => null]);
             $cmname = html_writer::link($cm->url, $cm->get_formatted_name());
             $coursename = format_string($item->fullname, true, array('context' => context_course::instance($item->courseid)));
             $coursename = html_writer::link($courseurl, $coursename);

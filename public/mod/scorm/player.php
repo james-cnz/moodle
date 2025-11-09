@@ -167,10 +167,8 @@ $SESSION->scorm->attempt = $attempt;
 $completion = new completion_info($course);
 $completion->set_module_viewed($cm);
 
-// Generate the exit button URL depending on our course format and display options.
+// Generate the exit button URL depending on our course format.
 $format = course_get_format($course);
-$formatoptions = $format->get_format_options();
-$coursedisplay = $formatoptions['coursedisplay'] ?? null;
 $exiturl = "";
 if (empty($scorm->popup) || $displaymode == 'popup') {
     $linearnavigationenabled = \core_courseformat\local\linearnavigationsettings::is_linear_navigation_enabled($course);
@@ -185,12 +183,9 @@ if (empty($scorm->popup) || $displaymode == 'popup') {
         ) {
             // Redirect students back to site home to avoid redirect loop.
             $exiturl = $CFG->wwwroot;
-        } else if ($coursedisplay == COURSE_DISPLAY_MULTIPAGE) {
-            // Redirect back to the current section if one section per page is being used.
-            $exiturl = course_get_url($course, $cm->sectionnum, ['sr' => $cm->sectionnum])->out();
         } else {
-            // Redirect back to the current section anchor on the course page.
-            $exiturl = course_get_url($course, $cm->sectionnum)->out();
+            // Redirect back to the current section.
+            $exiturl = course_get_url($course, $cm->sectionnum, ['navigation' => null])->out();
         }
     }
 }
