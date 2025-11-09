@@ -36,6 +36,10 @@ $targetcmid = optional_param('targetcmid', null, PARAM_INT);
 $confirm = optional_param('confirm', false, PARAM_BOOL);
 
 $returnurl = optional_param('returnurl', null, PARAM_LOCALURL);
+$returnsectionid = optional_param('returnsectionid', null, PARAM_INT);
+$sectionreturn = optional_param('sr', null, PARAM_INT); // Deprecated since Moodle 5.2.
+$returnpagesectionid = optional_param('returnpagesectionid', null, PARAM_INT);
+// Parameters starting with "return" are reserved for return options.
 
 
 // All state updates are designed to be batch compatible. However, we also
@@ -49,7 +53,19 @@ if (empty($ids)) {
 $format = course_get_format($courseid);
 $course = $format->get_course();
 
-if ($returnurl === null) {
+$returnoptions = [];
+if (!is_null($sectionreturn)) {
+    $returnoptions['sr'] = $sectionreturn;
+}
+if (!is_null($returnpagesectionid)) {
+    $returnoptions['pagesectionid'] = $returnpagesectionid;
+}
+if ($returnoptions) {
+    $returnurl = $format->get_view_url(
+        $returnsectionid ? $format->get_modinfo()->get_section_info_by_id($returnsectionid) : null,
+        $returnoptions
+    );
+} else if ($returnurl === null) {
     $returnurl = new url('/course/view.php', ['id' => $course->id]);
 }
 
@@ -64,6 +80,9 @@ $currenturl = new moodle_url(
         'targetsectionid' => $targetsectionid,
         'targetcmid' => $targetcmid,
         'returnurl' => $returnurl,
+        'returnsectionid' => $returnsectionid,
+        'sr' => $sectionreturn,
+        'returnpagesectionid' => $returnpagesectionid,
         'sesskey' => sesskey(),
     ]
 );
@@ -124,5 +143,22 @@ $hook = new \core_courseformat\hook\after_course_content_updated(
     course: $course,
 );
 \core\di::get(\core\hook\manager::class)->dispatch($hook);
+
+// Don't return to the section if it's deleted.
+// Otherwise, refresh the return URL in case it's changed.
+if ($returnoptions) {
+    $returnpagesection = $returnpagesectionid ?
+        $format->get_modinfo()->get_section_info_by_id($returnpagesectionid, IGNORE_MISSING) : null;
+    if ($returnpagesectionid && !$returnpagesection) {
+        unset($returnoptions['pagesectionid']);
+        unset($returnoptions['sr']);
+    }
+    $returnsection = $returnsectionid ?
+        $format->get_modinfo()->get_section_info_by_id($returnsectionid, IGNORE_MISSING) : null;
+    if ($returnsectionid && !$returnsection) {
+        $returnsection = null;
+    }
+    $returnurl = $format->get_view_url($returnsection, $returnoptions);
+}
 
 redirect($returnurl);
