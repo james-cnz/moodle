@@ -96,7 +96,9 @@ final class section_test extends \advanced_testcase {
         $this->resetAfterTest();
 
         $generator = $this->getDataGenerator();
-        $course = $generator->create_course(['numsections' => 1, 'format' => 'topics']);
+        $course = $generator->create_course(
+            ['numsections' => 1, 'format' => 'topics', 'coursedisplay' => COURSE_DISPLAY_MULTIPAGE]
+        );
         $subsection = null;
         $restriction = json_encode(tree::get_root_json(
             [
