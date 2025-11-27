@@ -1133,7 +1133,7 @@ class global_navigation extends navigation_node {
         // If we are in a section page, we need to check for any child section.
         $checkchildrenurls = false;
         $format = null;
-        if ($sectionurl && $this->page->url->compare($sectionurl, URL_MATCH_BASE)) {
+        if ($sectionurl && ($this->page->context->contextlevel == CONTEXT_COURSE)) {
             $checkchildrenurls = true;
             $format = course_get_format($section->course);
         }
@@ -1151,7 +1151,13 @@ class global_navigation extends navigation_node {
 
             if ($checkchildrenurls) {
                 $childurl = $format->get_view_url($delegatedsection, ['navigation' => null]);
-                if ($childurl && $this->page->url->compare($childurl, URL_MATCH_EXACT)) {
+                if ($this->page->url->compare(new url('/course/section.php'), URL_MATCH_BASE)) {
+                    $thispagesectionid = $this->page->url->get_param('id');
+                }
+                if (
+                    $childurl && $this->page->url->compare($childurl, URL_MATCH_EXACT)
+                    || isset($thispagesectionid) && ($delegatedsection->id == $thispagesectionid)
+                ) {
                     return true;
                 }
             }

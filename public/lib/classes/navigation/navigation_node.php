@@ -140,6 +140,8 @@ class navigation_node implements renderable {
                                   90 => 'container'];
     /** @var url */
     protected static $fullmeurl = null;
+    /** @var int|null */
+    protected static ?int $fullmesectionid = null;
     /** @var bool toogles auto matching of active node */
     public static $autofindactive = true;
     /** @var bool should we load full admin tree or rely on AJAX for performance reasons */
@@ -250,7 +252,13 @@ class navigation_node implements renderable {
         }
 
         // Compare the action of this node against the fullmeurl.
-        if ($this->action instanceof url && $this->action->compare(self::$fullmeurl, $strength)) {
+        if (
+            $this->action instanceof url
+            && (
+                $this->action->compare(self::$fullmeurl, $strength)
+                || self::$fullmesectionid && ($this->type == self::TYPE_SECTION) && ($this->key == self::$fullmesectionid)
+            )
+        ) {
             $this->make_active();
             return true;
         }
@@ -307,6 +315,9 @@ class navigation_node implements renderable {
     public static function override_active_url(url $url, $loadadmintree = false) {
         // Clone the URL, in case the calling script changes their URL later.
         self::$fullmeurl = new url($url);
+        if ($url->compare(new url('/course/section.php'), URL_MATCH_BASE)) {
+            self::$fullmesectionid = $url->get_param('id');
+        }
         // True means we do not want AJAX loaded admin tree, required for all admin pages.
         if ($loadadmintree) {
             // Do not change back to false if already set.
@@ -1041,6 +1052,7 @@ class navigation_node implements renderable {
         }
 
         self::$fullmeurl = null;
+        self::$fullmesectionid = null;
         self::$autofindactive = true;
         self::$loadadmintree = false;
     }
