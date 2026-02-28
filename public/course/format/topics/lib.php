@@ -137,7 +137,7 @@ class format_topics extends core_courseformat\base {
 
         // Add details.
         if ($this->uses_sections() && $section && ($section->id != $pagesection?->id)) {
-            $url->set_anchor('section-' . $section->section);
+            $url->set_anchor("sectionid-{$section->id}-title");
         }
 
         return $url;

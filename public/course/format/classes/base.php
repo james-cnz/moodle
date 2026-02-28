@@ -946,7 +946,7 @@ abstract class base {
             if ($options['expanded'] ?? true) {
                 $url->param('expandsection', $section->section);
             }
-            $url->set_anchor('section-' . $section->section);
+            $url->set_anchor("sectionid-{$section->id}-title");
         }
 
         return $url;

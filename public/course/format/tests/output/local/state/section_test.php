@@ -155,7 +155,7 @@ final class section_test extends \advanced_testcase {
         $this->assertSame($expectedurl, $state->sectionurl);
 
         if ($expectedanchored) {
-            $this->assertStringContainsString('#section-' . $section->section, $state->sectionurl);
+            $this->assertStringContainsString("#sectionid-{$section->id}-title", $state->sectionurl);
         }
     }
 
