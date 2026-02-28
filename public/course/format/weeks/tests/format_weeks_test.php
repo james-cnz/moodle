@@ -267,7 +267,7 @@ final class format_weeks_test extends \advanced_testcase {
         $this->assertEmpty($sectionurl->get_encoded_anchor());
         $subsectionurl = $format->get_view_url($subsection, ['navigation' => 1]);
         $this->assertStringContainsString('course/section.php', $subsectionurl->get_path());
-        $this->assertEquals('#section-' . $subsection->section, $subsectionurl->get_encoded_anchor());
+        $this->assertEquals("#sectionid-{$subsection->id}-title", $subsectionurl->get_encoded_anchor());
         // When pagesectionid option is defined, the section.php page should be returned.
         $format->set_sectionid($sections[1]->id);
         $this->assertStringContainsString(
@@ -281,7 +281,7 @@ final class format_weeks_test extends \advanced_testcase {
         // When pagesectionid is for section number 1, anchor should be added.
         $subsectionurl = $format->get_view_url($subsection, $format->get_return_options($subsection));
         $this->assertStringContainsString('course/section.php', $subsectionurl->get_path());
-        $this->assertEquals('#section-' . $subsection->section, $subsectionurl->get_encoded_anchor());
+        $this->assertEquals("#sectionid-{$subsection->id}-title", $subsectionurl->get_encoded_anchor());
         // When pagesectionid is for the subsection, anchor should not be added.
         $subsectionurl = $format->get_view_url($subsection, ['pagesectionid' => $subsection->id]);
         $this->assertStringContainsString('course/section.php', $subsectionurl->get_path());
