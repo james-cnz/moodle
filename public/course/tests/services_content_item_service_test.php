@@ -87,9 +87,9 @@ final class services_content_item_service_test extends \advanced_testcase {
     }
 
     /**
-     * Test confirming that params can be added to the content item's link.
+     * Test confirming that return options can be added to the content item's link.
      */
-    public function test_get_content_item_for_user_in_course_link_params(): void {
+    public function test_get_content_item_for_user_in_course_return_options(): void {
         $this->resetAfterTest();
 
         // Create a user in a course.
@@ -97,10 +97,10 @@ final class services_content_item_service_test extends \advanced_testcase {
         $user = $this->getDataGenerator()->create_and_enrol($course, 'editingteacher');
 
         $cis = new content_item_service(new content_item_readonly_repository());
-        $contentitems = $cis->get_content_items_for_user_in_course($user, $course, ['sr' => 7]);
+        $contentitems = $cis->get_content_items_for_user_in_course($user, $course, ['pagesectionid' => 7]);
 
         foreach ($contentitems as $item) {
-            $this->assertStringContainsString('sr=7', $item->link);
+            $this->assertStringContainsString('returnoptions%5Bpagesectionid%5D=7', $item->link);
         }
     }
 

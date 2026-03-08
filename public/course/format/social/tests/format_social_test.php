@@ -38,6 +38,10 @@ final class format_social_test extends \advanced_testcase {
         $course1 = $generator->create_course(['format' => 'social']);
         course_create_sections_if_missing($course1, [0, 1]);
 
+        $modinfo = get_fast_modinfo($course1);
+        $section0 = $modinfo->get_section_info(0);
+        $section1 = $modinfo->get_section_info(1);
+
         $data = (object)['id' => $course1->id];
         $format = course_get_format($course1);
         $format->update_course_format_options($data);
@@ -52,10 +56,10 @@ final class format_social_test extends \advanced_testcase {
         $this->assertStringContainsString('course/view.php', $format->get_view_url(1));
         $this->assertStringContainsString('course/view.php', $format->get_view_url(0, ['navigation' => 1]));
         $this->assertStringContainsString('course/view.php', $format->get_view_url(1, ['navigation' => 1]));
-        $this->assertStringContainsString('course/view.php', $format->get_view_url(0, ['sr' => 1]));
-        $this->assertStringContainsString('course/view.php', $format->get_view_url(1, ['sr' => 1]));
-        $this->assertStringContainsString('course/view.php', $format->get_view_url(0, ['sr' => 0]));
-        $this->assertStringContainsString('course/view.php', $format->get_view_url(1, ['sr' => 0]));
+        $this->assertStringContainsString('course/view.php', $format->get_view_url(0, ['pagesectionid' => $section1->id]));
+        $this->assertStringContainsString('course/view.php', $format->get_view_url(1, ['pagesectionid' => $section1->id]));
+        $this->assertStringContainsString('course/view.php', $format->get_view_url(0, ['pagesectionid' => $section0->id]));
+        $this->assertStringContainsString('course/view.php', $format->get_view_url(1, ['pagesectionid' => $section0->id]));
     }
 
     /**

@@ -107,8 +107,11 @@ class format_topics extends core_courseformat\base {
      * @param int|stdClass $section Section object from database or just field course_sections.section
      *     if omitted the course view page is returned
      * @param array $options options for view URL. At the moment core uses:
-     *     'navigation' (bool) if true and section not empty, the function returns section page; otherwise, it returns course page.
-     *     'sr' (int) used by course formats to specify to which section to return
+     *     'pagesectionid' (int) the section ID of the page to display (null or 0 for course main page)
+     *     'sr' (int) the section number of the page to display (deprecated since Moodle 5.2)
+     *     'navigation' (bool) if true and section not empty, the function returns section page; if false, course page;
+     *          if null, the format's preferred layout will be used.
+     *     'expanded' (bool) if true the section will be shown expanded, true by default
      * @return moodle_url
      */
     public function get_view_url($section, $options = []) {
@@ -118,7 +121,11 @@ class format_topics extends core_courseformat\base {
                     : $this->get_section($section, IGNORE_MISSING);
 
         // Determine page.
-        if (array_key_exists('sr', $options)) {
+        if (array_key_exists('pagesectionid', $options)) {
+            $modinfo = get_fast_modinfo($this->courseid);
+            $pagesectionid = $options['pagesectionid'] ?? null;
+            $pagesection = $pagesectionid ? $modinfo->get_section_info_by_id($pagesectionid, IGNORE_MISSING) : null;
+        } else if (array_key_exists('sr', $options)) {
             $pagesection = !is_null($options['sr']) ? $this->get_section($options['sr'], IGNORE_MISSING) : null;
         } else if ($options['navigation'] ?? false) {
             $pagesection = ($section && $section->get_component_instance()) ?

@@ -242,7 +242,10 @@ final class format_weeks_test extends \advanced_testcase {
         ]);
 
         $subsectionmod = $this->getDataGenerator()->create_module('subsection', (object)['course' => $course->id, 'section' => 1]);
-        $subsection = get_fast_modinfo($course)->get_section_info_by_component('mod_subsection', $subsectionmod->id);
+        $modinfo = get_fast_modinfo($course);
+        $section0 = $modinfo->get_section_info(0);
+        $section1 = $modinfo->get_section_info(1);
+        $subsection = $modinfo->get_section_info_by_component('mod_subsection', $subsectionmod->id);
 
         $data = (object)['id' => $course->id];
         $format = course_get_format($course);
@@ -267,21 +270,21 @@ final class format_weeks_test extends \advanced_testcase {
         $subsectionurl = $format->get_view_url($subsection, ['navigation' => 1]);
         $this->assertStringContainsString('course/section.php', $subsectionurl->get_path());
         $this->assertEquals('#section-' . $subsection->section, $subsectionurl->get_encoded_anchor());
-        // When sr parameter is defined, the section.php page should be returned.
-        $this->assertStringContainsString('course/section.php', $format->get_view_url(0, ['sr' => 1]));
-        $this->assertStringContainsString('course/section.php', $format->get_view_url(1, ['sr' => 1]));
-        // When sr is section number 1, anchor should be added.
-        $subsectionurl = $format->get_view_url($subsection, ['sr' => 1]);
+        // When pagesectionid option is defined, the section.php page should be returned.
+        $this->assertStringContainsString('course/section.php', $format->get_view_url(0, ['pagesectionid' => $section1->id]));
+        $this->assertStringContainsString('course/section.php', $format->get_view_url(1, ['pagesectionid' => $section1->id]));
+        // When pagesectionid is for section number 1, anchor should be added.
+        $subsectionurl = $format->get_view_url($subsection, ['pagesectionid' => $section1->id]);
         $this->assertStringContainsString('course/section.php', $subsectionurl->get_path());
         $this->assertEquals('#section-' . $subsection->section, $subsectionurl->get_encoded_anchor());
-        // When sr is the subsection section number, anchor should not be added.
-        $subsectionurl = $format->get_view_url($subsection, ['sr' => $subsection->section]);
+        // When pagesectionid is for the subsection, anchor should not be added.
+        $subsectionurl = $format->get_view_url($subsection, ['pagesectionid' => $subsection->id]);
         $this->assertStringContainsString('course/section.php', $subsectionurl->get_path());
         $this->assertEmpty($subsectionurl->get_encoded_anchor());
-        // Set sr to section 0.
-        $this->assertStringContainsString('course/section.php', $format->get_view_url(0, ['sr' => 0]));
-        $this->assertStringContainsString('course/section.php', $format->get_view_url(1, ['sr' => 0]));
-        $subsectionurl = $format->get_view_url($subsection, ['sr' => 0]);
+        // Set pagesectionid for section 0.
+        $this->assertStringContainsString('course/section.php', $format->get_view_url(0, ['pagesectionid' => $section0->id]));
+        $this->assertStringContainsString('course/section.php', $format->get_view_url(1, ['pagesectionid' => $section0->id]));
+        $subsectionurl = $format->get_view_url($subsection, ['pagesectionid' => $section0->id]);
         $this->assertStringContainsString('course/section.php', $subsectionurl->get_path());
     }
 
