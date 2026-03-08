@@ -107,6 +107,7 @@ class format_topics extends core_courseformat\base {
      * @param int|stdClass $section Section object from database or just field course_sections.section
      *     if omitted the course view page is returned
      * @param array $options options for view URL. At the moment core uses:
+     *     'pagelevel' (int) the level of page to display (PAGE_LEVEL_*)
      *     'pagesectionid' (int) the section ID of the page to display (null or 0 for course main page)
      *     'sr' (int) the section number of the page to display (deprecated since Moodle 5.2)
      *     'navigation' (bool) if true and section not empty, the function returns section page; if false, course page;
@@ -119,9 +120,31 @@ class format_topics extends core_courseformat\base {
         $section = (is_null($section) || $section instanceof section_info) ?
                     $section
                     : $this->get_section($section, IGNORE_MISSING);
+        $pagelevel = $options['pagelevel'] ?? null;
 
         // Determine page.
-        if (array_key_exists('pagesectionid', $options)) {
+        if (!is_null($pagelevel) && !is_null($section)) {
+            // Start at the deepest level.
+            $pagesection = $section;
+
+            // Pull back to section level, if necessary.
+            if (
+                ($pagelevel <= PAGE_LEVEL_SECTION || $pagelevel == PAGE_LEVEL_DEEPEST)
+                && $pagesection?->component == 'mod_subsection'
+            ) {
+                $pagesection = $pagesection->get_component_instance()->get_parent_section();
+            }
+
+            // Pull back to course level, if necessary.
+            if ($pagelevel <= PAGE_LEVEL_CONTAINING_SECTION && !is_null($pagesection)) {
+                if ($this->get_course_display() && !$this->show_editor() && $pagesection != $section) {
+                    // If sections are shown on separate pages, and we were going to give a subsection anchor,
+                    // then we'll need to give a section anchor instead.
+                    $section = $pagesection;
+                }
+                $pagesection = null;
+            }
+        } else if (array_key_exists('pagesectionid', $options)) {
             $modinfo = get_fast_modinfo($this->courseid);
             $pagesectionid = $options['pagesectionid'] ?? null;
             $pagesection = $pagesectionid ? $modinfo->get_section_info_by_id($pagesectionid, IGNORE_MISSING) : null;

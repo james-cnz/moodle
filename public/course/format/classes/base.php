@@ -764,6 +764,11 @@ abstract class base {
         if (!is_null($sectionreturn)) {
             $returnoptions['sr'] = $sectionreturn;
         }
+        $pagesection = $this->get_page_section();
+        if ($section && (!$pagesection || !$pagesection?->component || $pagesection?->component == 'subsection')) {
+            $returnoptions['pagelevel'] = $pagesection?->component ? PAGE_LEVEL_DELEGATED
+                                        : ($pagesection ? PAGE_LEVEL_SECTION : PAGE_LEVEL_COURSE);
+        }
         return $returnoptions;
     }
 
@@ -949,6 +954,7 @@ abstract class base {
      * @param int|stdClass|section_info|null $section Section object from database or just field course_sections.section
      *     if null the course view page is returned
      * @param array $options options for view URL. At the moment core uses:
+     *     'pagelevel' (int) the level of page to display (PAGE_LEVEL_*)
      *     'pagesectionid' (int) the section ID of the page to display (null or 0 for course main page)
      *     'sr' (int) the section number of the page to display (deprecated since Moodle 5.2)
      *     'navigation' (bool) if true and section not empty, the function returns section page; if false, course page;
@@ -959,9 +965,23 @@ abstract class base {
     public function get_view_url($section, $options = []) {
         $course = $this->get_course();
         $section = (is_object($section) || is_null($section)) ? $section : $this->get_section($section, IGNORE_MISSING);
+        $pagelevel = $options['pagelevel'] ?? null;
 
         // Determine page.
-        if (array_key_exists('pagesectionid', $options)) {
+        if (!is_null($pagelevel) && !is_null($section)) {
+            // Start at the deepest level.
+            $pagesection = $section;
+
+            // Pull back to section level, if necessary.
+            if ($pagelevel <= PAGE_LEVEL_SECTION && $pagesection?->component == 'mod_subsection') {
+                $pagesection = $pagesection->get_component_instance()->get_parent_section();
+            }
+
+            // Pull back to course level, if necessary.
+            if ($pagelevel <= PAGE_LEVEL_CONTAINING_SECTION && !is_null($pagesection)) {
+                $pagesection = null;
+            }
+        } else if (array_key_exists('pagesectionid', $options)) {
             $modinfo = get_fast_modinfo($this->courseid);
             $pagesectionid = $options['pagesectionid'] ?? null;
             $pagesection = $pagesectionid ? $modinfo->get_section_info_by_id($pagesectionid, IGNORE_MISSING) : null;
@@ -1976,7 +1996,7 @@ abstract class base {
         $displayvalue = $title = get_section_name($section->course, $section);
         if ($linkifneeded) {
             // Display link under the section name if the course format setting is to display one section per page.
-            $url = course_get_url($section->course, $section->section, array('navigation' => true));
+            $url = course_get_url($section->course, $section->section, ['navigation' => true, 'pagelevel' => PAGE_LEVEL_DEEPEST]);
             if ($url) {
                 $displayvalue = html_writer::link($url, $title);
             }

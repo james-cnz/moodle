@@ -54,8 +54,8 @@ final class format_social_test extends \advanced_testcase {
         // Navigation.
         $this->assertStringContainsString('course/view.php', $format->get_view_url(0));
         $this->assertStringContainsString('course/view.php', $format->get_view_url(1));
-        $this->assertStringContainsString('course/view.php', $format->get_view_url(0, ['navigation' => 1]));
-        $this->assertStringContainsString('course/view.php', $format->get_view_url(1, ['navigation' => 1]));
+        $this->assertStringContainsString('course/view.php', $format->get_view_url(0, ['pagelevel' => PAGE_LEVEL_DEEPEST]));
+        $this->assertStringContainsString('course/view.php', $format->get_view_url(1, ['pagelevel' => PAGE_LEVEL_DEEPEST]));
         $this->assertStringContainsString('course/view.php', $format->get_view_url(0, ['pagesectionid' => $section1->id]));
         $this->assertStringContainsString('course/view.php', $format->get_view_url(1, ['pagesectionid' => $section1->id]));
         $this->assertStringContainsString('course/view.php', $format->get_view_url(0, ['pagesectionid' => $section0->id]));

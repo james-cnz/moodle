@@ -261,13 +261,13 @@ final class format_weeks_test extends \advanced_testcase {
         $this->assertStringContainsString('course/view.php', $format->get_view_url(0));
         $this->assertStringContainsString('course/view.php', $format->get_view_url(1));
         $this->assertStringContainsString('course/view.php', $format->get_view_url($subsection));
-        $sectionurl = $format->get_view_url(0, ['navigation' => 1]);
+        $sectionurl = $format->get_view_url(0, ['pagelevel' => PAGE_LEVEL_DEEPEST]);
         $this->assertStringContainsString('course/section.php', $sectionurl->get_path());
         $this->assertEmpty($sectionurl->get_encoded_anchor());
-        $sectionurl = $format->get_view_url(1, ['navigation' => 1]);
+        $sectionurl = $format->get_view_url(1, ['pagelevel' => PAGE_LEVEL_DEEPEST]);
         $this->assertStringContainsString('course/section.php', $sectionurl->get_path());
         $this->assertEmpty($sectionurl->get_encoded_anchor());
-        $subsectionurl = $format->get_view_url($subsection, ['navigation' => 1]);
+        $subsectionurl = $format->get_view_url($subsection, ['pagelevel' => PAGE_LEVEL_DEEPEST]);
         $this->assertStringContainsString('course/section.php', $subsectionurl->get_path());
         $this->assertEquals('#section-' . $subsection->section, $subsectionurl->get_encoded_anchor());
         // When pagesectionid option is defined, the section.php page should be returned.
