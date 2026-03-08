@@ -245,8 +245,8 @@ final class base_test extends advanced_testcase {
         // Navigation.
         $this->assertStringContainsString('course/view.php', $format->get_view_url(0));
         $this->assertStringContainsString('course/view.php', $format->get_view_url(1));
-        $this->assertStringContainsString('course/section.php', $format->get_view_url(0, ['navigation' => 1]));
-        $this->assertStringContainsString('course/section.php', $format->get_view_url(1, ['navigation' => 1]));
+        $this->assertStringContainsString('course/section.php', $format->get_view_url(0, ['pagelevel' => PAGE_LEVEL_DEEPEST]));
+        $this->assertStringContainsString('course/section.php', $format->get_view_url(1, ['pagelevel' => PAGE_LEVEL_DEEPEST]));
         // When pagesectionid option is defined, the section.php page should be returned.
         $format->set_sectionid($sections[1]->id);
         $this->assertStringContainsString(

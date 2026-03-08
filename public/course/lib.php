@@ -2447,6 +2447,7 @@ function get_sorted_course_formats($enabledonly = false) {
  * @param int|stdClass $section Section object from database or just field course_sections.section
  *     if omitted the course view page is returned
  * @param array $options options for view URL. At the moment core uses:
+ *     'pagelevel' (int) the level of page to display (PAGE_LEVEL_*)
  *     'pagesectionid' (int) the section ID of the page to display (null or 0 for course main page)
  *     'sr' (int) the section number of the page to display (deprecated since Moodle 5.3)
  *     'navigation' (bool) if true and section has no separate page, the function returns null

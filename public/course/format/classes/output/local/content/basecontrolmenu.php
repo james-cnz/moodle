@@ -83,7 +83,10 @@ abstract class basecontrolmenu implements named_templatable, renderable {
         $this->menuid = $menuid;
         $this->course = $format->get_course();
         $this->coursecontext = $format->get_context();
-        $this->baseurl = $format->get_view_url($format->get_sectionnum(), ['navigation' => true]);
+        $this->baseurl = $format->get_view_url(
+            $format->get_sectionnum(),
+            ['navigation' => true, 'pagelevel' => PAGE_LEVEL_DEEPEST]
+        );
         $this->returnoptions = $format->get_return_options($section);
     }
 
