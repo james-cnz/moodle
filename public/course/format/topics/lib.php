@@ -210,7 +210,8 @@ class format_topics extends core_courseformat\base {
         $modinfo = get_fast_modinfo($course);
         $renderer = $this->get_renderer($PAGE);
         if ($renderer && ($sections = $modinfo->get_section_info_all())) {
-            foreach ($sections as $number => $section) {
+            foreach ($sections as $section) {
+                $number = $section->section;
                 $titles[$number] = $renderer->section_title($section, $course);
             }
         }
@@ -431,7 +432,7 @@ class format_topics extends core_courseformat\base {
 
         if (!($section instanceof section_info)) {
             $modinfo = course_modinfo::instance($this->courseid);
-            $section = $modinfo->get_section_info($section->section);
+            $section = $modinfo->get_section_info_by_id($section->id);
         }
         $elementclass = $this->get_output_classname('content\\section\\availability');
         $availability = new $elementclass($this, $section);
