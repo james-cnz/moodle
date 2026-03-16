@@ -41,6 +41,8 @@ class restore_decode_rule {
     protected $restoreid;   // The unique restoreid we are executing
     protected $sourcewwwroot; // The original wwwroot of the backup file
     protected $targetwwwroot; // The targer wwwroot of the restore operation
+    /** @var bool Whether to include wwwroot in the result. */
+    protected bool $includewwwroot;
 
     protected $cregexp;     // Calculated regular expresion we'll be looking for matches
 
@@ -54,8 +56,16 @@ class restore_decode_rule {
      * @param string $urltemplate How the original URL looks like, with dollar placeholders
      * @param array|string $mappings Which backup_ids mappings do we need to apply for replacing the placeholders
      * @param bool $urlencoded Whether to use urlencode() on the final URL (defaults to false)
+     * @param bool $includewwwroot
      */
-    public function __construct(string $linkname, string $urltemplate, $mappings, bool $urlencoded = false) {
+    public function __construct(
+        string $linkname,
+        string $urltemplate,
+        $mappings,
+        bool $urlencoded = false,
+        bool $includewwwroot = true
+    ) {
+        $this->includewwwroot = $includewwwroot;
         // Validate all the params are ok
         $this->mappings = $this->validate_params($linkname, $urltemplate, $mappings);
         $this->linkname = $linkname;
@@ -139,11 +149,15 @@ class restore_decode_rule {
      * Right now, simply prefix with the proper wwwroot (source/target)
      */
     protected function apply_modifications($toreplace, $mappingsok) {
-        // Check wwwroots are set
-        if (!$this->targetwwwroot || !$this->sourcewwwroot) {
-            throw new restore_decode_rule_exception('decode_rule_wwwroots_not_set');
+        $result = $toreplace;
+        if ($this->includewwwroot) {
+            // Check wwwroots are set.
+            if (!$this->targetwwwroot || !$this->sourcewwwroot) {
+                throw new restore_decode_rule_exception('decode_rule_wwwroots_not_set');
+            }
+            $result = ($mappingsok ? $this->targetwwwroot : $this->sourcewwwroot) . $result;
         }
-        return ($mappingsok ? $this->targetwwwroot : $this->sourcewwwroot) . $toreplace;
+        return $result;
     }
 
     /**
@@ -155,7 +169,7 @@ class restore_decode_rule {
             throw new restore_decode_rule_exception('decode_rule_incorrect_name', $linkname);
         }
         // Look urltemplate starts by /
-        if (empty($urltemplate) || substr($urltemplate, 0, 1) != '/') {
+        if ($this->includewwwroot && (empty($urltemplate) || substr($urltemplate, 0, 1) != '/')) {
             throw new restore_decode_rule_exception('decode_rule_incorrect_urltemplate', $urltemplate);
         }
         if (!is_array($mappings)) {
