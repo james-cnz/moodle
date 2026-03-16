@@ -156,16 +156,46 @@ class backup_course_task extends backup_task {
 
         // Link to the course main page (it also covers "&topic=xx" and "&week=xx"
         // because they don't become transformed (section number) in backup/restore.
-        $content = self::encode_links_helper($content, 'COURSEVIEWBYID',       '/course/view.php?id=');
-        $content = self::encode_links_helper($content, 'COURSESECTIONBYID',    '/course/section.php?id=');
+        $content = self::encode_links_helper(
+            $content,
+            '/course/view.php?id=$n&sectionid=$n#sectionid-$n-title',
+            '$@COURSEVIEWBYID*$1@$&sectionid=$@COURSESECTIONID*$2@$#sectionid-$@COURSESECTIONID*$3@$-title'
+        );
+        $content = self::encode_links_helper(
+            $content,
+            '/course/view.php?id=$n&amp;sectionid=$n#sectionid-$n-title',
+            '$@COURSEVIEWBYID*$1@$&amp;sectionid=$@COURSESECTIONID*$2@$#sectionid-$@COURSESECTIONID*$3@$-title'
+        );
+        $content = self::encode_links_helper(
+            $content,
+            '/course/view.php?id=$n&sectionid=$n',
+            '$@COURSEVIEWBYID*$1@$&sectionid=$@COURSESECTIONID*$2@$'
+        );
+        $content = self::encode_links_helper(
+            $content,
+            '/course/view.php?id=$n&amp;sectionid=$n',
+            '$@COURSEVIEWBYID*$1@$&amp;sectionid=$@COURSESECTIONID*$2@$'
+        );
+        $content = self::encode_links_helper(
+            $content,
+            '/course/view.php?id=$n#sectionid-$n-title',
+            '$@COURSEVIEWBYID*$1@$#sectionid-$@COURSESECTIONID*$2@$-title'
+        );
+        $content = self::encode_links_helper($content, '/course/view.php?id=$n', '$@COURSEVIEWBYID*$1@$');
+        $content = self::encode_links_helper(
+            $content,
+            '/course/section.php?id=$n#sectionid-$n-title',
+            '$@COURSESECTIONBYID*$1@$#sectionid-$@COURSESECTIONID*$2@$-title'
+        );
+        $content = self::encode_links_helper($content, '/course/section.php?id=$n', '$@COURSESECTIONBYID*$1@$');
 
         // A few other key course links.
-        $content = self::encode_links_helper($content, 'GRADEINDEXBYID',       '/grade/index.php?id=');
-        $content = self::encode_links_helper($content, 'GRADEREPORTINDEXBYID', '/grade/report/index.php?id=');
-        $content = self::encode_links_helper($content, 'BADGESVIEWBYID',       '/badges/index.php?type=2&id=');
-        $content = self::encode_links_helper($content, 'USERINDEXVIEWBYID',    '/user/index.php?id=');
-        $content = self::encode_links_helper($content, 'PLUGINFILEBYCONTEXT',  '/pluginfile.php/');
-        $content = self::encode_links_helper($content, 'PLUGINFILEBYCONTEXTURLENCODED', '/pluginfile.php/', true);
+        $content = self::encode_links_helper($content, '/grade/index.php?id=$n', '$@GRADEINDEXBYID*$1@$');
+        $content = self::encode_links_helper($content, '/grade/report/index.php?id=$n', '$@GRADEREPORTINDEXBYID*$1@$');
+        $content = self::encode_links_helper($content, '/badges/index.php?type=2&id=$n', '$@BADGESVIEWBYID*$1@$');
+        $content = self::encode_links_helper($content, '/user/index.php?id=$n', '$@USERINDEXVIEWBYID*$1@$');
+        $content = self::encode_links_helper($content, '/pluginfile.php/$n', '$@PLUGINFILEBYCONTEXT*$1@$');
+        $content = self::encode_links_helper($content, '/pluginfile.php/$n', '$@PLUGINFILEBYCONTEXTURLENCODED*$1@$', true);
 
         return $content;
     }
@@ -173,13 +203,13 @@ class backup_course_task extends backup_task {
     /**
      * Helper method, used by encode_content_links.
      * @param string $content content in which to encode links.
-     * @param string $name the name of this type of encoded link.
-     * @param string $path the path that identifies this type of link, up
-     *      to the ?paramname= bit.
+     * @param string $path the path that identifies this type of link,
+     *      paramaters are specified with "$n".
+     * @param string $encoding how to encode the link.
      * @param bool $urlencoded whether to use urlencode() before replacing the path.
      * @return string content with one type of link encoded.
      */
-    private static function encode_links_helper(string $content, string $name, string $path, bool $urlencoded = false) {
+    private static function encode_links_helper(string $content, string $path, string $encoding, bool $urlencoded = false) {
         global $CFG;
         // We want to convert both http and https links.
         $root = $CFG->wwwroot;
@@ -197,8 +227,16 @@ class backup_course_task extends backup_task {
         $httpsbase = preg_quote($httpsbase, '/');
         $httpbase = preg_quote($httpbase, '/');
 
-        $return = preg_replace('/(' . $httpsbase . ')([0-9]+)/', '$@' . $name . '*$2@$', $content);
-        $return = preg_replace('/(' . $httpbase . ')([0-9]+)/', '$@' . $name . '*$2@$', $return);
+        if (!$urlencoded) {
+            $httpsbase = preg_replace('/\\\\\\$n/', '([0-9]+)', $httpsbase);
+            $httpbase = preg_replace('/\\\\\\$n/', '([0-9]+)', $httpbase);
+        } else {
+            $httpsbase = preg_replace('/%24n/', '([0-9]+)', $httpsbase);
+            $httpbase = preg_replace('/%24n/', '([0-9]+)', $httpbase);
+        }
+
+        $return = preg_replace('/' . $httpsbase . '/', $encoding, $content);
+        $return = preg_replace('/' . $httpbase . '/', $encoding, $return);
 
         return $return;
     }
