@@ -27,6 +27,11 @@ require_once("$CFG->libdir/formslib.php");
 
 $id = required_param('id', PARAM_INT);
 $returnurl = optional_param('returnurl', null, PARAM_LOCALURL);
+$wantsurl = optional_param('wantsurl', null, PARAM_LOCALURL);
+
+if ($wantsurl) {
+    $SESSION->wantsurl = $wantsurl;
+}
 
 if (!isloggedin()) {
     $referer = get_local_referer();
