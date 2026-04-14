@@ -562,7 +562,10 @@ function enrol_add_course_navigation(navigation_node $coursenode, $course) {
                     }
                     $plugin = $plugins[$instance->enrol];
                     if ($plugin->show_enrolme_link($instance)) {
-                        $url = new moodle_url('/enrol/index.php', array('id'=>$course->id));
+                        $url = new moodle_url(
+                            '/enrol/index.php',
+                            ['id' => $course->id, 'wantsurl' => course_get_url($course)->out()]
+                        );
                         $shortname = format_string($course->shortname, true, array('context' => $coursecontext));
                         $coursenode->add(get_string('enrolme', 'core_enrol', $shortname), $url, navigation_node::TYPE_SETTING, null, 'enrolself', new pix_icon('i/user', ''));
                         break;
