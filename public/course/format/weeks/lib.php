@@ -125,6 +125,7 @@ class format_weeks extends core_courseformat\base {
      *     'navigation' (bool) if true and section not empty, the function returns section page; otherwise, it returns course page.
      *     'sr' (int) used by course formats to specify to which section to return
      *     'urloptional' (int) if 1, function returns null if link isn't appropriate in a navigation context
+     *                  if 2, function returns null if no separate page
      * @return moodle_url|null
      */
     public function get_view_url($section, $options = []) {
@@ -144,7 +145,10 @@ class format_weeks extends core_courseformat\base {
             $pagesection = null;
         }
 
-        if (($options['urloptional'] ?? 0) >= 1 && $pagesection && !$pagesection->uservisible) {
+        if (
+            ($options['urloptional'] ?? 0) >= 1 && $pagesection && !$pagesection->uservisible
+            || ($options['urloptional'] ?? 0) >= 2 && $section && $section->component
+        ) {
             return null;
         }
 

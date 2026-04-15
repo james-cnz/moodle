@@ -83,7 +83,7 @@ class sectionselector implements named_templatable, renderable {
 
         $data = $this->navigation->export_for_template($output);
 
-        $courseurl = course_get_url($course, null, ['urloptional' => 1])?->out(false);
+        $courseurl = course_get_url($course, null, ['urloptional' => 2])?->out(false);
         if ($courseurl) {
             $this->sectionmenu[$courseurl] = get_string('maincoursepage');
         }
@@ -164,6 +164,6 @@ class sectionselector implements named_templatable, renderable {
      * @return string|null
      */
     private function get_section_url(stdClass $course, section_info $section): ?string {
-        return course_get_url($course, $section, ['navigation' => true, 'urloptional' => 1])?->out(false);
+        return course_get_url($course, $section, ['navigation' => true, 'urloptional' => 2])?->out(false);
     }
 }

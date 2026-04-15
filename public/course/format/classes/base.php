@@ -919,6 +919,7 @@ abstract class base {
      *     'navigation' (bool) if true and section not empty, the function returns section page; otherwise, it returns course page.
      *     'sr' (int) used by course formats to specify to which section to return
      *     'urloptional' (int) if 1, function returns null if link isn't appropriate in a navigation context
+     *                  if 2, function returns null if no separate page
      *     'expanded' (bool) if true the section will be shown expanded, true by default
      * @return moodle_url|null
      */
@@ -935,7 +936,10 @@ abstract class base {
             $pagesection = null;
         }
 
-        if (($options['urloptional'] ?? 0) >= 1 && $pagesection && !$pagesection->uservisible) {
+        if (
+            ($options['urloptional'] ?? 0) >= 1 && $pagesection && !$pagesection->uservisible
+            || ($options['urloptional'] ?? 0) >= 2 && $section && $section->component
+        ) {
             return null;
         }
 
@@ -1923,7 +1927,7 @@ abstract class base {
         $displayvalue = $title = get_section_name($section->course, $section);
         if ($linkifneeded) {
             // Display link under the section name if the course format setting is to display one section per page.
-            $url = course_get_url($section->course, $section, ['navigation' => true, 'urloptional' => 1]);
+            $url = course_get_url($section->course, $section, ['navigation' => true, 'urloptional' => 2]);
             if ($url) {
                 $displayvalue = html_writer::link($url, $title);
             }

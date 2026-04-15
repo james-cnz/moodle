@@ -97,7 +97,7 @@ abstract class section_renderer extends core_course_renderer {
      */
     public function section_title($section, $course) {
         $title = get_section_name($course, $section);
-        $url = course_get_url($course, $section, ['navigation' => true, 'urloptional' => 1]);
+        $url = course_get_url($course, $section, ['navigation' => true, 'urloptional' => 2]);
         if ($url) {
             $title = html_writer::link($url, $title);
         }

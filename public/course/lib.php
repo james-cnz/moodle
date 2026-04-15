@@ -2413,6 +2413,7 @@ function get_sorted_course_formats($enabledonly = false) {
  *     'navigation' (bool) if true and section not empty, the function returns section page; otherwise, it returns course page.
  *     'sr' (int) used by course formats to specify to which section to return
  *     'urloptional' (int) if 1, function returns null if link isn't appropriate in a navigation context
+ *                  if 2, function returns null if no separate page
  * @return moodle_url|null The url of course
  */
 function course_get_url($courseorid, $section = null, $options = array()) {
