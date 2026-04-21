@@ -148,20 +148,10 @@ export default class Component extends DndCmItem {
      * Handle a page item update.
      *
      * @deprecated since Moodle 5.3, see MDL-85379.
-     * @todo MDL-85381 Final deprecation in Moodle 7.0.
-     * @param {Object} details the update details
-     * @param {Object} details.element the course state data.
+     * @todo Remove this in Moodle 8.0.
      */
-    _refreshPageItem({element}) {
+    _refreshPageItem() {
         log.debug("courseindex cm _refreshPageItem() is deprecated.  Use courseindex _refreshPageItem() instead.");
-        if (!element.pageItem) {
-            return;
-        }
-        const isPageId = (element.pageItem.type == 'cm' && element.pageItem.id == this.id);
-        this.element.classList.toggle(this.classes.PAGEITEM, isPageId);
-        if (isPageId && !this.reactive.isEditing) {
-            this.element.scrollIntoView({block: "nearest"});
-        }
     }
 
     /**
