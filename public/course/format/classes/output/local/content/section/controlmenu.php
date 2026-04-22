@@ -141,9 +141,11 @@ class controlmenu extends basecontrolmenu {
             [
                 'id' => $this->section->id,
                 'returnoptions' => $this->returnoptions,
-                'returnurl' => $this->baseurl,
             ]
         );
+        if ($this->baseurl) {
+            $url->param('returnurl', $this->baseurl);
+        }
 
         return new link_secondary(
                 url: $url,
@@ -194,7 +196,6 @@ class controlmenu extends basecontrolmenu {
         ) {
             return null;
         }
-        $sectionreturn = $this->format->get_sectionnum();
 
         $strhide = get_string('hide');
         $strshow = get_string('show');
@@ -205,7 +206,6 @@ class controlmenu extends basecontrolmenu {
             $name = $strhide;
             $attributes = [
                 'class' => 'icon editing_showhide',
-                'data-sectionreturn' => $sectionreturn,
                 'data-action' => 'sectionHide',
                 'data-id' => $this->section->id,
                 'data-icon' => 'i/show',
@@ -218,7 +218,6 @@ class controlmenu extends basecontrolmenu {
             $name = $strshow;
             $attributes = [
                 'class' => 'editing_showhide',
-                'data-sectionreturn' => $sectionreturn,
                 'data-action' => 'sectionShow',
                 'data-id' => $this->section->id,
                 'data-icon' => 'i/hide',
@@ -257,13 +256,7 @@ class controlmenu extends basecontrolmenu {
             return null;
         }
 
-        $url = new url(
-            $this->baseurl,
-            [
-                'movesection' => $this->section->sectionnum,
-                'section' => $this->section->sectionnum,
-            ]
-        );
+        $url = new url('#');
 
         return new link_secondary(
             url: $url,

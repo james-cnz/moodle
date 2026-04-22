@@ -126,7 +126,6 @@ class format_weeks extends core_courseformat\base {
      *     if omitted the course view page is returned
      * @param array $options options for view URL. At the moment core uses:
      *     'pagesectionid' (int) the section ID of the page to display (null or 0 for course main page)
-     *     'sr' (int) the section number of the page to display (deprecated since Moodle 5.3)
      *     'navigation' (bool) if true and section not empty, the function returns section page; otherwise, it returns course page.
      * @return moodle_url
      */
@@ -141,9 +140,6 @@ class format_weeks extends core_courseformat\base {
             $modinfo = $this->get_modinfo();
             $pagesectionid = $options['pagesectionid'] ?? null;
             $pagesection = $pagesectionid ? $modinfo->get_section_info_by_id($pagesectionid, IGNORE_MISSING) : null;
-        } else if (array_key_exists('sr', $options)) {
-            // TODO: Remove this in Moodle 7.0 (MDL-88498).
-            $pagesection = !is_null($options['sr']) ? $this->get_section($options['sr'], IGNORE_MISSING) : null;
         } else if ($options['navigation'] ?? false) {
             $pagesection = ($section && $section->get_component_instance()) ?
                             $section->get_component_instance()->get_parent_section()

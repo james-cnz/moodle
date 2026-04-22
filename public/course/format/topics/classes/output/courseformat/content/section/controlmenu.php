@@ -102,7 +102,6 @@ class controlmenu extends controlmenu_base {
         $format = $this->format;
         $section = $this->section;
         $course = $format->get_course();
-        $sectionreturn = $format->get_sectionnum();
 
         $highlightoff = get_string('highlightoff');
         $highlightofficon = 'i/marked';
@@ -117,7 +116,6 @@ class controlmenu extends controlmenu_base {
             $attributes = [
                 'class' => 'editing_highlight',
                 'data-action' => 'sectionUnhighlight',
-                'data-sectionreturn' => $sectionreturn,
                 'data-id' => $section->id,
                 'data-icon' => $highlightofficon,
                 'data-swapname' => $highlighton,
@@ -130,7 +128,6 @@ class controlmenu extends controlmenu_base {
             $attributes = [
                 'class' => 'editing_highlight',
                 'data-action' => 'sectionHighlight',
-                'data-sectionreturn' => $sectionreturn,
                 'data-id' => $section->id,
                 'data-icon' => $highlightonicon,
                 'data-swapname' => $highlightoff,

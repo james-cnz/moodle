@@ -40,7 +40,7 @@ class activitychooserbutton implements named_templatable, renderable {
      * @todo remove $sectionreturn int support in 6.0 (MDL-86310)
      * @param section_info $section the section info
      * @param cm_info|null $mod the course module ionfo
-     * @param int|section_info|null $sectionreturn the section page to return to. Deprecated since Moodle 5.3 (MDL-86284)
+     * @param null $sectionreturn unused
      * @param array|null $actionlinks the action links
      */
     public function __construct(
@@ -48,17 +48,16 @@ class activitychooserbutton implements named_templatable, renderable {
         protected section_info $section,
         /** @var cm_info|null the course module instance */
         protected ?cm_info $mod = null,
-        /** @var int|null the section to return to */
-        protected section_info|int|null $sectionreturn = null,
+        section_info|int|null $sectionreturn = null, // TODO: Remove all types except null in Moodle 8.0.
         /** @var array|null action_link[] the action links */
         protected ?array $actionlinks = [],
     ) {
-        if (is_int($this->sectionreturn)) {
+        if (!is_null($sectionreturn)) {
+            // TODO: Remove this in Moodle 8.0.
             debugging(
                 'Using sectionreturn in activitychooserbutton is deprecated, pass null instead',
                 DEBUG_DEVELOPER
             );
-            $this->sectionreturn = get_fast_modinfo($this->section->course)->get_section_info($this->sectionreturn);
         }
     }
 
@@ -77,16 +76,12 @@ class activitychooserbutton implements named_templatable, renderable {
                 $this->mod,
             ),
         );
-        /** @var section_info|null $sectionreturn */
-        $sectionreturn = $this->sectionreturn;
 
         return (object)[
             // We keep the old sectionnum properties for backwards compatibility.
             'sectionnum' => $this->section->sectionnum,
             'sectionid' => $this->section->id,
             'sectionname' => get_section_name($this->section->course, $this->section),
-            'sectionreturn' => $sectionreturn?->sectionnum ?? false,
-            'sectionreturnid' => $sectionreturn?->id ?? false,
             'modid' => $this->mod ? $this->mod->id : false,
             'activityname' => $this->mod ? $this->mod->get_formatted_name() : false,
             'hasactionlinks' => !empty($this->actionlinks),

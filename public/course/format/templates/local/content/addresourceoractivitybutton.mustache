@@ -24,9 +24,7 @@
         "sectionnum": 0,
         "sectionid": 0,
         "modid": 1,
-        "activityname": "Activity example",
-        "sectionreturnnum": 0,
-        "sectionreturnid": 0
+        "activityname": "Activity example"
     }
 }}
 <button class="section-modchooser section-modchooser-link {{!
@@ -39,8 +37,6 @@
         so we use data-section-id instead for now.
     }}
     data-section-id="{{sectionid}}"
-    {{#sectionreturnnum}}data-sectionreturnnum="{{.}}"{{/sectionreturnnum}}
-    {{#sectionreturnid}}data-sectionreturnid="{{.}}"{{/sectionreturnid}}
     {{#modid}}
         data-beforemod="{{modid}}"
         aria-label="{{#str}}insertresourceoractivitybefore, core, { "activityname": {{#quote}} {{activityname}} {{/quote}} } {{/str}}"
