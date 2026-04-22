@@ -256,7 +256,6 @@ class controlmenu extends basecontrolmenu {
                 'class' => 'editing_moveright',
                 'data-action' => 'cmMoveRight',
                 'data-keepopen' => true,
-                'data-sectionreturn' => $this->format->get_sectionnum(),
                 'data-id' => $this->mod->id,
             ],
         );
@@ -290,7 +289,6 @@ class controlmenu extends basecontrolmenu {
                 'class' => 'editing_moveleft',
                 'data-action' => 'cmMoveLeft',
                 'data-keepopen' => true,
-                'data-sectionreturn' => $this->format->get_sectionnum(),
                 'data-id' => $this->mod->id,
             ],
         );
@@ -343,7 +341,6 @@ class controlmenu extends basecontrolmenu {
             attributes: [
                 'class' => 'editing_duplicate',
                 'data-action' => 'cmDuplicate',
-                'data-sectionreturn' => $this->format->get_sectionnum(),
                 'data-id' => $this->mod->id,
             ],
         );
@@ -368,7 +365,6 @@ class controlmenu extends basecontrolmenu {
             text: get_string('assignroles', 'role'),
             attributes: [
                 'class' => 'editing_assign',
-                'data-sectionreturn' => $this->format->get_sectionnum(),
             ],
         );
     }
@@ -443,7 +439,6 @@ class controlmenu extends basecontrolmenu {
             attributes: [
                 'class' => 'editing_delete text-danger',
                 'data-action' => 'cmDelete',
-                'data-sectionreturn' => $this->format->get_sectionnum(),
                 'data-id' => $this->mod->id,
             ],
         );

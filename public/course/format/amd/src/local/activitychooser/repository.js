@@ -200,8 +200,7 @@ export async function getModulesData(courseId, sectionNum, sectionReturnNum, bef
  *
  * @param {Number} courseId Course ID.
  * @param {Number} sectionId Section ID.
- * @param {Object|Number|null} returnOptions Options for generating the return URL.
- *          Alternatively, the section page to return to. Deprecated since Moodle 5.3 (MDL-86284).
+ * @param {Object} returnOptions Options for generating the return URL.
  * @param {Number} beforeMod Before module number to be used in the module.
  * @return {Object} Tab data.
  */
@@ -240,8 +239,7 @@ export async function getSectionModulesData(courseId, sectionId, returnOptions, 
  * @TODO remove legacySectionNum param in Moodle 6.0 (MDL-86310)
  * @param {Object} webServiceData Our original data from the Web service call
  * @param {Number} sectionId The number of the section we need to append to the links
- * @param {Object|Number|null} returnOptions Options for generating the return URL
- *      Alternatively, the number of the section page to return to. Deprecated since Moodle 4.3 (MDL-86284)
+ * @param {Object} returnOptions Options for generating the return URL
  * @param {Number|null} beforeMod The ID of the cm we need to append to the links
  * @param {Number|null} legacySectionNum The legacy section number to append to the links
  * @return {Array} [modules] with URL's built
@@ -257,12 +255,10 @@ function sectionMapper(webServiceData, sectionId, returnOptions, beforeMod, lega
     if (legacySectionNum) {
         urlParams += `&section=${legacySectionNum}`;
     }
-    if (returnOptions === null) {
-        log.debug("sectionMapper() 3rd parameter as null is deprecated. Use object with return options instead.");
+    if (returnOptions === null || !isNaN(returnOptions)) {
+        // TODO: Remove this in Moodle 8.0.
+        log.debug("sectionMapper() 3rd parameter as number or null is deprecated. Use object with return options instead.");
         returnOptions = {};
-    } else if (!isNaN(returnOptions)) {
-        log.debug("sectionMapper() 3rd parameter as number is deprecated. Use object with return options instead.");
-        returnOptions = {"sr": returnOptions};
     }
     for (let key in returnOptions) {
         urlParams += `&returnoptions[${key}]=${returnOptions[key]}`;

@@ -28,7 +28,7 @@ use core_courseformat\formatactions;
 require("../config.php");
 require_once("lib.php");
 
-$sectionreturn = optional_param('sr', null, PARAM_INT); // Deprecated since Moodle 5.3 (MDL-86284).
+$sectionreturn = optional_param('sr', null, PARAM_INT); // TODO: Remove this in Moodle 8.0.
 $returnoptions = optional_param_array('returnoptions', [], PARAM_INT);
 $add           = optional_param('add', '', PARAM_ALPHANUM);
 $type          = optional_param('type', '', PARAM_ALPHA);
@@ -56,17 +56,15 @@ foreach (compact('indent','update','hide','show','copy','moveto','movetosection'
 }
 // Force it to be null if it's not a valid section number.
 if ($sectionreturn < 0) {
+    // TODO: Remove this in Moodle 8.0.
     $sectionreturn = null;
 }
 if (!is_null($sectionreturn)) {
+    // TODO: Remove this in Moodle 8.0.
     debugging(
         'The sr parameter has been deprecated. Please use returnoptions[pagesectionid] instead.',
         DEBUG_DEVELOPER,
     );
-    if (!isset($returnoptions['sr'])) {
-        // TODO: Remove this in Moodle 7.0 (MDL-88498).
-        $returnoptions['sr'] = $sectionreturn;
-    }
 }
 if (!empty($returnoptions)) {
     $url->param('returnoptions', $returnoptions);

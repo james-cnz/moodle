@@ -28,7 +28,7 @@ require_once("lib.php");
 require_once($CFG->libdir . '/formslib.php');
 
 $id = required_param('id', PARAM_INT);    // course_sections.id
-$sectionreturn = optional_param('sr', null, PARAM_INT); // Deprecated since Moodle 5.3 (MDL-86284).
+$sectionreturn = optional_param('sr', null, PARAM_INT); // TODO: Remove this in Moodle 8.0.
 $returnoptions = optional_param_array('returnoptions', [], PARAM_INT);
 $deletesection = optional_param('delete', 0, PARAM_BOOL);
 $showonly = optional_param('showonly', 0, PARAM_TAGLIST);
@@ -36,14 +36,11 @@ $returnurl = optional_param('returnurl', null, PARAM_LOCALURL);
 
 $params = ['id' => $id];
 if (!is_null($sectionreturn)) {
+    // TODO: Remove this in Moodle 8.0.
     debugging(
         'The sr parameter has been deprecated. Please use returnoptions[pagesectionid] instead.',
         DEBUG_DEVELOPER,
     );
-    if (!isset($returnoptions['sr'])) {
-        // TODO: Remove this in Moodle 7.0 (MDL-88498).
-        $returnoptions['sr'] = $sectionreturn;
-    }
 }
 if (!empty($returnoptions)) {
     $params['returnoptions'] = $returnoptions;

@@ -35,26 +35,24 @@ $add    = optional_param('add', '', PARAM_ALPHANUM);     // Module name.
 $update = optional_param('update', 0, PARAM_INT);
 $return = optional_param('return', 0, PARAM_BOOL);    //return to course/view.php if false or mod/modname/view.php if true
 $type   = optional_param('type', '', PARAM_ALPHANUM); //TODO: hopefully will be removed in 2.0
-$sectionreturn = optional_param('sr', null, PARAM_INT); // Deprecated since Moodle 5.3 (MDL-86284).
+$sectionreturn = optional_param('sr', null, PARAM_INT); // TODO: Remove this in Moodle 8.0.
 $returnoptions = optional_param_array('returnoptions', [], PARAM_INT);
 $beforemod = optional_param('beforemod', 0, PARAM_INT);
 $showonly = optional_param('showonly', '', PARAM_TAGLIST); // Settings group to show expanded and hide the rest.
 
 // Force it to be null if it's not a valid section number.
 if ($sectionreturn < 0) {
+    // TODO: Remove this in Moodle 8.0.
     $sectionreturn = null;
 }
 
 $url = new moodle_url('/course/modedit.php');
 if (!is_null($sectionreturn)) {
+    // TODO: Remove this in Moodle 8.0.
     debugging(
         'The sr parameter has been deprecated. Please use returnoptions[pagesectionid] instead.',
         DEBUG_DEVELOPER,
     );
-    if (!isset($returnoptions['sr'])) {
-        // TODO: Remove this in Moodle 7.0 (MDL-88498).
-        $returnoptions['sr'] = $sectionreturn;
-    }
 }
 if (!is_null($returnoptions)) {
     $url->param('returnoptions', $returnoptions);

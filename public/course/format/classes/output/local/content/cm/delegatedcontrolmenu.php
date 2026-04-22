@@ -118,9 +118,11 @@ class delegatedcontrolmenu extends basecontrolmenu {
             [
                 'id' => $this->section->id,
                 'returnoptions' => $this->returnoptions,
-                'returnurl' => $this->baseurl,
             ]
         );
+        if ($this->baseurl) {
+            $url->param('returnurl', $this->baseurl);
+        }
 
         return new link_secondary(
                 url: $url,
@@ -212,8 +214,6 @@ class delegatedcontrolmenu extends basecontrolmenu {
             return null;
         }
 
-        $sectionreturn = $this->format->get_sectionnum();
-
         $strhide = get_string('hide');
         $strshow = get_string('show');
 
@@ -223,7 +223,6 @@ class delegatedcontrolmenu extends basecontrolmenu {
             $name = $strhide;
             $attributes = [
                 'class' => 'icon editing_showhide',
-                'data-sectionreturn' => $sectionreturn,
                 'data-action' => 'sectionHide',
                 'data-id' => $this->section->id,
                 'data-icon' => 'i/show',
@@ -236,7 +235,6 @@ class delegatedcontrolmenu extends basecontrolmenu {
             $name = $strshow;
             $attributes = [
                 'class' => 'editing_showhide',
-                'data-sectionreturn' => $sectionreturn,
                 'data-action' => 'sectionShow',
                 'data-id' => $this->section->id,
                 'data-icon' => 'i/hide',
@@ -321,7 +319,6 @@ class delegatedcontrolmenu extends basecontrolmenu {
             attributes: [
                 'class' => 'editing_delete text-danger',
                 'data-action' => 'cmDelete',
-                'data-sectionreturn' => $this->format->get_sectionnum(),
                 'data-id' => $this->mod->id,
             ],
         );
