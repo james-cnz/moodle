@@ -124,7 +124,9 @@ class format_weeks extends core_courseformat\base {
      * @param array $options options for view URL. At the moment core uses:
      *     'navigation' (bool) if true and section not empty, the function returns section page; otherwise, it returns course page.
      *     'sr' (int) used by course formats to specify to which section to return
-     * @return moodle_url
+     *     'urlcondition' (int) function returns null if bitwise conditions aren't met
+     *                      see URL_CONDITION_* constants
+     * @return moodle_url|null
      */
     public function get_view_url($section, $options = []) {
         $options['expanded'] = false;

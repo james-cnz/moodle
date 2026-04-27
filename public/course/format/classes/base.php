@@ -925,12 +925,17 @@ abstract class base {
      * @param array $options options for view URL. At the moment core uses:
      *     'navigation' (bool) if true and section not empty, the function returns section page; otherwise, it returns course page.
      *     'sr' (int) used by course formats to specify to which section to return
+     *     'urlcondition' (int) function returns null if bitwise conditions aren't met
+     *                      see URL_CONDITION_* constants
      *     'expanded' (bool) if true the section will be shown expanded, true by default
-     * @return null|moodle_url
+     * @return moodle_url|null
      */
     public function get_view_url($section, $options = []) {
         $course = $this->get_course();
-        $section = (is_object($section) || is_null($section)) ? $section : $this->get_section($section, IGNORE_MISSING);
+        $section = (is_null($section) || $section instanceof section_info) ?
+                    $section
+                    : $this->get_section($section, IGNORE_MISSING);
+        $urlcondition = $options['urlcondition'] ?? 0;
 
         // Determine page.
         if (array_key_exists('sr', $options)) {
@@ -939,6 +944,13 @@ abstract class base {
             $pagesection = $section;
         } else {
             $pagesection = null;
+        }
+
+        if (
+            ($urlcondition & URL_CONDITION_NAVIGATION) && $pagesection && !$pagesection->uservisible
+            || ($urlcondition & URL_CONDITION_PAGE) && $pagesection?->id != $section?->id
+        ) {
+            return null;
         }
 
         // Base URL.
@@ -1927,7 +1939,11 @@ abstract class base {
         $displayvalue = $title = get_section_name($section->course, $section);
         if ($linkifneeded) {
             // Display link under the section name if the course format setting is to display one section per page.
-            $url = course_get_url($section->course, $section->section, array('navigation' => true));
+            $url = course_get_url(
+                $section->course,
+                $section,
+                ['navigation' => true, 'urlcondition' => URL_CONDITION_NAVIGATION_PAGE]
+            );
             if ($url) {
                 $displayvalue = html_writer::link($url, $title);
             }
