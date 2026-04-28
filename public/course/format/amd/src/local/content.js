@@ -81,7 +81,7 @@ export default class Component extends BaseComponent {
         this.sections = {};
         this.cms = {};
         // The section number and ID of the displayed page.
-        this.sectionReturn = descriptor?.sectionReturn ?? null;
+        this.sectionReturn = descriptor?.sectionReturn ?? null; // Deprecated since Moodle 5.3 (MDL-88564).
         this.pageSectionId = descriptor?.pageSectionId ?? null;
         this.debouncedReloads = new Map();
     }
@@ -91,7 +91,7 @@ export default class Component extends BaseComponent {
      *
      * @param {string} target the DOM main element or its ID
      * @param {object} selectors optional css selector overrides
-     * @param {number} sectionReturn the section number of the displayed page
+     * @param {number|null} sectionReturn the section number of the displayed page. Deprecated since Moodle 5.3 (MDL-88564)
      * @param {number} pageSectionId the section ID of the displayed page
      * @return {Component}
      */
@@ -106,7 +106,7 @@ export default class Component extends BaseComponent {
             element,
             reactive: getCurrentCourseEditor(),
             selectors,
-            sectionReturn,
+            sectionReturn, // Deprecated since Moodle 5.3 (MDL-88564).
             pageSectionId,
         });
     }
@@ -224,7 +224,7 @@ export default class Component extends BaseComponent {
     getWatchers() {
         // Section return is a global page variable but most formats define it just before start printing
         // the course content. This is the reason why we define this page setting here.
-        this.reactive.sectionReturn = this?.sectionReturn ?? null;
+        this.reactive.sectionReturn = this?.sectionReturn ?? null; // Deprecated since Moodle 5.3 (MDL-88564).
         this.reactive.pageSectionId = this?.pageSectionId ?? null;
 
         // Check if the course format is compatible with reactive components.
@@ -492,6 +492,7 @@ export default class Component extends BaseComponent {
      */
     _refreshCourseSectionlist({state}) {
         // If we have a section return means we only show a single section so no need to fix order.
+        // The variable sectionReturn is deprecated since Moodle 5.3 (MDL-88564).
         if ((this.reactive?.sectionReturn ?? this.reactive?.pageSectionId) !== null) {
             return;
         }
@@ -617,7 +618,7 @@ export default class Component extends BaseComponent {
                 {
                     id: cmId,
                     courseid: Config.courseId,
-                    sr: this.reactive?.sectionReturn ?? null,
+                    sr: this.reactive?.sectionReturn ?? null, // Deprecated since Moodle 5.3 (MDL-88564).
                     pagesectionid: this.reactive?.pageSectionId ?? null,
                 }
             );
@@ -685,7 +686,7 @@ export default class Component extends BaseComponent {
                 {
                     id: element.id,
                     courseid: Config.courseId,
-                    sr: this.reactive?.sectionReturn ?? null,
+                    sr: this.reactive?.sectionReturn ?? null, // Deprecated since Moodle 5.3 (MDL-88564).
                     pagesectionid: this.reactive?.pageSectionId ?? null,
                 }
             );
