@@ -540,8 +540,23 @@ class format_weeks extends core_courseformat\base {
         return !$section->section || $section->visible;
     }
 
+    /**
+     * Callback used in WS core_course_edit_section when teacher performs an AJAX action on a section (show/hide).
+     *
+     * @param section_info|stdClass $section
+     * @param string $action
+     * @param int $sr
+     * @return null|array any data for the Javascript post-processor (must be json-encodeable)
+     * @deprecated since Moodle 6.0 (MDL-88564)
+     * @todo Final deprecation in Moodle 7.0 (MDL-90318)
+     */
+    #[\core\attribute\deprecated(
+        since: '6.0',
+        mdl: 'MDL-88564',
+    )]
     public function section_action($section, $action, $sr) {
         global $PAGE;
+        \core\deprecation::emit_deprecation_if_present([$this, __FUNCTION__]);
 
         // Call the parent method and return the new content for .section_availability element.
         $rv = parent::section_action($section, $action, $sr);

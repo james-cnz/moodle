@@ -253,7 +253,7 @@
 {{#js}}
 require(['core_courseformat/local/content'], function(component) {
     component.init(
-        '#page', {}, {{sectionreturn}}, {{#pagesectionid}}{{.}}{{/pagesectionid}}{{^pagesectionid}}null{{/pagesectionid}}
+        '#page', {}, null, {{#pagesectionid}}{{.}}{{/pagesectionid}}{{^pagesectionid}}null{{/pagesectionid}}
     );
 });
 {{/js}}

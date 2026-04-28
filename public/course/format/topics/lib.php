@@ -404,9 +404,16 @@ class format_topics extends core_courseformat\base {
      * @param string $action
      * @param int $sr
      * @return null|array any data for the Javascript post-processor (must be json-encodeable)
+     * @deprecated since Moodle 6.0 (MDL-88564)
+     * @todo Final deprecation in Moodle 7.0 (MDL-90318)
      */
+    #[\core\attribute\deprecated(
+        since: '6.0',
+        mdl: 'MDL-88564',
+    )]
     public function section_action($section, $action, $sr) {
         global $PAGE;
+        \core\deprecation::emit_deprecation_if_present([$this, __FUNCTION__]);
 
         if ($section->section && ($action === 'setmarker' || $action === 'removemarker')) {
             // Format 'topics' allows to set and remove markers in addition to common section actions.

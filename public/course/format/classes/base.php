@@ -2108,9 +2108,16 @@ abstract class base {
      * @param string $action
      * @param int $sr the section return
      * @return null|array|stdClass any data for the Javascript post-processor (must be json-encodeable)
+     * @deprecated since Moodle 6.0 (MDL-88564)
+     * @todo Final deprecation in Moodle 7.0 (MDL-90318)
      */
+    #[\core\attribute\deprecated(
+        since: '6.0',
+        mdl: 'MDL-88564',
+    )]
     public function section_action($section, $action, $sr) {
         global $PAGE;
+        \core\deprecation::emit_deprecation_if_present([$this, __FUNCTION__]);
         if (!$this->uses_sections() || !$section->section) {
             // No section actions are allowed if course format does not support sections.
             // No actions are allowed on the 0-section by default (overwrite in course format if needed).
@@ -2156,9 +2163,16 @@ abstract class base {
      *
      * @param section_info $section the section
      * @return string[] the full modules content.
+     * @deprecated since Moodle 6.0 (MDL-88564)
+     * @todo Final deprecation in Moodle 7.0 (MDL-90318)
      */
+    #[\core\attribute\deprecated(
+        since: '6.0',
+        mdl: 'MDL-88564',
+    )]
     protected function get_section_modules_updated(section_info $section): array {
         global $PAGE;
+        \core\deprecation::emit_deprecation_if_present([$this, __FUNCTION__]);
 
         $modules = [];
 

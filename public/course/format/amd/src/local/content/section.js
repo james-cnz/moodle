@@ -130,6 +130,8 @@ export default class extends DndSection {
      */
     validateDropData(dropdata) {
         // If the format uses one section per page sections dropping in the content is ignored.
+        // The variable sectionReturn is deprecated since Moodle 6.0 (MDL-88564).
+        // TODO: Remove sectionReturn in Moodle 7.0 (MDL-90318).
         if (dropdata?.type === 'section' && (this.reactive?.sectionReturn ?? this.reactive?.pageSectionId) !== null) {
             return false;
         }
