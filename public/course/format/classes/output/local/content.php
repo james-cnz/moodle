@@ -92,6 +92,7 @@ class content implements named_templatable, renderable {
             'sections' => $sections,
             'format' => $format->get_format(),
             'sectionreturn' => 'null', // Mustache templates don't display NULL, so pass a string value.
+                                        // Deprecated since Moodle 5.3 (MDL-88564).
             'pagesectionid' => $this->format->get_sectionid() ?? 'null', // Pass a string value if NULL.
         ];
 
@@ -107,7 +108,7 @@ class content implements named_templatable, renderable {
             }
             $data->hasnavigation = true;
             $data->singlesection = array_shift($data->sections);
-            $data->sectionreturn = $singlesectionnum;
+            $data->sectionreturn = $singlesectionnum; // Deprecated since Moodle 5.3 (MDL-88564).
         }
 
         if (empty($data->hasnavigation) && $format->get_course_display() != COURSE_DISPLAY_MULTIPAGE) {

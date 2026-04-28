@@ -409,6 +409,7 @@ class format_topics extends core_courseformat\base {
      * @param string $action
      * @param int $sr
      * @return null|array any data for the Javascript post-processor (must be json-encodeable)
+     * @deprecated since Moodle 5.3 (MDL-88564)
      */
     public function section_action($section, $action, $sr) {
         global $PAGE;

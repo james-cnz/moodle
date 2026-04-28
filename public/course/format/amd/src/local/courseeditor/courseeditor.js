@@ -54,6 +54,7 @@ export default class extends Reactive {
      * @attribute sectionReturn
      * @type number
      * @default null
+     * @deprecated since Moodle 5.3 (MDL-88564)
      */
     sectionReturn = null;
 

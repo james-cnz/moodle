@@ -245,7 +245,7 @@ function core_courseformat_output_fragment_cmitem($args): string {
     if (isset($args['pagesectionid'])) {
         $format->set_sectionid($args['pagesectionid']);
     } else if (isset($args['sr'])) {
-        $format->set_sectionnum($args['sr']);
+        $format->set_sectionnum($args['sr']); // Deprecated since Moodle 5.3 (MDL-88564).
     }
     $renderer = $format->get_renderer($PAGE);
     $section = $cm->get_section_info();
@@ -274,7 +274,7 @@ function core_courseformat_output_fragment_section($args): string {
     if (isset($args['pagesectionid'])) {
         $format->set_sectionid($args['pagesectionid']);
     } else if (isset($args['sr'])) {
-        $format->set_sectionnum($args['sr']);
+        $format->set_sectionnum($args['sr']); // Deprecated since Moodle 5.3 (MDL-88564).
     }
 
     $modinfo = $format->get_modinfo();

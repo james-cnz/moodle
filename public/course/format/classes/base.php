@@ -2058,6 +2058,7 @@ abstract class base {
      * @param string $action
      * @param int $sr the section return
      * @return null|array|stdClass any data for the Javascript post-processor (must be json-encodeable)
+     * @deprecated since Moodle 5.3 (MDL-88564)
      */
     public function section_action($section, $action, $sr) {
         global $PAGE;
@@ -2106,6 +2107,7 @@ abstract class base {
      *
      * @param section_info $section the section
      * @return string[] the full modules content.
+     * @deprecated since Moodle 5.3 (MDL-88564)
      */
     protected function get_section_modules_updated(section_info $section): array {
         global $PAGE;
