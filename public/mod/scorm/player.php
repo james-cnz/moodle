@@ -185,11 +185,11 @@ if (empty($scorm->popup) || $displaymode == 'popup') {
         ) {
             // Redirect students back to site home to avoid redirect loop.
             $exiturl = $CFG->wwwroot;
-        } else if ($coursedisplay == COURSE_DISPLAY_MULTIPAGE) {
-            // Redirect back to the current section if one section per page is being used.
-            $exiturl = course_get_url($course, $cm->sectionnum, ['sr' => $cm->sectionnum])->out();
+        } else if ($coursedisplay !== null) {
+            // Redirect back to the current section using course display setting.
+            $exiturl = course_get_url($course, $cm->sectionnum, ['navigation' => $coursedisplay])->out();
         } else {
-            // Redirect back to the current section anchor on the course page.
+            // Redirect back to the current section.
             $exiturl = course_get_url($course, $cm->sectionnum)->out();
         }
     }
