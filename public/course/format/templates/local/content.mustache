@@ -172,6 +172,14 @@
 <div id="course-format-{{uniqid}}">
     <h2 class="accesshide">{{{title}}}</h2>
     {{{completionhelp}}}
+    {{#hasnavigation}}
+        {{#sectionnavigation}}
+            {{$ core_courseformat/local/content/sectionnavigation }}
+                {{> core_courseformat/local/content/sectionnavigation }}
+            {{/ core_courseformat/local/content/sectionnavigation }}
+        {{/sectionnavigation}}
+    {{/hasnavigation}}
+    {{^singlesection}}
     <ul class="{{format}} section-list" data-for="course_sectionlist">
         {{#initialsection}}
             {{$ core_courseformat/local/content/section }}
@@ -184,26 +192,22 @@
             {{/ core_courseformat/local/content/section }}
         {{/sections}}
     </ul>
-    {{#hasnavigation}}
+    {{/singlesection}}
+    {{#singlesection}}
     <div class="single-section">
-        {{#sectionnavigation}}
-            {{$ core_courseformat/local/content/sectionnavigation }}
-                {{> core_courseformat/local/content/sectionnavigation }}
-            {{/ core_courseformat/local/content/sectionnavigation }}
-        {{/sectionnavigation}}
         <ul class="{{format}} section-list">
-        {{#singlesection}}
             {{$ core_courseformat/local/content/section }}
                 {{> core_courseformat/local/content/section }}
             {{/ core_courseformat/local/content/section }}
-        {{/singlesection}}
         </ul>
+    </div>
+    {{/singlesection}}
+    {{#hasnavigation}}
         {{#sectionselector}}
             {{$ core_courseformat/local/content/sectionselector }}
                 {{> core_courseformat/local/content/sectionselector }}
             {{/ core_courseformat/local/content/sectionselector }}
         {{/sectionselector}}
-    </div>
     {{/hasnavigation}}
     {{#numsections}}
         {{^singlesection}}
