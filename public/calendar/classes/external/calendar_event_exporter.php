@@ -296,7 +296,7 @@ class calendar_event_exporter extends event_exporter_base {
      * Get the correct minimum midnight day limit based on the event start time
      * and the minimum timestamp limit of what the event belongs to.
      *
-     * @param DateTimeInterface $starttime The event start time
+     * @param \DateTimeInterface $starttime The event start time
      * @param array $min The module's minimum limit for the event
      * @return array Returns an array with mindaytimestamp and mindayerror keys.
      */
@@ -340,7 +340,7 @@ class calendar_event_exporter extends event_exporter_base {
      * Get the correct maximum midnight day limit based on the event start time
      * and the maximum timestamp limit of what the event belongs to.
      *
-     * @param DateTimeInterface $starttime The event start time
+     * @param \DateTimeInterface $starttime The event start time
      * @param array $max The module's maximum limit for the event
      * @return array Returns an array with maxdaytimestamp and maxdayerror keys.
      */

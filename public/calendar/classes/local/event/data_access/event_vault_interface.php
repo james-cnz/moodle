@@ -95,7 +95,7 @@ interface event_vault_interface {
      * @param int             $timesortto   Events with timesort until this value (inclusive)
      * @param event_interface $afterevent   Only return events after this one
      * @param int             $limitnum     Return at most this number of events
-     * @param bool            $lmittononsuspendedevents Limit course events to courses the user is active in (not suspended).
+     * @param bool            $limittononsuspendedevents Limit course events to courses the user is active in (not suspended).
      * @param string|null     $searchvalue  The value a user wishes to search against
      * @return event_interface
      */

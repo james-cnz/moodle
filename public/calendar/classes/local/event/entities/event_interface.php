@@ -38,7 +38,7 @@ interface event_interface {
     /**
      * Get the event's ID.
      *
-     * @return integer
+     * @return int
      */
     public function get_id();
 

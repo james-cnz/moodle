@@ -2806,11 +2806,11 @@ final class externallib_test extends \core_external\tests\externallib_testcase {
      * @covers \core_calendar_external::get_calendar_event_by_id
      * @dataProvider get_calendar_event_by_id_prevent_read_other_users_events_data_provider
      *
-     * @param bool          $isadminevent      Is admin's event
-     * @param bool          $isadmin           Is current user admin user
-     * @param null|stdClass $readerrolecontext Reader role context
-     * @param null|string   $readerrolename    Role name
-     * @param bool          $expectexception   Should the test throw exception
+     * @param bool           $isadminevent      Is admin's event
+     * @param bool           $isadmin           Is current user admin user
+     * @param \stdClass|null $readerrolecontext Reader role context
+     * @param string|null    $readerrolename    Role name
+     * @param bool           $expectexception   Should the test throw exception
      */
     public function test_get_calendar_event_by_id_prevent_read_other_users_events(
             bool $isadminevent, bool $isadmin, ?\stdClass $readerrolecontext,
@@ -2876,11 +2876,11 @@ final class externallib_test extends \core_external\tests\externallib_testcase {
      *
      * @dataProvider edit_or_delete_other_users_events_data_provider
      * @covers \core_calendar_external::delete_calendar_events
-     * @param bool          $isadmin Whether the current user is admin.
-     * @param bool          $isadminevent Whether it's an admin event or not.
-     * @param stdClass|null $writerrolecontext The reader role context.
-     * @param string|null   $writerrolename The role name.
-     * @param bool          $expectexception Whether the test should throw an exception or not.
+     * @param bool           $isadmin Whether the current user is admin.
+     * @param bool           $isadminevent Whether it's an admin event or not.
+     * @param \stdClass|null $writerrolecontext The reader role context.
+     * @param string|null    $writerrolename The role name.
+     * @param bool           $expectexception Whether the test should throw an exception or not.
      */
     public function test_delete_other_users_events(bool $isadmin, bool $isadminevent,
             ?\stdClass $writerrolecontext, ?string $writerrolename, bool $expectexception): void {
@@ -2923,11 +2923,11 @@ final class externallib_test extends \core_external\tests\externallib_testcase {
      *
      * @dataProvider edit_or_delete_other_users_events_data_provider
      * @covers \core_calendar_external::submit_create_update_form
-     * @param bool          $isadmin Whether the current user is admin.
-     * @param bool          $isadminevent Whether it's an admin event or not.
-     * @param stdClass|null $writerrolecontext The reader role context.
-     * @param string|null   $writerrolename The role name.
-     * @param bool          $expectexception Whether the test should throw an exception or not.
+     * @param bool           $isadmin Whether the current user is admin.
+     * @param bool           $isadminevent Whether it's an admin event or not.
+     * @param \stdClass|null $writerrolecontext The reader role context.
+     * @param string|null    $writerrolename The role name.
+     * @param bool           $expectexception Whether the test should throw an exception or not.
      */
     public function test_edit_other_users_events(bool $isadmin, bool $isadminevent,
             ?\stdClass $writerrolecontext, ?string $writerrolename, bool $expectexception): void {

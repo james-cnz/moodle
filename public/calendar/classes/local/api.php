@@ -118,7 +118,7 @@ class api {
      * @param int|null $timesortto The end timesort value (inclusive)
      * @param int|null $aftereventid Only return events after this one
      * @param int $limitnum Limit results to this amount (between 1 and 50)
-     * @param bool $lmittononsuspendedevents Limit course events to courses the user is active in (not suspended).
+     * @param bool $limittononsuspendedevents Limit course events to courses the user is active in (not suspended).
      * @param \stdClass|null $user The user id or false for $USER
      * @param string|null $searchvalue The value a user wishes to search against
      * @return array A list of action_event_interface objects
@@ -241,7 +241,7 @@ class api {
      * modified, the time of day for the event will be left as is.
      *
      * @param event_interface $event The existing event to modify
-     * @param DateTimeInterface $startdate The new date to use for the start day
+     * @param \DateTimeInterface $startdate The new date to use for the start day
      * @return event_interface The new event with updated start date
      */
     public static function update_event_start_day(
