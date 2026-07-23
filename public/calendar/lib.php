@@ -1345,13 +1345,13 @@ class calendar_information {
  *
  * @param int $tstart Start time of time range for events
  * @param int $tend End time of time range for events
- * @param array|int|boolean $users array of users, user id or boolean for all/no user events
- * @param array|int|boolean $groups array of groups, group id or boolean for all/no group events
- * @param array|int|boolean $courses array of courses, course id or boolean for all/no course events
- * @param boolean $withduration whether only events starting within time range selected
- *                              or events in progress/already started selected as well
- * @param boolean $ignorehidden whether to select only visible events or all events
- * @param array|int|boolean $categories array of categories, category id or boolean for all/no course events
+ * @param array|int|bool $users array of users, user id or boolean for all/no user events
+ * @param array|int|bool $groups array of groups, group id or boolean for all/no group events
+ * @param array|int|bool $courses array of courses, course id or boolean for all/no course events
+ * @param bool $withduration whether only events starting within time range selected
+ *                           or events in progress/already started selected as well
+ * @param bool $ignorehidden whether to select only visible events or all events
+ * @param array|int|bool $categories array of categories, category id or boolean for all/no course events
  * @return array $events of selected events or an empty array if there aren't any (or there was an error)
  */
 function calendar_get_events($tstart, $tend, $users, $groups, $courses,
@@ -1687,7 +1687,7 @@ function calendar_set_filters(array $courseeventsfrom, $ignorefilters = false, ?
  * Can current user manage a non user event in system context.
  *
  * @param calendar_event|stdClass $event event object
- * @return boolean
+ * @return bool
  */
 function calendar_can_manage_non_user_event_in_system($event) {
     $sitecontext = \context_system::instance();
@@ -1705,7 +1705,7 @@ function calendar_can_manage_non_user_event_in_system($event) {
  * Return the capability for viewing a calendar event.
  *
  * @param calendar_event $event event object
- * @return boolean
+ * @return bool
  */
 function calendar_view_event_allowed(calendar_event $event) {
     global $USER;
@@ -2754,12 +2754,12 @@ function core_calendar_user_preferences() {
  *
  * @param int $tstart Start time of time range for events
  * @param int $tend End time of time range for events
- * @param array|int|boolean $users array of users, user id or boolean for all/no user events
- * @param array|int|boolean $groups array of groups, group id or boolean for all/no group events
- * @param array|int|boolean $courses array of courses, course id or boolean for all/no course events
- * @param boolean $withduration whether only events starting within time range selected
- *                              or events in progress/already started selected as well
- * @param boolean $ignorehidden whether to select only visible events or all events
+ * @param array|int|bool $users array of users, user id or boolean for all/no user events
+ * @param array|int|bool $groups array of groups, group id or boolean for all/no group events
+ * @param array|int|bool $courses array of courses, course id or boolean for all/no course events
+ * @param bool $withduration whether only events starting within time range selected
+ *                           or events in progress/already started selected as well
+ * @param bool $ignorehidden whether to select only visible events or all events
  * @param array $categories array of category ids and/or objects.
  * @param int $limitnum Number of events to fetch or zero to fetch all.
  *
@@ -2827,7 +2827,7 @@ function calendar_get_legacy_events($tstart, $tend, $users, $groups, $courses,
  * @param   bool    $includenavigation Whether to include navigation
  * @param   bool    $skipevents Whether to load the events or not
  * @param   int     $lookahead Overwrites site and users's lookahead setting.
- * @return  array[array, string]
+ * @return  array{object, string}
  */
 function calendar_get_view(\calendar_information $calendar, $view, $includenavigation = true, bool $skipevents = false,
         ?int $lookahead = null) {

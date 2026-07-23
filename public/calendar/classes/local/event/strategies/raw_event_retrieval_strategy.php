@@ -65,15 +65,16 @@ class raw_event_retrieval_strategy implements raw_event_retrieval_strategy_inter
     /**
      * The legacy implementation with minor tweaks.
      *
-     * @param array|int|boolean $users array of users, user id or boolean for all/no user events
-     * @param array|int|boolean $groups array of groups, group id or boolean for all/no group events
-     * @param array|int|boolean $courses array of courses, course id or boolean for all/no course events
+     * @param array|int|bool $users array of users, user id or boolean for all/no user events
+     * @param array|int|bool $groups array of groups, group id or boolean for all/no group events
+     * @param array|int|bool $courses array of courses, course id or boolean for all/no course events
+     * @param array|int|bool $categories array of category ids, category id or boolean for all/no category events
      * @param array $whereconditions The conditions in the WHERE clause.
      * @param array $whereparams The parameters for the WHERE clause.
      * @param string $ordersql The ORDER BY clause.
      * @param int $offset Offset.
      * @param int $limitnum Limit.
-     * @param boolean $ignorehidden whether to select only visible events or all events
+     * @param bool $ignorehidden whether to select only visible events or all events
      * @return array $events of selected events or an empty array if there aren't any (or there was an error)
      */
     protected function get_raw_events_legacy_implementation(

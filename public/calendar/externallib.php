@@ -79,7 +79,7 @@ class core_calendar_external extends external_api {
     /**
      * Delete Calendar events
      *
-     * @param array $eventids A list of event ids with repeat flag to delete
+     * @param array $events A list of event ids with repeat flag to delete
      * @return null
      * @since Moodle 2.5
      */

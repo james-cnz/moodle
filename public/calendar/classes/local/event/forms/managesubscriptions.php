@@ -161,7 +161,7 @@ class managesubscriptions extends \moodleform {
      * Replace webcal:// urls with http:// as
      * curl does not understand this protocol
      *
-     * @param string @url url to examine
+     * @param string $url url to examine
      * @return string url with webcal:// replaced
      */
     public static function strip_webcal($url) {
