@@ -52,7 +52,7 @@ defined('MOODLE_INTERNAL') || die();
  * @property-read int $newsitems Retrieved from DB on first request
  * @property-read int $startdate
  * @property-read int $enddate
- * @property-read int $marker Retrieved from DB on first request
+ * @property-read int $markerid Retrieved from DB on first request
  * @property-read int $maxbytes Retrieved from DB on first request
  * @property-read int $legacyfiles Retrieved from DB on first request
  * @property-read int $showreports Retrieved from DB on first request

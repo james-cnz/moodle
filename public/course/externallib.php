@@ -2883,7 +2883,7 @@ class core_course_external extends external_api {
                 'completionnotify' => new external_value(PARAM_INT, '1: yes 0: no', VALUE_OPTIONAL),
                 'lang' => new external_value(PARAM_SAFEDIR, 'Forced course language', VALUE_OPTIONAL),
                 'theme' => new external_value(PARAM_PLUGIN, 'Fame of the forced theme', VALUE_OPTIONAL),
-                'marker' => new external_value(PARAM_INT, 'Current course marker', VALUE_OPTIONAL),
+                'markerid' => new external_value(PARAM_INT, 'Current course marker ID', VALUE_OPTIONAL),
                 'legacyfiles' => new external_value(PARAM_INT, 'If legacy files are enabled', VALUE_OPTIONAL),
                 'calendartype' => new external_value(PARAM_PLUGIN, 'Calendar type', VALUE_OPTIONAL),
                 'timecreated' => new external_value(PARAM_INT, 'Time when the course was created', VALUE_OPTIONAL),
@@ -3426,7 +3426,7 @@ class core_course_external extends external_api {
             // Return information for any user that can access the course.
             $coursefields = array('format', 'showgrades', 'newsitems', 'startdate', 'enddate', 'maxbytes', 'showreports', 'visible',
                 'groupmode', 'groupmodeforce', 'defaultgroupingid', 'enablecompletion', 'completionnotify', 'lang', 'theme',
-                'marker');
+                'markerid');
 
             // Course filters.
             $coursesdata[$course->id]['filters'] = filter_get_available_in_context($context);

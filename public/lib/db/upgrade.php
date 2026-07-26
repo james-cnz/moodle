@@ -2164,5 +2164,49 @@ function xmldb_main_upgrade($oldversion) {
         upgrade_main_savepoint(true, 2026080300.00);
     }
 
+    if ($oldversion < 2026080701.00) {
+        // Define field markerid to be added to course.
+        $table = new xmldb_table('course');
+        $oldfield = new xmldb_field('marker');
+        $field = new xmldb_field(
+            'markerid',
+            XMLDB_TYPE_INTEGER,
+            '10',
+            null,
+            XMLDB_NOTNULL,
+            null,
+            '0',
+            'relativedatesmode'
+        );
+
+        // Conditionally launch add field markerid.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+            // Import data from old field marker.
+            if ($dbman->field_exists($table, $oldfield)) {
+                $sql = '
+                    UPDATE {course} c
+                    SET markerid = COALESCE (
+                        (
+                            SELECT cs.id
+                            FROM {course_sections} cs
+                            WHERE c.marker <> 0 AND cs.course = c.id AND cs.section = c.marker
+                        ),
+                        0
+                    )
+                ';
+                $DB->execute($sql);
+            }
+        }
+
+        // Drop old field marker.
+        if ($dbman->field_exists($table, $oldfield)) {
+            $dbman->drop_field($table, $oldfield);
+        }
+
+        // Main savepoint reached.
+        upgrade_main_savepoint(true, 2026080701.00);
+    }
+
     return true;
 }

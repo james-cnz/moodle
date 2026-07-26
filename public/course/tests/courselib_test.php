@@ -1038,50 +1038,6 @@ final class courselib_test extends advanced_testcase {
         $this->assertEquals($oldsections[6], $sections[4]);
     }
 
-    public function test_move_section_marker(): void {
-        global $DB;
-        $this->resetAfterTest(true);
-
-        $this->getDataGenerator()->create_course(array('numsections'=>5), array('createsections'=>true));
-        $course = $this->getDataGenerator()->create_course(array('numsections'=>10), array('createsections'=>true));
-
-        // Set course marker to the section we are going to move..
-        $sectioninfo = get_fast_modinfo($course->id)->get_section_info(2);
-        \core_courseformat\formatactions::section($course->id)->set_marker($sectioninfo, true);
-
-        // Verify that the course marker is set correctly.
-        $course = $DB->get_record('course', array('id' => $course->id));
-        $this->assertEquals(2, $course->marker);
-
-        // Test move the marked section down..
-        move_section_to($course, 2, 4);
-
-        // Verify that the course marker has been moved along with the section..
-        $course = $DB->get_record('course', array('id' => $course->id));
-        $this->assertEquals(4, $course->marker);
-
-        // Test move the marked section up..
-        move_section_to($course, 4, 3);
-
-        // Verify that the course marker has been moved along with the section..
-        $course = $DB->get_record('course', array('id' => $course->id));
-        $this->assertEquals(3, $course->marker);
-
-        // Test moving a non-marked section above the marked section..
-        move_section_to($course, 4, 2);
-
-        // Verify that the course marker has been moved down to accomodate..
-        $course = $DB->get_record('course', array('id' => $course->id));
-        $this->assertEquals(4, $course->marker);
-
-        // Test moving a non-marked section below the marked section..
-        move_section_to($course, 3, 6);
-
-        // Verify that the course marker has been up to accomodate..
-        $course = $DB->get_record('course', array('id' => $course->id));
-        $this->assertEquals(3, $course->marker);
-    }
-
     /**
      * Test move_section_to method with caching
      *

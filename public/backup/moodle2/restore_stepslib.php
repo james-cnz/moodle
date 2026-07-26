@@ -1717,6 +1717,7 @@ class restore_section_structure_step extends restore_structure_step {
 
         // Annotate the section mapping, with restorefiles option if needed
         $this->set_mapping('course_section', $oldid, $newitemid, $restorefiles);
+        $this->set_mapping('course_section_num_to_id', $data->number, $newitemid);
 
         // set the new course_section id in the task
         $this->task->set_sectionid($newitemid);
@@ -2284,6 +2285,44 @@ class restore_course_legacy_files_step extends restore_execution_step {
             $DB->set_field('course', 'legacyfiles', 2, array('id' => $this->get_courseid()));
             restore_dbops::send_files_to_pool($this->get_basepath(), $this->get_restoreid(), 'course',
                 'legacy', $this->task->get_old_contextid(), $this->task->get_userid());
+        }
+    }
+}
+
+/**
+ * Structure step that will do final course restore tasks
+ */
+class restore_course_final_structure_step extends restore_structure_step {
+    /**
+     * The structure of the course final step
+     *
+     * @return restore_path_element[]
+     */
+    protected function define_structure(): array {
+        $paths = [];
+        $paths[] = new restore_path_element('course_final', '/course');
+        return $paths;
+    }
+
+    /**
+     * Processing functions go here
+     *
+     * @param stdClass|array $data
+     */
+    public function process_course_final($data): void {
+        global $DB;
+
+        $data = (object)$data;
+        $data->id = $this->get_courseid();
+
+        $newmarkerid = 0;
+        if ($data->markerid ?? false) {
+            $newmarkerid = $this->get_mappingid('course_section', $data->markerid, 0);
+        } else if ($data->marker ?? false) {
+            $newmarkerid = $this->get_mappingid('course_section_num_to_id', $data->marker, 0);
+        }
+        if ($newmarkerid) {
+            $DB->set_field('course', 'markerid', $newmarkerid, ['id' => $data->id]);
         }
     }
 }

@@ -575,7 +575,7 @@ final class externallib_test extends \core_external\tests\externallib_testcase {
             'showgrades'       => true,
             'startdate'        => $timenow,
             'enddate'          => $timenow + WEEKSECS,
-            'marker'           => 1
+            'markerid'         => 0,
         );
 
         $coursedata2 = array(

@@ -1687,18 +1687,16 @@ abstract class base {
     /**
      * Returns true if the specified section is current
      *
-     * By default we analyze $course->marker
+     * By default we analyze $course->markerid
      *
      * @param int|stdClass|section_info $section
      * @return bool
      */
     public function is_section_current($section) {
-        if (is_object($section)) {
-            $sectionnum = $section->section;
-        } else {
-            $sectionnum = $section;
+        if (!is_object($section)) {
+            $section = $this->get_section($section, MUST_EXIST);
         }
-        return ($sectionnum && ($course = $this->get_course()) && $course->marker == $sectionnum);
+        return ($section->section && ($course = $this->get_course()) && $course->markerid == $section->id);
     }
 
     /**
@@ -1832,7 +1830,7 @@ abstract class base {
         $course = $this->get_course();
 
         // Remove the marker if it points to this section.
-        if ($section->section == $course->marker) {
+        if ($section->id == $course->markerid) {
             \core_courseformat\formatactions::section($course->id)->remove_all_markers();
         }
 

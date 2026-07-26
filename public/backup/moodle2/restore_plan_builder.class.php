@@ -29,6 +29,7 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/backup/moodle2/restore_root_task.class.php');
 require_once($CFG->dirroot . '/backup/moodle2/restore_course_task.class.php');
+require_once($CFG->dirroot . '/backup/moodle2/restore_course_final_task.class.php');
 require_once($CFG->dirroot . '/backup/moodle2/restore_section_task.class.php');
 require_once($CFG->dirroot . '/backup/moodle2/restore_activity_task.class.php');
 require_once($CFG->dirroot . '/backup/moodle2/restore_final_task.class.php');
@@ -248,5 +249,9 @@ abstract class restore_plan_builder {
             }
             self::build_section_plan($controller, $sectionid);
         }
+
+        // Add final task.
+        $task = new restore_course_final_task($info->course->title . " final", $info->course);
+        $plan->add_task($task);
     }
 }

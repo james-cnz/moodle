@@ -110,7 +110,7 @@ class controlmenu extends controlmenu_base {
         $highlighton = get_string('highlight');
         $highlightonicon = 'i/marker';
 
-        if ($course->marker == $section->sectionnum) {  // Show the "light globe" on/off.
+        if ($course->markerid == $section->id) {  // Show the "light globe" on/off.
             $action = 'section_unhighlight';
             $icon = $highlightofficon;
             $name = $highlightoff;
@@ -182,7 +182,7 @@ class controlmenu extends controlmenu_base {
         $highlighton = get_string('highlight');
         $highlightonicon = 'i/marker';
 
-        if ($course->marker == $section->section) {  // Show the "light globe" on/off.
+        if ($course->markerid == $section->id) {  // Show the "light globe" on/off.
             $url->param('marker', 0);
             $result = [
                 'url' => $url,
