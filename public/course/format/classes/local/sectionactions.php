@@ -497,20 +497,6 @@ class sectionactions extends baseactions {
             }
         }
 
-        // If we move the highlighted section itself, then just highlight the destination.
-        // Adjust the higlighted section location if we move something over it either direction.
-        $marker = null;
-        if ($sectionposition == $this->course->marker) {
-            $marker = $targetposition;
-        } else if ($sectionposition > $this->course->marker && $this->course->marker >= $targetposition) {
-            $marker = $this->course->marker + 1;
-        } else if ($sectionposition < $this->course->marker && $this->course->marker <= $targetposition) {
-            $marker = $this->course->marker - 1;
-        }
-        if ($marker !== null) {
-            $this->set_marker_internal($marker);
-        }
-
         $transaction->allow_commit();
         rebuild_course_cache($this->course->id, true, true);
         return true;
@@ -668,38 +654,40 @@ class sectionactions extends baseactions {
             return;
         }
 
-        if ($this->course->marker == $sectioninfo->section) {
+        if ($this->course->markerid == $sectioninfo->id) {
             // Nothing to do because it's already marked.
             return;
         }
 
-        $this->set_marker_internal($sectioninfo->section);
+        $this->set_markerid_internal($sectioninfo->id);
     }
 
     /**
      * Removes any marker in the course.
      */
     public function remove_all_markers(): void {
-        if ($this->course->marker !== 0) {
-            $this->set_marker_internal(0);
+        if ($this->course->markerid !== 0) {
+            $this->set_markerid_internal(0);
         }
     }
 
     /**
-     * Set marker for the course.
+     * Set markerid for the course.
      *
-     * @param int $marker the section number to set as marker or 0 to remove any marker.
+     * @param int $markerid the section ID to set as marker or 0 to remove any marker.
      */
-    private function set_marker_internal(int $marker): void {
+    private function set_markerid_internal(int $markerid): void {
         global $DB, $COURSE;
 
-        $DB->set_field('course', 'marker', $marker, ['id' => $this->course->id]);
+        $DB->set_field('course', 'markerid', $markerid, ['id' => $this->course->id]);
         if ($COURSE && $COURSE->id == $this->course->id) {
-            $COURSE->marker = $marker;
+            $COURSE->markerid = $markerid;
         }
 
         // Make sure the cache is reset.
-        \course_modinfo::purge_course_section_cache_by_number($this->course->id, $marker);
+        if ($markerid) {
+            \course_modinfo::purge_course_section_cache_by_id($this->course->id, $markerid);
+        }
         rebuild_course_cache(
             courseid: $this->course->id,
             clearonly: true,

@@ -927,30 +927,31 @@ final class sectionactions_test extends \advanced_testcase {
         ]);
         $COURSE = get_course($course->id);
         $sectionactions = new sectionactions($course);
+        $sections = course_get_format($course)->get_sections();
 
         $this->assertFalse(course_get_format($course)->is_section_current(1));
         $this->assertFalse(course_get_format($course)->is_section_current(2));
-        $this->assertEquals(0, $COURSE->marker);
+        $this->assertEquals(0, $COURSE->markerid);
 
         // Highlight the section.
         $sectioninfo1 = get_fast_modinfo($course)->get_section_info(1);
         $sectionactions->set_marker($sectioninfo1, true);
         $this->assertTrue(course_get_format($course)->is_section_current(1));
         $this->assertFalse(course_get_format($course)->is_section_current(2));
-        $this->assertEquals(1, $COURSE->marker);
+        $this->assertEquals($sections[1]->id, $COURSE->markerid);
 
         // Highlight another section.
         $sectioninfo2 = get_fast_modinfo($course)->get_section_info(2);
         $sectionactions->set_marker($sectioninfo2, true);
         $this->assertFalse(course_get_format($course)->is_section_current(1));
         $this->assertTrue(course_get_format($course)->is_section_current(2));
-        $this->assertEquals(2, $COURSE->marker);
+        $this->assertEquals($sections[2]->id, $COURSE->markerid);
 
         // Unhighlight the section.
         $sectionactions->set_marker($sectioninfo2, false);
         $this->assertFalse(course_get_format($course)->is_section_current(1));
         $this->assertFalse(course_get_format($course)->is_section_current(2));
-        $this->assertEquals(0, $COURSE->marker);
+        $this->assertEquals(0, $COURSE->markerid);
     }
 
     /**
@@ -966,17 +967,18 @@ final class sectionactions_test extends \advanced_testcase {
         ]);
         $COURSE = get_course($course->id);
         $sectionactions = new sectionactions($course);
+        $sections = course_get_format($course)->get_sections();
 
         // Highlight the section.
         $sectioninfo1 = get_fast_modinfo($course)->get_section_info(1);
         $sectionactions->set_marker($sectioninfo1, true);
         $this->assertTrue(course_get_format($course)->is_section_current(1));
-        $this->assertEquals(1, $COURSE->marker);
+        $this->assertEquals($sections[1]->id, $COURSE->markerid);
 
         // Unhighlight the section.
         $sectionactions->remove_all_markers();
         $this->assertFalse(course_get_format($course)->is_section_current(1));
-        $this->assertEquals(0, $COURSE->marker);
+        $this->assertEquals(0, $COURSE->markerid);
     }
 
     /**

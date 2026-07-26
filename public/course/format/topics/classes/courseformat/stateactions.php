@@ -60,10 +60,10 @@ class stateactions extends stateactions_base {
 
         // Get the previous marked section.
         $modinfo = get_fast_modinfo($course);
-        $previousmarker = $DB->get_field("course", "marker", ['id' => $course->id]);
+        $previousmarkerid = $DB->get_field("course", "markerid", ['id' => $course->id]);
 
         $section = $modinfo->get_section_info_by_id(reset($ids), MUST_EXIST);
-        if ($section->section == $previousmarker) {
+        if ($section->id == $previousmarkerid) {
             return;
         }
 
@@ -71,9 +71,8 @@ class stateactions extends stateactions_base {
         $sectioninfo = get_fast_modinfo($course->id)->get_section_info($section->section);
         \core_courseformat\formatactions::section($course->id)->set_marker($sectioninfo, true);
         $updates->add_section_put($section->id);
-        if ($previousmarker) {
-            $section = $modinfo->get_section_info($previousmarker);
-            $updates->add_section_put($section->id);
+        if ($previousmarkerid) {
+            $updates->add_section_put($previousmarkerid);
         }
     }
 
@@ -103,15 +102,13 @@ class stateactions extends stateactions_base {
 
         // Get the previous marked section and unmark it.
         $modinfo = get_fast_modinfo($course);
-        $previousmarker = $DB->get_field("course", "marker", ['id' => $course->id]);
+        $previousmarkerid = $DB->get_field("course", "markerid", ['id' => $course->id]);
         \core_courseformat\formatactions::section($course->id)->remove_all_markers();
-        $section = $modinfo->get_section_info($previousmarker, MUST_EXIST);
-        $updates->add_section_put($section->id);
+        $updates->add_section_put($previousmarkerid);
 
         foreach ($ids as $sectionid) {
-            $section = $modinfo->get_section_info_by_id($sectionid, MUST_EXIST);
-            if ($section->section != $previousmarker) {
-                $updates->add_section_put($section->id);
+            if ($sectionid != $previousmarkerid) {
+                $updates->add_section_put($sectionid);
             }
         }
     }

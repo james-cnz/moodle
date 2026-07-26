@@ -88,7 +88,6 @@ final class stateactions_test extends \advanced_testcase {
 
         // Actions have an array of ids as param but only the first one will be highlighted.
         $highlightid = reset($methodparam);
-        $highlight = $sectionrecords[$highlightid];
 
         if ($expectedexception) {
             $this->expectException(moodle_exception::class);
@@ -112,7 +111,7 @@ final class stateactions_test extends \advanced_testcase {
         $this->assertEquals(1, $update->fields->current);
 
         // Check DB sections.
-        $this->assertEquals($highlight->section, $DB->get_field("course", "marker", ['id' => $course->id]));
+        $this->assertEquals($highlightid, $DB->get_field("course", "markerid", ['id' => $course->id]));
     }
 
     /**
@@ -182,7 +181,7 @@ final class stateactions_test extends \advanced_testcase {
         }
 
         // Check DB sections.
-        $this->assertEquals(0, $DB->get_field("course", "marker", ['id' => $course->id]));
+        $this->assertEquals(0, $DB->get_field("course", "markerid", ['id' => $course->id]));
     }
 
     /**

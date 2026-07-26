@@ -43,11 +43,12 @@ $course = $format->get_course();
 $context = context_course::instance($course->id);
 
 if (($marker >= 0) && has_capability('moodle/course:setcurrentsection', $context) && confirm_sesskey()) {
-    $course->marker = $marker;
     if ($marker == 0) {
+        $course->markerid = 0;
         \core_courseformat\formatactions::section($course->id)->remove_all_markers();
     } else {
         $sectioninfo = get_fast_modinfo($course->id)->get_section_info($marker);
+        $course->markerid = $sectioninfo->id;
         \core_courseformat\formatactions::section($course->id)->set_marker($sectioninfo, true);
     }
 }
