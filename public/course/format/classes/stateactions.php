@@ -48,6 +48,7 @@ class stateactions {
      * @param int[] $ids the list of affected course module ids
      * @param int|null $targetsectionid optional target section id
      * @param int|null $targetcmid optional target cm id
+     * @return (cm_info|stdClass)[]
      * @throws moodle_exception
      */
     public function cm_move(
@@ -56,7 +57,7 @@ class stateactions {
         array $ids,
         ?int $targetsectionid = null,
         ?int $targetcmid = null
-    ): void {
+    ) {
         // Validate target elements.
         if (!$targetsectionid && !$targetcmid) {
             throw new moodle_exception("Action cm_move requires targetsectionid or targetcmid");
@@ -115,6 +116,8 @@ class stateactions {
         foreach (array_keys($originalsections) as $sectionid) {
             $updates->add_section_put($sectionid);
         }
+
+        return [];
     }
 
     /**
@@ -154,6 +157,7 @@ class stateactions {
      * @param int[] $ids the list of affected course module ids
      * @param int|null $targetsectionid optional target section id
      * @param int|null $targetcmid optional target cm id
+     * @return (section_info|stdClass)[]
      */
     public function section_move_after(
         stateupdates $updates,
@@ -161,7 +165,7 @@ class stateactions {
         array $ids,
         ?int $targetsectionid = null,
         ?int $targetcmid = null
-    ): void {
+    ) {
         // Validate target elements.
         if (!$targetsectionid) {
             throw new moodle_exception("Action section_move_after requires targetsectionid");
@@ -204,6 +208,8 @@ class stateactions {
         }
         // The section order is at a course level.
         $updates->add_course_put();
+
+        return [];
     }
 
     /**
@@ -239,6 +245,7 @@ class stateactions {
      * @param int[] $ids not used
      * @param int|null $targetsectionid optional target section id (if not passed section will be appended)
      * @param int|null $targetcmid not used
+     * @return (section_info|stdClass)[]
      */
     public function section_add(
         stateupdates $updates,
@@ -246,7 +253,7 @@ class stateactions {
         array $ids = [],
         ?int $targetsectionid = null,
         ?int $targetcmid = null
-    ): void {
+    ) {
 
         $coursecontext = context_course::instance($course->id);
         require_capability('moodle/course:update', $coursecontext);
@@ -265,10 +272,13 @@ class stateactions {
             $insertposition = 0;
         }
 
-        course_create_section($course, $insertposition);
+        $result = [];
+        $result[] = course_create_section($course, $insertposition);
 
         // Adding a section affects the full course structure.
         $this->course_state($updates, $course);
+
+        return $result;
     }
 
     /**
@@ -281,6 +291,7 @@ class stateactions {
      * @param int[] $ids section ids
      * @param int|null $targetsectionid not used
      * @param int|null $targetcmid not used
+     * @return (section_info|stdClass)[]
      */
     public function section_delete(
         stateupdates $updates,
@@ -288,7 +299,7 @@ class stateactions {
         array $ids = [],
         ?int $targetsectionid = null,
         ?int $targetcmid = null
-    ): void {
+    ) {
 
         $coursecontext = context_course::instance($course->id);
         require_capability('moodle/course:update', $coursecontext);
@@ -314,6 +325,8 @@ class stateactions {
 
         // Removing a section affects the full course structure.
         $this->course_state($updates, $course);
+
+        return [];
     }
 
     /**
@@ -324,6 +337,7 @@ class stateactions {
      * @param int[] $ids section ids
      * @param int|null $targetsectionid not used
      * @param int|null $targetcmid not used
+     * @return (section_info|stdClass)[]
      */
     public function section_duplicate(
         stateupdates $updates,
@@ -331,19 +345,22 @@ class stateactions {
         array $ids = [],
         ?int $targetsectionid = null,
         ?int $targetcmid = null
-    ): void {
+    ) {
         $coursecontext = context_course::instance($course->id);
         require_capability('moodle/course:update', $coursecontext);
 
+        $result = [];
         foreach ($ids as $sectionid) {
             // We need to get the latest modinfo on each iteration because the section numbers change.
             $modinfo = get_fast_modinfo($course);
             $section = $modinfo->get_section_info_by_id($sectionid, MUST_EXIST);
-            course_get_format($course->id)->duplicate_section($section);
+            $result[] = course_get_format($course->id)->duplicate_section($section);
         }
 
         // Adding a section affects the full course structure.
         $this->course_state($updates, $course);
+
+        return $result;
     }
 
     /**
@@ -354,6 +371,7 @@ class stateactions {
      * @param int[] $ids section ids
      * @param int|null $targetsectionid not used
      * @param int|null $targetcmid not used
+     * @return (section_info|stdClass)[]
      */
     public function section_hide(
         stateupdates $updates,
@@ -361,8 +379,9 @@ class stateactions {
         array $ids = [],
         ?int $targetsectionid = null,
         ?int $targetcmid = null
-    ): void {
+    ) {
         $this->set_section_visibility($updates, $course, $ids, 0);
+        return [];
     }
 
     /**
@@ -373,6 +392,7 @@ class stateactions {
      * @param int[] $ids section ids
      * @param int|null $targetsectionid not used
      * @param int|null $targetcmid not used
+     * @return (section_info|stdClass)[]
      */
     public function section_show(
         stateupdates $updates,
@@ -380,8 +400,9 @@ class stateactions {
         array $ids = [],
         ?int $targetsectionid = null,
         ?int $targetcmid = null
-    ): void {
+    ) {
         $this->set_section_visibility($updates, $course, $ids, 1);
+        return [];
     }
 
     /**
@@ -419,6 +440,7 @@ class stateactions {
      * @param int[] $ids cm ids
      * @param int|null $targetsectionid not used
      * @param int|null $targetcmid not used
+     * @return (cm_info|stdClass)[]
      */
     public function cm_show(
         stateupdates $updates,
@@ -426,8 +448,9 @@ class stateactions {
         array $ids = [],
         ?int $targetsectionid = null,
         ?int $targetcmid = null
-    ): void {
+    ) {
         $this->set_cm_visibility($updates, $course, $ids, 1, 1);
+        return [];
     }
 
     /**
@@ -438,6 +461,7 @@ class stateactions {
      * @param int[] $ids cm ids
      * @param int|null $targetsectionid not used
      * @param int|null $targetcmid not used
+     * @return (cm_info|stdClass)[]
      */
     public function cm_hide(
         stateupdates $updates,
@@ -445,8 +469,9 @@ class stateactions {
         array $ids = [],
         ?int $targetsectionid = null,
         ?int $targetcmid = null
-    ): void {
+    ) {
         $this->set_cm_visibility($updates, $course, $ids, 0, 1);
+        return [];
     }
 
     /**
@@ -457,6 +482,7 @@ class stateactions {
      * @param int[] $ids cm ids
      * @param int|null $targetsectionid not used
      * @param int|null $targetcmid not used
+     * @return (cm_info|stdClass)[]
      */
     public function cm_stealth(
         stateupdates $updates,
@@ -464,8 +490,9 @@ class stateactions {
         array $ids = [],
         ?int $targetsectionid = null,
         ?int $targetcmid = null
-    ): void {
+    ) {
         $this->set_cm_visibility($updates, $course, $ids, 1, 0);
+        return [];
     }
 
     /**
@@ -534,6 +561,7 @@ class stateactions {
      * @param int[] $ids course modules ids to duplicate
      * @param int|null $targetsectionid optional target section id destination
      * @param int|null $targetcmid optional target before cm id destination
+     * @return (cm_info|stdClass)[]
      */
     public function cm_duplicate(
         stateupdates $updates,
@@ -541,7 +569,7 @@ class stateactions {
         array $ids = [],
         ?int $targetsectionid = null,
         ?int $targetcmid = null
-    ): void {
+    ) {
         $this->validate_cms(
             $course,
             $ids,
@@ -574,6 +602,7 @@ class stateactions {
         }
 
         // Duplicate course modules.
+        $result = [];
         $affectedcmids = [];
         $action = formatactions::cm($course);
         foreach ($cms as $cm) {
@@ -591,6 +620,7 @@ class stateactions {
                 } else {
                     $affectedcmids[] = $newcm->id;
                 }
+                $result[] = $newcm;
             }
         }
 
@@ -599,6 +629,8 @@ class stateactions {
         } else {
             $this->cm_state($updates, $course, $affectedcmids);
         }
+
+        return $result;
     }
 
     /**
@@ -609,6 +641,7 @@ class stateactions {
      * @param int[] $ids section ids
      * @param int|null $targetsectionid not used
      * @param int|null $targetcmid not used
+     * @return (cm_info|stdClass)[]
      */
     public function cm_delete(
         stateupdates $updates,
@@ -616,7 +649,7 @@ class stateactions {
         array $ids = [],
         ?int $targetsectionid = null,
         ?int $targetcmid = null
-    ): void {
+    ) {
 
         $this->validate_cms($course, $ids, __FUNCTION__, ['moodle/course:manageactivities']);
 
@@ -635,6 +668,8 @@ class stateactions {
         foreach ($affectedsections as $sectionid => $section) {
             $updates->add_section_put($sectionid);
         }
+
+        return [];
     }
 
     /**
@@ -645,6 +680,7 @@ class stateactions {
      * @param int[] $ids cm ids
      * @param int|null $targetsectionid not used
      * @param int|null $targetcmid not used
+     * @return (cm_info|stdClass)[]
      */
     public function cm_moveright(
         stateupdates $updates,
@@ -652,8 +688,9 @@ class stateactions {
         array $ids = [],
         ?int $targetsectionid = null,
         ?int $targetcmid = null
-    ): void {
+    ) {
         $this->set_cm_indentation($updates, $course, $ids, 1);
+        return [];
     }
 
     /**
@@ -664,6 +701,7 @@ class stateactions {
      * @param int[] $ids cm ids
      * @param int|null $targetsectionid not used
      * @param int|null $targetcmid not used
+     * @return (cm_info|stdClass)[]
      */
     public function cm_moveleft(
         stateupdates $updates,
@@ -671,8 +709,9 @@ class stateactions {
         array $ids = [],
         ?int $targetsectionid = null,
         ?int $targetcmid = null
-    ): void {
+    ) {
         $this->set_cm_indentation($updates, $course, $ids, 0);
+        return [];
     }
 
     /**
@@ -716,6 +755,7 @@ class stateactions {
      * @param int[] $ids cm ids
      * @param int|null $targetsectionid not used
      * @param int|null $targetcmid not used
+     * @return (cm_info|stdClass)[]
      */
     public function cm_nogroups(
         stateupdates $updates,
@@ -723,8 +763,9 @@ class stateactions {
         array $ids = [],
         ?int $targetsectionid = null,
         ?int $targetcmid = null
-    ): void {
+    ) {
         $this->set_cm_groupmode($updates, $course, $ids, NOGROUPS);
+        return [];
     }
 
     /**
@@ -735,6 +776,7 @@ class stateactions {
      * @param int[] $ids cm ids
      * @param int|null $targetsectionid not used
      * @param int|null $targetcmid not used
+     * @return (cm_info|stdClass)[]
      */
     public function cm_visiblegroups(
         stateupdates $updates,
@@ -742,8 +784,9 @@ class stateactions {
         array $ids = [],
         ?int $targetsectionid = null,
         ?int $targetcmid = null
-    ): void {
+    ) {
         $this->set_cm_groupmode($updates, $course, $ids, VISIBLEGROUPS);
+        return [];
     }
 
     /**
@@ -754,6 +797,7 @@ class stateactions {
      * @param int[] $ids cm ids
      * @param int|null $targetsectionid not used
      * @param int|null $targetcmid not used
+     * @return (cm_info|stdClass)[]
      */
     public function cm_separategroups(
         stateupdates $updates,
@@ -761,8 +805,9 @@ class stateactions {
         array $ids = [],
         ?int $targetsectionid = null,
         ?int $targetcmid = null
-    ): void {
+    ) {
         $this->set_cm_groupmode($updates, $course, $ids, SEPARATEGROUPS);
+        return [];
     }
 
     /**
@@ -832,6 +877,7 @@ class stateactions {
      * @param int[] $ids the collapsed section ids
      * @param int|null $targetsectionid not used
      * @param int|null $targetcmid not used
+     * @return (section_info|stdClass)[]
      */
     public function section_content_collapsed(
         stateupdates $updates,
@@ -839,12 +885,13 @@ class stateactions {
         array $ids = [],
         ?int $targetsectionid = null,
         ?int $targetcmid = null,
-    ): void {
+    ) {
         if (!empty($ids)) {
             $this->validate_sections($course, $ids, __FUNCTION__);
         }
         $format = course_get_format($course->id);
         $format->add_section_preference_ids('contentcollapsed', $ids);
+        return [];
     }
 
     /**
@@ -855,6 +902,7 @@ class stateactions {
      * @param int[] $ids the collapsed section ids
      * @param int|null $targetsectionid not used
      * @param int|null $targetcmid not used
+     * @return (section_info|stdClass)[]
      */
     public function section_content_expanded(
         stateupdates $updates,
@@ -862,12 +910,13 @@ class stateactions {
         array $ids = [],
         ?int $targetsectionid = null,
         ?int $targetcmid = null,
-    ): void {
+    ) {
         if (!empty($ids)) {
             $this->validate_sections($course, $ids, __FUNCTION__);
         }
         $format = course_get_format($course->id);
         $format->remove_section_preference_ids('contentcollapsed', $ids);
+        return [];
     }
 
     /**
@@ -878,6 +927,7 @@ class stateactions {
      * @param int[] $ids the collapsed section ids
      * @param int|null $targetsectionid not used
      * @param int|null $targetcmid not used
+     * @return (section_info|stdClass)[]
      */
     public function section_index_collapsed(
         stateupdates $updates,
@@ -885,12 +935,13 @@ class stateactions {
         array $ids = [],
         ?int $targetsectionid = null,
         ?int $targetcmid = null,
-    ): void {
+    ) {
         if (!empty($ids)) {
             $this->validate_sections($course, $ids, __FUNCTION__);
         }
         $format = course_get_format($course->id);
         $format->add_section_preference_ids('indexcollapsed', $ids);
+        return [];
     }
 
     /**
@@ -901,6 +952,7 @@ class stateactions {
      * @param int[] $ids the collapsed section ids
      * @param int|null $targetsectionid not used
      * @param int|null $targetcmid not used
+     * @return (section_info|stdClass)[]
      */
     public function section_index_expanded(
         stateupdates $updates,
@@ -908,12 +960,13 @@ class stateactions {
         array $ids = [],
         ?int $targetsectionid = null,
         ?int $targetcmid = null,
-    ): void {
+    ) {
         if (!empty($ids)) {
             $this->validate_sections($course, $ids, __FUNCTION__);
         }
         $format = course_get_format($course->id);
         $format->remove_section_preference_ids('indexcollapsed', $ids);
+        return [];
     }
 
     /**
@@ -927,6 +980,7 @@ class stateactions {
      * @param int[] $ids the list of affected course module ids
      * @param int|null $targetsectionid optional target section id
      * @param int|null $targetcmid optional target cm id
+     * @return (cm_info|stdClass)[]
      */
     public function cm_state(
         stateupdates $updates,
@@ -934,7 +988,7 @@ class stateactions {
         array $ids,
         ?int $targetsectionid = null,
         ?int $targetcmid = null
-    ): void {
+    ) {
 
         // Collect all section and cm to return.
         $cmids = [];
@@ -967,6 +1021,8 @@ class stateactions {
         foreach (array_keys($sectionids) as $sectionid) {
             $updates->add_section_put($sectionid);
         }
+
+        return [];
     }
 
     /**
@@ -980,6 +1036,7 @@ class stateactions {
      * @param int[] $ids the list of affected course section ids
      * @param int|null $targetsectionid optional target section id
      * @param int|null $targetcmid optional target cm id
+     * @return (section_info|stdClass)[]
      */
     public function section_state(
         stateupdates $updates,
@@ -987,7 +1044,7 @@ class stateactions {
         array $ids,
         ?int $targetsectionid = null,
         ?int $targetcmid = null
-    ): void {
+    ) {
 
         $cmids = [];
         if ($targetcmid) {
@@ -1027,6 +1084,8 @@ class stateactions {
             // Add this action to updates array.
             $updates->add_cm_put($cmid);
         }
+
+        return [];
     }
 
     /**
@@ -1040,6 +1099,7 @@ class stateactions {
      * @param int[] $ids the list of affected course module ids (not used)
      * @param int|null $targetsectionid optional target section id (not used)
      * @param int|null $targetcmid optional target cm id (not used)
+     * @return stdClass[]
      */
     public function course_state(
         stateupdates $updates,
@@ -1047,7 +1107,7 @@ class stateactions {
         array $ids = [],
         ?int $targetsectionid = null,
         ?int $targetcmid = null
-    ): void {
+    ) {
 
         $modinfo = course_modinfo::instance($course);
 
@@ -1062,6 +1122,8 @@ class stateactions {
         if (!empty($sectionids)) {
             $this->section_state($updates, $course, $sectionids);
         }
+
+        return [];
     }
 
     /**
@@ -1204,7 +1266,7 @@ class stateactions {
         string $modname,
         int $targetsectionid,
         ?int $targetcmid = null
-    ): void {
+    ) {
         global $CFG;
         require_once($CFG->dirroot . '/course/modlib.php');
 

@@ -37,6 +37,7 @@ class stateactions extends core_actions {
      * @param int[] $ids the list of affected course module ids
      * @param int $targetsectionid optional target section id
      * @param int $targetcmid optional target cm id
+     * @return (\cm_info|stdClass)[]
      */
     public function cm_state(
         stateupdates $updates,
@@ -44,8 +45,9 @@ class stateactions extends core_actions {
         array $ids,
         ?int $targetsectionid = null,
         ?int $targetcmid = null
-    ): void {
+    ): array {
         $updates->add_cm_create(array_pop($ids));
+        return [];
     }
 
     /**
@@ -81,7 +83,7 @@ class stateactions extends core_actions {
         string $modname,
         int $targetsectionid,
         ?int $targetcmid = null
-    ): void {
+    ) {
     }
 
     /**
@@ -99,9 +101,10 @@ class stateactions extends core_actions {
         array $ids,
         ?int $targetsectionid = null,
         ?int $targetcmid = null
-    ): void {
+    ): array {
 
         $updates->add_cm_remove(array_pop($ids));
+        return [];
     }
 
     /**
@@ -119,9 +122,10 @@ class stateactions extends core_actions {
         array $ids,
         ?int $targetsectionid = null,
         ?int $targetcmid = null
-    ): void {
+    ): array {
 
         $updates->add_section_put($targetsectionid);
+        return [];
     }
 
     /**
@@ -139,9 +143,10 @@ class stateactions extends core_actions {
         array $ids,
         ?int $targetsectionid = null,
         ?int $targetcmid = null
-    ): void {
+    ): array {
 
         $updates->add_cm_put($targetcmid);
+        return [];
     }
 
 }
