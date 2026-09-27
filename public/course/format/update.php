@@ -126,7 +126,7 @@ if (!is_callable([$actions, $action])) {
 }
 
 // Execute the action.
-$actions->$action($updates, $course, $ids, $targetsectionid, $targetcmid);
+$result = $actions->$action($updates, $course, $ids, $targetsectionid, $targetcmid);
 
 // Dispatch the hook for post course content update.
 $hook = new \core_courseformat\hook\after_course_content_updated(
@@ -137,9 +137,19 @@ $hook = new \core_courseformat\hook\after_course_content_updated(
 // Don't return to the section if it's deleted.
 // And refresh the return URL in case it's changed.
 if ($returnoptions) {
-    $returnsection = $returnsectionid
-        ? $format->get_modinfo()->get_section_info_by_id($returnsectionid, IGNORE_MISSING)
-        : null;
+    if ($result) {
+        if (str_starts_with($action, 'section_')) {
+            $returnsection = $result[0];
+        } else if (str_starts_with($action, 'cm_')) {
+            $returnsection = $format->get_modinfo()->get_section_info_by_id($result[0]->section, IGNORE_MISSING);
+        } else {
+            $returnsection = null;
+        }
+    } else {
+        $returnsection = $returnsectionid
+            ? $format->get_modinfo()->get_section_info_by_id($returnsectionid, IGNORE_MISSING)
+            : null;
+    }
     $returnurl = $format->get_view_url($returnsection, $returnoptions);
 }
 
