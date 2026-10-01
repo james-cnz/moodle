@@ -2251,7 +2251,7 @@ function redirect($url, $message='', $delay=null, $messagetype = \core\output\no
     $url = str_replace('"', '%22', $url);
     $encodedurl = preg_replace("/\&(?![a-zA-Z0-9#]{1,8};)/", "&amp;", $url);
     $encodedurl = preg_replace('/^.*href="([^"]*)".*$/', "\\1", clean_text('<a href="'.$encodedurl.'" />', FORMAT_HTML));
-    $url = str_replace('&amp;', '&', $encodedurl);
+    $url = str_replace('&amp;', '&', $url);
 
     if (!empty($message)) {
         if (!$debugdisableredirect && !headers_sent()) {
