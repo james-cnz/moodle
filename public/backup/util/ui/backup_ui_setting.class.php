@@ -599,9 +599,9 @@ class backup_setting_ui_radio extends backup_setting_ui {
     }
     /**
      * Sets the text next to this input
-     * @param text $text
+     * @param string $text
      */
-    public function set_text($text) {
+    public function set_text(string $text) {
         $this->text = $text;
     }
     /**

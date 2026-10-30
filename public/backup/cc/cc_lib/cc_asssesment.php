@@ -1452,9 +1452,9 @@ class cc_assesment_render_fibtype extends cc_question_metadata_base {
     /**
      *
      * Enter description here ...
-     * @var unknown_type
+     * @var cc_assessment_flow_labeltype
      */
-    protected $flow_label = null;
+    protected ?cc_assessment_flow_labeltype $flow_label = null;
 
 
     public function __construct() {
@@ -1965,13 +1965,13 @@ abstract class cc_assesment_helper {
      *
      * Enter description here ...
      * @param XMLGenericDocument $qdoc
-     * @param unknown_type $manifest
+     * @param cc_manifest $manifest
      * @param cc_assesment_section $section
-     * @param unknown_type $rootpath
-     * @param unknown_type $contextid
-     * @param unknown_type $outdir
+     * @param string $rootpath
+     * @param int $contextid
+     * @param string $outdir
      */
-    public static function process_questions(&$qdoc, &$manifest, cc_assesment_section &$section, $rootpath, $contextid, $outdir) {
+    public static function process_questions(&$qdoc, ?cc_manifest &$manifest, cc_assesment_section &$section, string $rootpath, int $contextid, string $outdir) {
         $question_file = $rootpath . DIRECTORY_SEPARATOR . 'questions.xml';
         //load questions file
         $questions = new XMLGenericDocument();
@@ -2153,6 +2153,7 @@ class cc_assesment_question_proc_base {
     protected $incorrect_feedbacks = array();
 
     /**
+     * @param XMLGenericDocument $quiz
      * @param XMLGenericDocument $questions
      * @param cc_manifest $manifest
      * @param cc_assesment_section $section
@@ -2161,7 +2162,7 @@ class cc_assesment_question_proc_base {
      * @param string $contextid
      * @param string $outdir
      */
-    public function __construct(XMLGenericDocument &$quiz, XMLGenericDocument &$questions, cc_manifest &$manifest, cc_assesment_section &$section, &$question_node, $rootpath, $contextid, $outdir) {
+    public function __construct(?XMLGenericDocument &$quiz, XMLGenericDocument &$questions, cc_manifest &$manifest, cc_assesment_section &$section, &$question_node, $rootpath, $contextid, $outdir) {
         $this->quiz = $quiz;
         $this->questions = $questions;
         $this->manifest = $manifest;

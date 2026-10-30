@@ -107,9 +107,9 @@ class restore_ui extends base_ui {
      * @throws restore_ui_exception for an invalid stage
      * @param int|null $stage The desired stage to intialise or null for the default
      * @param array $params
-     * @return restore_ui_stage_initial|restore_ui_stage_schema|restore_ui_stage_confirmation|restore_ui_stage_final
+     * @return restore_ui_stage
      */
-    protected function initialise_stage($stage = null, ?array $params = null) {
+    protected function initialise_stage($stage = null, ?array $params = null): ?restore_ui_stage {
         if ($stage == null) {
             $stage = optional_param('stage', self::STAGE_CONFIRM, PARAM_INT);
         }

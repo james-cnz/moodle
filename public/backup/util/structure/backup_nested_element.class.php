@@ -193,9 +193,9 @@ class backup_nested_element extends base_nested_element implements processable {
     /**
      * Returns the results
      *
-     * @return associative array of results
+     * @return array associative array of results
      */
-    public function get_results() {
+    public function get_results(): array {
         return $this->results;
     }
 

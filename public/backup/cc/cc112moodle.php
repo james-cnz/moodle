@@ -181,7 +181,7 @@ class cc112moodle extends cc2moodle {
     * (non-PHPdoc)
     * @see cc2moodle::get_module_visible()
     */
-    protected function get_module_visible($identifier) {
+    protected function get_module_visible($identifier): int {
         //Should item be hidden or not
         $mod_visible = 1;
         if (!empty($identifier)) {

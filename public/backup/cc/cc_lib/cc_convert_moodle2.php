@@ -29,12 +29,12 @@ abstract class cc_convert_moodle2 {
     /**
      *
      * Enter description here ...
-     * @param unknown_type $packagedir
-     * @param unknown_type $outdir
+     * @param string $packagedir
+     * @param string $outdir
      * @throws DOMException
      * @throws InvalidArgumentException
      */
-    public static function convert($packagedir, $outdir) {
+    public static function convert(string $packagedir, string $outdir) {
         $dir = realpath($packagedir);
         if (empty($dir)) {
             throw new InvalidArgumentException('Directory does not exist!');
@@ -138,11 +138,13 @@ abstract class cc_convert_moodle2 {
     *
     * Process the activites and create item structure
     * @param cc_i_item $item
+    * @param cc_i_manifest $manifest
     * @param array $sequence
     * @param string $packageroot - directory path
+    * @param string $outdir
     * @throws DOMException
     */
-    protected static function process_sequence(cc_i_item &$item, cc_i_manifest &$manifest, array $sequence, $packageroot, $outdir) {
+    protected static function process_sequence(cc_i_item &$item, ?cc_i_manifest &$manifest, array $sequence, $packageroot, string $outdir) {
         $moodle_backup = $packageroot . DIRECTORY_SEPARATOR . 'moodle_backup.xml';
         $doc = new XMLGenericDocument();
         if(!$doc->load($moodle_backup)) {

@@ -71,9 +71,9 @@ class restore_controller extends base_controller {
     /**
      * Holds the relevant destination information for course copy operations.
      *
-     * @var \stdClass.
+     * @var \stdClass
      */
-    protected $copy;
+    protected ?\stdClass $copy;
 
     /**
      * Constructor.
