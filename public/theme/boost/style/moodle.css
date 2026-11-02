@@ -44422,7 +44422,7 @@ body {
   transform: translateY(100%);
   transition: transform 0.5s;
   will-change: transform;
-  z-index: 3;
+  z-index: 4;
   font-size: calc(1rem * 1.10);
 }
 .stickyfooter .sticky-footer-content-wrapper {
