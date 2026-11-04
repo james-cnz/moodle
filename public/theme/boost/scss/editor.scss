@@ -8,16 +8,19 @@ $code-color: #db1a74 !default;
  * Reset the Bootstrap _reboot.scss styles for tables.
  * That reboot is breaking non-BS tables in the editor.
  */
-table:not(.table) {
-    thead,
-    tbody,
-    tfoot,
-    tr,
-    td,
-    th {
-        border-color: $table-border-color;
-        border-style: solid;
-        border-width: $table-border-width;
+table[border]:not([border="0"]) {
+    &,
+    > thead,
+    > tbody,
+    > tfoot {
+        &,
+        > tr,
+        > tr > th,
+        > tr > td {
+            border-color: $table-border-color;
+            border-style: solid;
+            border-width: $table-border-width;
+        }
     }
 }
 
