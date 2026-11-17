@@ -95,7 +95,7 @@ export default function EventListItem({event, courseview = false}: EventListItem
                         <small className="mb-0">
                             {event.activitystr}
                             {!courseview && event.course?.fullnamedisplay && (
-                                <> &middot; {event.course.fullnamedisplay}</>
+                                <> &middot; <span dangerouslySetInnerHTML={{__html: event.course.fullnamedisplay}} /></>
                             )}
                         </small>
                     </div>
