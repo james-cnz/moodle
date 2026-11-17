@@ -81,7 +81,11 @@ function EventListItem({ event, courseview = false }) {
                 event.activitystr,
                 !courseview && event.course?.fullnamedisplay && /* @__PURE__ */ jsxDEV(Fragment, { children: [
                   " \xB7 ",
-                  event.course.fullnamedisplay
+                  /* @__PURE__ */ jsxDEV("span", { dangerouslySetInnerHTML: { __html: event.course.fullnamedisplay } }, void 0, false, {
+                    fileName: "public/blocks/timeline/js/esm/src/views/EventListItem.tsx",
+                    lineNumber: 98,
+                    columnNumber: 45
+                  }, this)
                 ] }, void 0, true, {
                   fileName: "public/blocks/timeline/js/esm/src/views/EventListItem.tsx",
                   lineNumber: 98,
