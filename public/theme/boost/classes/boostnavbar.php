@@ -72,17 +72,7 @@ class boostnavbar implements \renderable {
             // Remove any duplicate navbar nodes.
             $this->remove_duplicate_items();
             // Remove 'My courses' and 'Courses' if we are in the course context.
-            $this->remove('mycourses');
-            $this->remove('courses');
-            // Remove the course category breadcrumb nodes.
-            foreach ($this->items as $key => $item) {
-                // Remove if it is a course category breadcrumb node.
-                $this->remove($item->key, \breadcrumb_navigation_node::TYPE_CATEGORY);
-            }
-            // Remove the course breadcrumb node.
-            if (!str_starts_with($this->page->pagetype, 'course-view-section-')) {
-                $this->remove($this->page->course->id, \breadcrumb_navigation_node::TYPE_COURSE);
-            }
+            $this->remove_courses_item();
             // Remove the navbar nodes that already exist in the secondary navigation menu.
             $this->remove_items_that_exist_in_navigation($PAGE->secondarynav);
 
@@ -107,13 +97,8 @@ class boostnavbar implements \renderable {
 
         // Remove 'My courses' if we are in the module context.
         if ($this->page->context->contextlevel == CONTEXT_MODULE) {
-            $this->remove('mycourses');
-            $this->remove('courses');
-            // Remove the course category breadcrumb nodes.
+            $this->remove_courses_item();
             foreach ($this->items as $key => $item) {
-                // Remove if it is a course category breadcrumb node.
-                $this->remove($item->key, \breadcrumb_navigation_node::TYPE_CATEGORY);
-
                 // Module types not visible on the course main page cannot have a section breadcrumb.
                 if (!$this->page->cm->is_of_type_that_can_display() && $item->type === navigation_node::TYPE_SECTION) {
                     $this->remove($item->key, \breadcrumb_navigation_node::TYPE_SECTION);
@@ -262,8 +247,10 @@ class boostnavbar implements \renderable {
      */
     protected function remove_no_link_items(bool $removesections = true): void {
         foreach ($this->items as $key => $value) {
-            if (!$value->is_last() &&
-                    (!$value->has_action() || ($value->type == \navigation_node::TYPE_SECTION && $removesections))) {
+            if (
+                !$value->is_last() && !$value->has_action()
+                || ($value->type == \navigation_node::TYPE_SECTION) && $removesections
+            ) {
                 unset($this->items[$key]);
             }
         }
@@ -291,6 +278,9 @@ class boostnavbar implements \renderable {
         // Loop through the breadcrumb items and if the item's 'text' and 'action' values matches with any of the
         // existing navigation view items, remove it from the breadcrumbs.
         foreach ($this->items as $item) {
+            if ($item->key == 'courses' || $item->key == 'mycourses') {
+                continue;
+            }
             list($itemtext, $itemaction) = $this->get_node_text_and_action($item);
             if ($itemaction) {
                 if (array_key_exists($itemtext, $navigationviewitems) &&
@@ -321,6 +311,19 @@ class boostnavbar implements \renderable {
         }));
         // Reverse back the order.
         $this->items = array_reverse($filtereditems);
+    }
+
+    /**
+     * Remove 'Courses' or 'My courses' if categories are hidden.
+     */
+    protected function remove_courses_item(): void {
+        global $CFG;
+        if (empty($CFG->navshowcategories)) {
+            $this->remove('courses');
+        }
+        if (empty($CFG->enablemycourses) ? empty($CFG->navshowcategories) : empty($CFG->navshowmycoursecategories)) {
+            $this->remove('mycourses');
+        }
     }
 
     /**
